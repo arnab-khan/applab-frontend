@@ -1,0 +1,66 @@
+@use "./tailwind.config.css";
+
+/* ---------- Utilities ---------- */
+
+@utility long-gradient {
+    background-image: var(--long-gradient);
+}
+
+@utility light-gradient {
+    background-image: var(--light-gradient);
+}
+
+@utility small-gradient {
+    background-image: var(--small-gradient);
+}
+
+@utility fill-parent {
+    @apply block absolute top-0 left-0 w-full h-full;
+}
+
+/* ---------- Components ---------- */
+
+@layer components {
+    .gradient-background {
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+        @apply long-gradient;
+    }
+
+    .gradient-btn {
+        @apply relative overflow-hidden cursor-pointer disabled:cursor-auto px-4 py-3 rounded-lg text-white;
+
+        &::before {
+            content: "";
+            @apply fill-parent small-gradient -z-20 pointer-events-none;
+        }
+
+        &::after {
+            content: "";
+            @apply fill-parent small-gradient rotate-180 opacity-0 transition-opacity duration-300 -z-10 pointer-events-none;
+        }
+
+        &:not(:disabled):hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+
+            &::after {
+                @apply opacity-100;
+            }
+        }
+    }
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}

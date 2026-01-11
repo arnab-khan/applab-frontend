@@ -1,0 +1,5 @@
+:root {
+    --long-gradient: linear-gradient(135deg, #6366f1 0%, #7c3aed 20%, #8b5cf6 40%, #a855f7 60%, #c084fc 80%, #06b6d4 100%);
+    --light-gradient: linear-gradient(135deg, #667eea 0%, #7b68ee 20%, #9370db 40%, #ba55d3 60%, #da70d6 80%, #4facfe 100%);
+    --small-gradient: linear-gradient(135deg, #667eea, #764ba2);
+}
