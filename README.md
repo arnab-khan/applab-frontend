@@ -1,59 +1,45 @@
-# ApplabFrontend
+# Angular Application
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+## Overview
+This repository contains an Angular application developed and maintained by **Arnab Khan**.
 
-## Development server
+The source code is publicly visible for **review and evaluation purposes only**.  
+This project is **NOT open source**.
 
-To start a local development server, run:
+---
+
+## 🚫 Usage Restrictions
+**Unauthorized use of this code is strictly prohibited.**
+
+You are **NOT allowed** to:
+- Use this code in any commercial or production application
+- Copy, reuse, or replicate any part of the codebase
+- Modify, distribute, sublicense, or sell the code
+- Include this code in your own projects (public or private)
+
+**Explicit written permission from the author is required** for any of the above actions.
+
+---
+
+## ✅ Allowed Usage
+You MAY:
+- View the code for learning, review, and evaluation purposes
+- Analyze implementation patterns and structure
+- Reference concepts **without copying code**
+
+---
+
+## 🛡 Intellectual Property
+All source code, architecture, logic, and design patterns in this repository are the  
+**exclusive intellectual property of Arnab Khan**.
+
+Any unauthorized use, reproduction, or distribution may result in legal action.
+
+---
+
+## ⚙️ Development Setup
+> This project is not intended to be used as a template or starter application.
 
 ```bash
+npm install
 ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

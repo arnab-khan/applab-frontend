@@ -1,1 +1,8 @@
-/* You can add global styles to this file, and also import other style files */
+html {
+    font-size: calc(0.125vw + 13.6px); // responsive font size 1rem = 16px for 1920px screen and 1rem = 14px for 320px screen
+
+    body {
+        font: inherit;
+        font-size: inherit;
+    }
+}

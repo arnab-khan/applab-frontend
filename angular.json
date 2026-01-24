@@ -31,6 +31,7 @@
             ],
             "styles": [
               "src/styles/variable.css",
+              "src/fonts/font.scss",
               "src/styles/tailwind.scss",
               "src/styles.scss"
             ],

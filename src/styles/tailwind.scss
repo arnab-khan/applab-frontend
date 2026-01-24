@@ -1,43 +1,100 @@
-@use "./tailwind.config.css";
+@import "./tailwind.config.css";
+
+
+/* ---------- Base Styles ---------- */
+
+@layer base {
+
+    *,
+    input,
+    textarea,
+    select {
+        @apply font-poppins;
+        font-weight: 400;
+    }
+
+    h1 {
+        @apply font-poppins;
+        font-weight: 900;
+    }
+
+    h2 {
+        @apply font-poppins;
+        font-weight: 800;
+    }
+
+    h3 {
+        @apply font-poppins;
+        font-weight: 700;
+    }
+
+    h4,
+    h5,
+    h6,
+    button,
+    strong,
+    b {
+        @apply font-poppins;
+        font-weight: 600;
+    }
+
+    i {
+        @apply font-poppins;
+        font-weight: 400;
+        font-style: italic;
+    }
+}
+
 
 /* ---------- Utilities ---------- */
 
-@utility long-gradient {
+@utility u-long-gradient {
     background-image: var(--long-gradient);
 }
 
-@utility light-gradient {
+@utility u-light-gradient {
     background-image: var(--light-gradient);
 }
 
-@utility small-gradient {
+@utility u-small-gradient {
     background-image: var(--small-gradient);
 }
 
-@utility fill-parent {
+@utility u-container-1 {
+    width: var(--container-1-width);
+    @apply max-w-full;
+}
+
+@utility u-container-2 {
+    width: var(--container-2-width);
+    @apply max-w-full;
+}
+
+@utility u-fill-parent {
     @apply block absolute top-0 left-0 w-full h-full;
 }
+
 
 /* ---------- Components ---------- */
 
 @layer components {
-    .gradient-background {
+    .u-gradient-background {
         background-size: 400% 400%;
         animation: gradientShift 15s ease infinite;
-        @apply long-gradient;
+        @apply u-long-gradient;
     }
 
-    .gradient-btn {
+    .u-gradient-btn {
         @apply relative overflow-hidden cursor-pointer disabled:cursor-auto px-4 py-3 rounded-lg text-white;
 
         &::before {
             content: "";
-            @apply fill-parent small-gradient -z-20 pointer-events-none;
+            @apply u-fill-parent u-small-gradient -z-20 pointer-events-none;
         }
 
         &::after {
             content: "";
-            @apply fill-parent small-gradient rotate-180 opacity-0 transition-opacity duration-300 -z-10 pointer-events-none;
+            @apply u-fill-parent u-small-gradient rotate-180 opacity-0 transition-opacity duration-300 -z-10 pointer-events-none;
         }
 
         &:not(:disabled):hover {
@@ -49,7 +106,14 @@
             }
         }
     }
+
+    .form-field {
+        @apply text-lg w-full px-4 py-2 text-base bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition;
+    }
 }
+
+
+/* ---------- Animations ---------- */
 
 @keyframes gradientShift {
     0% {

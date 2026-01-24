@@ -1,14 +1,13 @@
-<header class="gradient-background light-gradient sticky top-0 z-10 header">
-  <div class="container">
-    <div class="brand">AppLab</div>
-    <nav class="nav">
-      <a href="#">Home</a>
-      <a href="#">About</a>
-      <a href="#">Contact</a>
-    </nav>
-  </div>
-</header>
+<div class="h-full flex flex-col">
+  <header class="sticky top-0 z-10">
+    <app-header></app-header>
+  </header>
 
-<main class="gradient-background content">
-  <router-outlet></router-outlet>
-</main>
+  <main class="u-gradient-background grow">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2024 Applab. All rights reserved.</p>
+  </footer>
+</div>

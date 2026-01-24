@@ -1,0 +1,15 @@
+@use 'sass:list';
+
+// Generating font-face
+@mixin generate-font-styles($path, $font-family-name, $font-variations) {
+    @each $name, $weight-style in $font-variations {
+
+        // Define font-face
+        @font-face {
+            font-family: $font-family-name;
+            src: url('../../public/fonts/#{$path}-#{$name}.woff2');
+            font-weight: list.nth($weight-style, 1); // Extract weight
+            font-style: if(list.length($weight-style) > 1, list.nth($weight-style, 2), normal); // Extract style
+        }
+    }
+}
