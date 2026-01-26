@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FieldConfig } from './form-fields.interface';
@@ -15,6 +15,7 @@ export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
   @Input() fieldConfig: FieldConfig | undefined;
   @Input({ required: true }) dynamicFormControl!: FormControl;
   @Input() clickedOnSubmitButton = false;
+  @Output() hasError = new EventEmitter<boolean>();
 
   fieldErrorMessages: string[] = [];
   changeFormControll$: Subscription | undefined;
@@ -29,6 +30,7 @@ export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.updateErrorMessages();
     this.changeFormControll$ = this.dynamicFormControl?.statusChanges.subscribe(() => {
       this.updateErrorMessages();
     });
@@ -38,7 +40,7 @@ export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
     this.changeFormControll$?.unsubscribe();
   }
 
-  get isInvalid(): boolean {
+  get showInvalid(): boolean {
     return this.dynamicFormControl.invalid && (this.dynamicFormControl.touched || this.dynamicFormControl.dirty || this.clickedOnSubmitButton);
   }
 
@@ -61,6 +63,7 @@ export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
 
     if (!errors) {
       this.fieldErrorMessages = [];
+      this.hasError.emit(false);
       return;
     }
 
@@ -72,6 +75,11 @@ export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
           this.fieldConfig?.label || ''
         )
       );
+    // console.log('fieldErrorMessages',this.fieldErrorMessages);
+
+    if (this.fieldErrorMessages.length) {
+      this.hasError.emit(true);
+    }
   }
 
 }

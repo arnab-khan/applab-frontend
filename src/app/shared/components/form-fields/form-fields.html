@@ -1,13 +1,15 @@
 @if (dynamicFormControl) {
-<div class="mt-4">
+<div class="mt-4" [ngClass]="{'clicked-submit-button':clickedOnSubmitButton}">
   @let label=fieldConfig?.label;
   @if (label) {
-  <label class="block text-lg font-medium text-gray-700 pb-1">
-    {{ label }}
-  </label>
+  <div class="pb-1">
+    <label class="block text-lg font-medium text-gray-700">
+      {{ label }}
+    </label>
+  </div>
   }
   <ng-content></ng-content>
-  @if (isInvalid) {
+  @if (showInvalid) {
   <div class="text-red-600 text-xs mt-1">
     @for (error of fieldErrorMessages; track $index) {
     <span class="block first-letter:uppercase">

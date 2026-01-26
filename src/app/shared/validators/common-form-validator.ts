@@ -20,7 +20,7 @@ interface Rule {
   msg: string;
 }
 
-export function dynamicTextValidator(
+export function commonFormValidator(
   config: TextValidationConfig
 ): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -69,8 +69,8 @@ export function dynamicTextValidator(
 
       if (config.requireLetter) {
         rules.push({
-          ok: !(hasLowercase || hasLowercase),
-          key: 'letterRequired',
+          ok: !(hasLowercase || hasUppercase),
+          key: 'requireLetter',
           msg: '{{LABEL}} must contain at least one letter',
         });
       }
