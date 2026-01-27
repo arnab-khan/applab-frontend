@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { FormFieldsComponent } from '../../../../shared/components/form-fields/form-fields';
-import { FieldConfig } from '../../../../shared/components/form-fields/form-fields.interface';
+import { FormFieldsComponent } from '../../../../shared/components/form/form-fields/form-fields';
+import { FieldConfig } from '../../../../shared/components/form/form-fields/form-fields.interface';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
-import { AuthApi } from '../../../../core/services/auth-api';
 import { User } from '../../../../core/services/user';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
-import { usernameExistsValidator } from '../../../../shared/validators/username-exists-validator';
+import { existsValidator } from '../../../../shared/validators/exists-validator';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-signup',
@@ -33,7 +33,6 @@ export class Signup implements OnInit {
   usernameValidetorHasError = false;
 
   constructor(
-    private authApiService: AuthApi,
     private userService: User,
     private formBuilder: NonNullableFormBuilder,
   ) { }
@@ -65,7 +64,13 @@ export class Signup implements OnInit {
             }),
           ],
           asyncValidators: [
-            usernameExistsValidator(this.userService),
+            existsValidator({
+              apiObserable: (value) => {
+                return this.userService.checkIfUserExists({ username: value }).pipe(
+                  map(response => response.exists)
+                )
+              }
+            }),
           ],
         },
       ],

@@ -25,7 +25,7 @@
         </app-form-fields>
         @if (!usernameValidetorHasError) {
         <div>
-            @if (usernameControl.errors?.['usernameExists']) {
+            @if (usernameControl.errors?.['alreadyTaken']) {
             <span class="text-danger">❌ Username is already taken. Please choose another.</span>
             } @else {
             <span class="text-success">✅ Username is available.</span>
