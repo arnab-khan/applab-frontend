@@ -3,20 +3,36 @@
   @let label=fieldConfig?.label;
   @if (label) {
   <div class="pb-1">
-    <label class="block text-lg font-medium text-gray-700">
+    <label class="block text-lg font-medium text-gray-700 first-letter:uppercase">
       {{ label }}
     </label>
   </div>
   }
   <ng-content></ng-content>
   @if (showInvalid) {
-  <div class="text-red-600 text-xs mt-1">
+  <div class="text-red-600 text-sm mt-1">
     @for (error of fieldErrorMessages; track $index) {
     <span class="block first-letter:uppercase">
-      {{ error }}
+      {{error|sentenceCase}}
+    </span>
+    }
+    @if (dynamicFormControl.errors?.['alreadyTaken']) {
+    <span>
+      ❌ {{ `This ${label} is already taken. Please choose another.` | sentenceCase }}
     </span>
     }
   </div>
+  }
+
+  @if (text.pendingText&&dynamicFormControl.pending) {
+  <span class="text-blue-600 flex items-center gap-1">
+    🔄 {{ text.pendingText | sentenceCase }}
+  </span>
+  }
+  @if (text.validText&&dynamicFormControl.valid) {
+  <span class="text-green-600 flex items-center gap-1">
+    ✅ {{ text.validText | sentenceCase }}
+  </span>
   }
 </div>
 }

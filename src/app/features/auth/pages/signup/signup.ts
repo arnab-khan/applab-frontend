@@ -8,6 +8,8 @@ import { User } from '../../../../core/services/user';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
 import { existsValidator } from '../../../../shared/validators/exists-validator';
 import { map } from 'rxjs';
+import { CreateUser } from '../../../../shared/interfaces/user';
+import { Auth } from '../../../../core/services/auth';
 
 @Component({
   selector: 'app-signup',
@@ -30,10 +32,10 @@ export class Signup implements OnInit {
   passwordConfig!: FieldConfig;
   clickedOnSubmitButton = false;
   usernameExists = true;
-  usernameValidetorHasError = false;
 
   constructor(
     private userService: User,
+    private authService: Auth,
     private formBuilder: NonNullableFormBuilder,
   ) { }
 
@@ -60,7 +62,7 @@ export class Signup implements OnInit {
               disallowSpaces: true,
               disallowSpecialChars: true,
               minLength: 3,
-              maxLength: 10,
+              maxLength: 20,
             }),
           ],
           asyncValidators: [
@@ -90,7 +92,26 @@ export class Signup implements OnInit {
     this.clickedOnSubmitButton = true;
     console.log('Form Value:', this.signupForm.value);
     if (this.signupForm.valid) {
+      this.createUser();
+    }
+  }
 
+  createUser() {
+    if (this.signupForm.valid) {
+      const controls = this.signupForm.controls;
+      const userData: CreateUser = {
+        name: controls.name.value,
+        username: controls.username.value,
+        password: controls.password.value,
+      }
+      this.authService.signup(userData).subscribe({
+        next: (response) => {
+          console.log('user created', response)
+        },
+        error: (error) => {
+          console.error('error creating user', error)
+        }
+      })
     }
   }
 }

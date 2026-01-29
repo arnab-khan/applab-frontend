@@ -18,10 +18,16 @@ export function existsValidator(
     return timer(debounceMs).pipe(
       switchMap(() =>
         data.apiObserable(inputValue).pipe(
-          map((response) =>
-            response ? { alreadyTaken: true } : null
+          map((response) => {
+            if (response == null) {
+              throw new Error('Invalid response');
+            }
+            return response ? { alreadyTaken: true } : null
+          }
           ),
-          catchError(() => of(null))
+          catchError(() =>
+            of({ availabilityCheckFailed: true })
+          )
         )
       )
     );

@@ -19,19 +19,11 @@
 
         @let usernameControl=signupForm.controls.username;
         <app-form-fields [fieldConfig]="{label: 'Username'}" [dynamicFormControl]="usernameControl"
-            [clickedOnSubmitButton]="clickedOnSubmitButton" (hasError)="usernameValidetorHasError=$event">
+            [clickedOnSubmitButton]="clickedOnSubmitButton"
+            [text]="{pendingText: 'Checking username availability', validText: 'Username is available'}">
             <input type="text" [formControl]="usernameControl" class="form-field" [placeholder]="'Enter text'"
                 name="username" appSanitizeInput [noSpaceAllow]="true" />
         </app-form-fields>
-        @if (!usernameValidetorHasError) {
-        <div>
-            @if (usernameControl.errors?.['alreadyTaken']) {
-            <span class="text-danger">❌ Username is already taken. Please choose another.</span>
-            } @else {
-            <span class="text-success">✅ Username is available.</span>
-            }
-        </div>
-        }
 
         @let passwordControl=signupForm.controls.password;
         <app-form-fields [fieldConfig]="{label: 'Password'}" [dynamicFormControl]="passwordControl"

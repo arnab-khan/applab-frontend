@@ -1,13 +1,14 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FieldConfig } from './form-fields.interface';
 import { Subscription } from 'rxjs';
+import { SentenceCasePipe } from '../../../pipes/sentence-case-pipe';
 
 @Component({
   selector: 'app-form-fields',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, SentenceCasePipe],
   templateUrl: './form-fields.html',
   styleUrl: './form-fields.scss',
 })
@@ -15,7 +16,7 @@ export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
   @Input() fieldConfig: FieldConfig | undefined;
   @Input({ required: true }) dynamicFormControl!: FormControl;
   @Input() clickedOnSubmitButton = false;
-  @Output() hasError = new EventEmitter<boolean>();
+  @Input() text: { validText?: string, pendingText?: string } = {}
 
   fieldErrorMessages: string[] = [];
   changeFormControll$: Subscription | undefined;
@@ -63,7 +64,6 @@ export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
 
     if (!errors) {
       this.fieldErrorMessages = [];
-      this.hasError.emit(false);
       return;
     }
 
@@ -76,10 +76,6 @@ export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
         )
       );
     // console.log('fieldErrorMessages',this.fieldErrorMessages);
-
-    if (this.fieldErrorMessages.length) {
-      this.hasError.emit(true);
-    }
   }
 
 }
