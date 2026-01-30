@@ -10,6 +10,7 @@ import { existsValidator } from '../../../../shared/validators/exists-validator'
 import { map } from 'rxjs';
 import { CreateUser } from '../../../../shared/interfaces/user';
 import { Auth } from '../../../../core/services/auth';
+import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
 
 @Component({
   selector: 'app-signup',
@@ -18,6 +19,7 @@ import { Auth } from '../../../../core/services/auth';
     CommonModule,
     FormFieldsComponent,
     SanitizeInput,
+    LoadingButton,
   ],
   templateUrl: './signup.html',
   styleUrl: './signup.scss',
@@ -30,7 +32,8 @@ export class Signup implements OnInit {
   }>;
   usernameConfig!: FieldConfig;
   passwordConfig!: FieldConfig;
-  clickedOnSubmitButton = false;
+  isSubmitting = false;
+  hasClickedSubmit = false;
   usernameExists = true;
 
   constructor(
@@ -58,7 +61,6 @@ export class Signup implements OnInit {
           validators: [
             commonFormValidator({
               required: true,
-              disallowNumber: true,
               disallowSpaces: true,
               disallowSpecialChars: true,
               minLength: 3,
@@ -89,9 +91,10 @@ export class Signup implements OnInit {
   }
 
   onSubmit(): void {
-    this.clickedOnSubmitButton = true;
+    this.hasClickedSubmit = true;
     console.log('Form Value:', this.signupForm.value);
     if (this.signupForm.valid) {
+      this.isSubmitting = true;
       this.createUser();
     }
   }
@@ -106,10 +109,11 @@ export class Signup implements OnInit {
       }
       this.authService.signup(userData).subscribe({
         next: (response) => {
-          console.log('user created', response)
+          console.log('user created', response);
         },
         error: (error) => {
-          console.error('error creating user', error)
+          this.isSubmitting = false;
+          console.error('error creating user', error);
         }
       })
     }

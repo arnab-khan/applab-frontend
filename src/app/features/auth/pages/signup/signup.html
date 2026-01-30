@@ -12,14 +12,14 @@
 
         @let nameControl=signupForm.controls.name;
         <app-form-fields [fieldConfig]="{label: 'Name'}" [dynamicFormControl]="nameControl"
-            [clickedOnSubmitButton]="clickedOnSubmitButton">
+            [hasClickedSubmit]="hasClickedSubmit">
             <input type="text" [formControl]="nameControl" class="form-field" [placeholder]="'Enter text'" name="name"
                 appSanitizeInput />
         </app-form-fields>
 
         @let usernameControl=signupForm.controls.username;
         <app-form-fields [fieldConfig]="{label: 'Username'}" [dynamicFormControl]="usernameControl"
-            [clickedOnSubmitButton]="clickedOnSubmitButton"
+            [hasClickedSubmit]="hasClickedSubmit"
             [text]="{pendingText: 'Checking username availability', validText: 'Username is available'}">
             <input type="text" [formControl]="usernameControl" class="form-field" [placeholder]="'Enter text'"
                 name="username" appSanitizeInput [noSpaceAllow]="true" />
@@ -27,15 +27,17 @@
 
         @let passwordControl=signupForm.controls.password;
         <app-form-fields [fieldConfig]="{label: 'Password'}" [dynamicFormControl]="passwordControl"
-            [clickedOnSubmitButton]="clickedOnSubmitButton">
+            [hasClickedSubmit]="hasClickedSubmit">
             <input type="password" [formControl]="passwordControl" class="form-field" name="password"
                 [placeholder]="'Enter password'" appSanitizeInput [noSpaceAllow]="true" />
         </app-form-fields>
 
-        <button type="submit"
-            class="u-gradient-btn w-full py-2 rounded-lg font-semibold text-white mt-6 transition hover:opacity-90 disabled:opacity-50">
-            Sign Up
-        </button>
+        <app-loading-button [loading]="isSubmitting" class="mt-6">
+            <button type="submit"
+                class="u-gradient-btn w-full py-2 rounded-lg font-semibold text-white transition hover:opacity-90 disabled:opacity-50">
+                Sign Up
+            </button>
+        </app-loading-button>
 
         <div class="text-center mt-6">
             <p class="text-gray-600 text-sm">Already have an account?

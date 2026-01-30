@@ -15,7 +15,7 @@ import { SentenceCasePipe } from '../../../pipes/sentence-case-pipe';
 export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
   @Input() fieldConfig: FieldConfig | undefined;
   @Input({ required: true }) dynamicFormControl!: FormControl;
-  @Input() clickedOnSubmitButton = false;
+  @Input() hasClickedSubmit = false;
   @Input() text: { validText?: string, pendingText?: string } = {}
 
   fieldErrorMessages: string[] = [];
@@ -25,7 +25,7 @@ export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
     if (changes['formControl'] && this.dynamicFormControl) {
       this.dynamicFormControl.updateValueAndValidity();
     }
-    if (changes['clickedOnSubmitButton'] && this.clickedOnSubmitButton) {
+    if (changes['clickedOnSubmitButton'] && this.hasClickedSubmit) {
       this.updateErrorMessages();
     }
   }
@@ -42,7 +42,7 @@ export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   get showInvalid(): boolean {
-    return this.dynamicFormControl.invalid && (this.dynamicFormControl.touched || this.dynamicFormControl.dirty || this.clickedOnSubmitButton);
+    return this.dynamicFormControl.invalid && (this.dynamicFormControl.touched || this.dynamicFormControl.dirty || this.hasClickedSubmit);
   }
 
   readonly errorOrder = [

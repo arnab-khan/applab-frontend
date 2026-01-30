@@ -1,5 +1,5 @@
 @if (dynamicFormControl) {
-<div class="mt-4" [ngClass]="{'clicked-submit-button':clickedOnSubmitButton}">
+<div class="mt-4" [ngClass]="{'clicked-submit-button':hasClickedSubmit}">
   @let label=fieldConfig?.label;
   @if (label) {
   <div class="pb-1">

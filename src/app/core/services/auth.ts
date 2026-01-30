@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.development';
-import { CreateUser } from '../../shared/interfaces/user';
+import { CreateUser, LoginUser } from '../../shared/interfaces/user';
 
 @Injectable({
   providedIn: 'root',
@@ -12,5 +12,9 @@ export class Auth {
 
   signup(body: CreateUser) {
     return this.httpClient.post(`${this.baseApiUrl}/signup`, body);
+  }
+
+  login(body: LoginUser) {
+    return this.httpClient.post(`${this.baseApiUrl}/login`, body);
   }
 }

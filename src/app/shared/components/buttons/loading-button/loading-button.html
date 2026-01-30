@@ -1,0 +1,10 @@
+<div class="relative">
+    <div [ngClass]="{'opacity-50 pointer-events-none': loading}">
+        <ng-content></ng-content>
+    </div>
+    @if (loading) {
+    <div class="u-absolute-center-xy">
+        <mat-spinner [diameter]="diameter" class="stroke-violet-700"></mat-spinner>
+    </div>
+    }
+</div>
