@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormFieldsComponent } from '../../../../shared/components/form/form-fields/form-fields';
@@ -11,6 +11,9 @@ import { map } from 'rxjs';
 import { CreateUser } from '../../../../shared/interfaces/user';
 import { Auth } from '../../../../core/services/auth';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
+import { Router } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { DEFAULT_ROUTE } from '../../../../shared/config/config';
 
 @Component({
   selector: 'app-signup',
@@ -20,11 +23,19 @@ import { LoadingButton } from '../../../../shared/components/buttons/loading-but
     FormFieldsComponent,
     SanitizeInput,
     LoadingButton,
+    MatSnackBarModule,
   ],
   templateUrl: './signup.html',
   styleUrl: './signup.scss',
 })
 export class Signup implements OnInit {
+
+  private userService = inject(User);
+  private authService = inject(Auth);
+  private formBuilder = inject(NonNullableFormBuilder);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
+
   signupForm!: FormGroup<{
     name: FormControl<string>;
     username: FormControl<string>;
@@ -32,15 +43,9 @@ export class Signup implements OnInit {
   }>;
   usernameConfig!: FieldConfig;
   passwordConfig!: FieldConfig;
-  isSubmitting = false;
+  isSubmitting = signal(false);
   hasClickedSubmit = false;
   usernameExists = true;
-
-  constructor(
-    private userService: User,
-    private authService: Auth,
-    private formBuilder: NonNullableFormBuilder,
-  ) { }
 
   ngOnInit(): void {
     this.createForm();
@@ -94,7 +99,7 @@ export class Signup implements OnInit {
     this.hasClickedSubmit = true;
     console.log('Form Value:', this.signupForm.value);
     if (this.signupForm.valid) {
-      this.isSubmitting = true;
+      this.isSubmitting.set(true);
       this.createUser();
     }
   }
@@ -110,9 +115,12 @@ export class Signup implements OnInit {
       this.authService.signup(userData).subscribe({
         next: (response) => {
           console.log('user created', response);
+          this.router.navigate([DEFAULT_ROUTE]);
         },
         error: (error) => {
-          this.isSubmitting = false;
+          this.isSubmitting.set(false);
+          const message = error.error?.message || 'Signup failed. Please try again.';
+          this.snackBar.open(message, 'Close', { duration: 3000 });
           console.error('error creating user', error);
         }
       })

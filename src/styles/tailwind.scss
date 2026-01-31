@@ -43,6 +43,10 @@
         font-weight: 400;
         font-style: italic;
     }
+
+    button {
+        @apply cursor-pointer;
+    }
 }
 
 

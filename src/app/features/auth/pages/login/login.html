@@ -20,7 +20,7 @@
         [placeholder]="'Enter password'" appSanitizeInput [noSpaceAllow]="true" />
     </app-form-fields>
 
-    <app-loading-button [loading]="isSubmitting" class="mt-6">
+    <app-loading-button [loading]="isSubmitting()" class="mt-6">
       <button type="submit"
         class="u-gradient-btn w-full py-2 rounded-lg font-semibold text-white transition hover:opacity-90 disabled:opacity-50">
         Sign In

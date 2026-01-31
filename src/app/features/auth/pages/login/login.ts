@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormFieldsComponent } from '../../../../shared/components/form/form-fields/form-fields';
@@ -7,6 +7,9 @@ import { commonFormValidator } from '../../../../shared/validators/common-form-v
 import { LoginUser } from '../../../../shared/interfaces/user';
 import { Auth } from '../../../../core/services/auth';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
+import { Router } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { DEFAULT_ROUTE } from '../../../../shared/config/config';
 
 @Component({
   selector: 'app-login',
@@ -16,22 +19,24 @@ import { LoadingButton } from '../../../../shared/components/buttons/loading-but
     FormFieldsComponent,
     SanitizeInput,
     LoadingButton,
+    MatSnackBarModule,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
 export class Login implements OnInit {
+
+  private authService = inject(Auth);
+  private formBuilder = inject(NonNullableFormBuilder);
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
+
   loginForm!: FormGroup<{
     username: FormControl<string>;
     password: FormControl<string>;
   }>;
-  isSubmitting = false;
+  isSubmitting = signal(false);
   hasClickedSubmit = false;
-
-  constructor(
-    private authService: Auth,
-    private formBuilder: NonNullableFormBuilder,
-  ) { }
 
   ngOnInit(): void {
     this.createForm();
@@ -62,7 +67,7 @@ export class Login implements OnInit {
     this.hasClickedSubmit = true;
     console.log('Form Value:', this.loginForm.value);
     if (this.loginForm.valid) {
-      this.isSubmitting = true;
+      this.isSubmitting.set(true);
       this.loginUser();
     }
   }
@@ -77,10 +82,12 @@ export class Login implements OnInit {
       this.authService.login(loginData).subscribe({
         next: (response) => {
           console.log('Login successful', response);
-          this.isSubmitting = false;
+          this.router.navigate([DEFAULT_ROUTE]);
         },
         error: (error) => {
-          this.isSubmitting = false;
+          this.isSubmitting.set(false);
+          const message = error.error?.message || 'Login failed. Please try again.';
+          this.snackBar.open(message, 'Close', { duration: 3000 });
           console.error('Login error', error);
         },
       });

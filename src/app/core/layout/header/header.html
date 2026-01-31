@@ -1,20 +1,29 @@
 <nav class="sticky top-0 z-10 shadow u-gradient-background u-light-gradient c-header">
-    <div class="flex flex-row justify-between items-center py-3 mx-auto u-container-1">
-        <ul class="flex">
+    <div class="flex flex-row justify-between items-center py-1 mx-auto u-container-1">
+        <ul class="flex items-center">
             <li>
-                <a routerLink="/home" class="c-nav-link">Home</a>
+                <a routerLink="/home" class="block c-nav-link">Home</a>
             </li>
             <li>
-                <a href="#" class="c-nav-link">Contact</a>
+                <a href="#" class="block c-nav-link">Contact</a>
             </li>
         </ul>
-        <ul class="flex">
-            <li>
-                <a routerLink="/auth/login" class="c-nav-link">Login</a>
-            </li>
-            <li>
-                <a routerLink="/auth/signup" class="c-nav-link">Sign Up</a>
-            </li>
+        <ul class="flex items-center">
+            @if (user()?.id) {
+                <li>
+                    <a routerLink="/todo" class="block c-nav-link">Todo</a>
+                </li>
+                <li>
+                    <button (click)="onLogout()" class="block c-nav-link">Logout</button>
+                </li>
+            } @else {
+                <li>
+                    <a routerLink="/auth/login" class="block c-nav-link">Login</a>
+                </li>
+                <li>
+                    <a routerLink="/auth/signup" class="block c-nav-link">Sign Up</a>
+                </li>
+            }
         </ul>
     </div>
 </nav>
