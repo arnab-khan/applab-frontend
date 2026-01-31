@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Header } from './core/layout/header/header';
+import { Auth } from './core/services/auth';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +10,24 @@ import { Header } from './core/layout/header/header';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {
-  isActive = true;
+export class App implements OnInit {
+
+  constructor(
+   private authService: Auth,
+  ) { }
+
+  ngOnInit(): void {
+    this.getUser();
+  }
+
+  getUser() {
+    this.authService.me().subscribe({
+      next: (response) => {
+        console.log(response)
+      },
+      error: (error) => {
+
+      }
+    })
+  }
 }

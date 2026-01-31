@@ -3,7 +3,6 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.development';
 import { IsUsernameExist } from '../../shared/interfaces/is-username-exist';
 import { toHttpParams } from '../../shared/utils/http';
-import { CreateUser } from '../../shared/interfaces/user';
 
 @Injectable({
   providedIn: 'root',
