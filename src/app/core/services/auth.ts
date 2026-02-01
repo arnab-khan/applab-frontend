@@ -3,7 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment.development';
 import { CreateUser, LoginUser, User } from '../../shared/interfaces/user';
-import { BehaviorSubject, catchError, of, tap } from 'rxjs';
+import { BehaviorSubject, catchError, finalize, of, tap } from 'rxjs';
 import { LOGIN_ROUTE } from '../../shared/config/config';
 
 @Injectable({
@@ -14,11 +14,12 @@ export class Auth {
   private router = inject(Router);
   private baseApiUrl = `${environment.rootApiUrl}/auth`;
   private userSubject = new BehaviorSubject<User | null | undefined>(null);
-  user$ = this.userSubject.asObservable();
+  user$ = new BehaviorSubject<User | null | undefined>(null);
   user = signal<User | null | undefined>(null);
+  userLoaded = signal(false);
 
   private updateUser(user: User | null | undefined) {
-    this.userSubject.next(user);
+    this.user$.next(user);
     this.user.set(user);
   }
 
@@ -35,12 +36,17 @@ export class Auth {
   }
 
   me() {
+    if (typeof window === 'undefined') {
+      return of(null);
+    }
+
     return this.httpClient.get<User>(`${this.baseApiUrl}/me`).pipe(
       tap(user => this.updateUser(user)),
       catchError(() => {
         this.updateUser(null);
         return of(null);
-      })
+      }),
+      finalize(() => this.userLoaded.set(true))
     );
   }
 

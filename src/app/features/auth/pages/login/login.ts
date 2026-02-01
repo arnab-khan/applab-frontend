@@ -9,7 +9,7 @@ import { Auth } from '../../../../core/services/auth';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { DEFAULT_ROUTE } from '../../../../shared/config/config';
+import { POST_LOGIN_DEFAULT_ROUTE } from '../../../../shared/config/config';
 
 @Component({
   selector: 'app-login',
@@ -82,7 +82,7 @@ export class Login implements OnInit {
       this.authService.login(loginData).subscribe({
         next: (response) => {
           console.log('Login successful', response);
-          this.router.navigate([DEFAULT_ROUTE]);
+          this.router.navigate([POST_LOGIN_DEFAULT_ROUTE]);
         },
         error: (error) => {
           this.isSubmitting.set(false);
