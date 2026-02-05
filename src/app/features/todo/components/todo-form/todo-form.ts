@@ -1,18 +1,17 @@
-import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormFieldsComponent } from '../../../../shared/components/form/form-fields/form-fields';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
-import { LoginUser } from '../../../../shared/interfaces/user';
-import { Auth } from '../../../../core/services/auth';
+import { CreateTodo } from '../../../../shared/interfaces/todo';
+import { TodoApi } from '../../services/todo-api';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
-import { Router, RouterLink } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { POST_LOGIN_DEFAULT_ROUTE } from '../../../../shared/config/config';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-todo-form',
   imports: [
     ReactiveFormsModule,
     CommonModule,
@@ -20,21 +19,20 @@ import { POST_LOGIN_DEFAULT_ROUTE } from '../../../../shared/config/config';
     SanitizeInput,
     LoadingButton,
     MatSnackBarModule,
-    RouterLink,
-],
-  templateUrl: './login.html',
-  styleUrl: './login.scss',
+  ],
+  templateUrl: './todo-form.html',
+  styleUrl: './todo-form.scss',
 })
-export class Login implements OnInit {
+export class TodoForm implements OnInit {
 
-  private authService = inject(Auth);
+  private todoApi = inject(TodoApi);
   private formBuilder = inject(NonNullableFormBuilder);
-  private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private dialogRef = inject(MatDialogRef, { optional: true });
 
-  loginForm!: FormGroup<{
-    username: FormControl<string>;
-    password: FormControl<string>;
+  todoForm!: FormGroup<{
+    title: FormControl<string>;
+    description: FormControl<string>;
   }>;
   isSubmitting = signal(false);
   hasClickedSubmit = false;
@@ -44,8 +42,8 @@ export class Login implements OnInit {
   }
 
   createForm() {
-    this.loginForm = this.formBuilder.group({
-      username: [
+    this.todoForm = this.formBuilder.group({
+      title: [
         '',
         [
           commonFormValidator({
@@ -53,7 +51,7 @@ export class Login implements OnInit {
           }),
         ],
       ],
-      password: [
+      description: [
         '',
         [
           commonFormValidator({
@@ -66,30 +64,29 @@ export class Login implements OnInit {
 
   onSubmit(): void {
     this.hasClickedSubmit = true;
-    console.log('Form Value:', this.loginForm.value);
-    if (this.loginForm.valid) {
+    if (this.todoForm.valid) {
       this.isSubmitting.set(true);
-      this.loginUser();
+      this.addTodo();
     }
   }
 
-  loginUser() {
-    if (this.loginForm.valid) {
-      const controls = this.loginForm.controls;
-      const loginData: LoginUser = {
-        username: controls.username.value,
-        password: controls.password.value,
+  addTodo() {
+    if (this.todoForm.valid) {
+      const controls = this.todoForm.controls;
+      const todoData: CreateTodo = {
+        title: controls.title.value,
+        description: controls.description.value,
       };
-      this.authService.login(loginData).subscribe({
+      this.todoApi.add(todoData).subscribe({
         next: (response) => {
-          console.log('Login successful', response);
-          this.router.navigate([POST_LOGIN_DEFAULT_ROUTE]);
+          this.isSubmitting.set(false);
+          this.snackBar.open('Todo added successfully', 'Close', { duration: 3000, panelClass: 'snackbar-success' });
+          this.dialogRef?.close(true);
         },
         error: (error) => {
           this.isSubmitting.set(false);
-          const message = error.error?.message || 'Login failed. Please try again.';
+          const message = error.error?.message || 'Failed to add todo. Please try again.';
           this.snackBar.open(message, 'Close', { duration: 5000, panelClass: 'snackbar-error' });
-          console.error('Login error', error);
         },
       });
     }

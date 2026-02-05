@@ -1,0 +1,26 @@
+<div class="c-todo-form">
+  @if (todoForm) {
+  <form [formGroup]="todoForm" (ngSubmit)="onSubmit()" class="space-y-5">
+
+    @let titleControl=todoForm.controls.title;
+    <app-form-fields [fieldConfig]="{label: 'Title'}" [dynamicFormControl]="titleControl"
+      [hasClickedSubmit]="hasClickedSubmit">
+      <input type="text" [formControl]="titleControl" class="form-field" [placeholder]="'Enter task title'" name="title"
+        appSanitizeInput />
+    </app-form-fields>
+
+    @let descriptionControl=todoForm.controls.description;
+    <app-form-fields [fieldConfig]="{label: 'Description'}" [dynamicFormControl]="descriptionControl"
+      [hasClickedSubmit]="hasClickedSubmit">
+      <textarea [formControl]="descriptionControl" class="form-field min-h-25" [placeholder]="'Enter task description'"
+        name="description" appSanitizeInput></textarea>
+    </app-form-fields>
+
+    <app-loading-button [loading]="isSubmitting()" class="mt-4">
+      <button type="submit" class="u-gradient-btn w-full">
+        Add Task
+      </button>
+    </app-loading-button>
+  </form>
+  }
+</div>

@@ -13,14 +13,12 @@ export class Auth {
   private httpClient = inject(HttpClient);
   private router = inject(Router);
   private baseApiUrl = `${environment.rootApiUrl}/auth`;
-  private userSubject = new BehaviorSubject<User | null | undefined>(null);
-  user$ = new BehaviorSubject<User | null | undefined>(null);
   user = signal<User | null | undefined>(null);
   userLoaded = signal(false);
 
   private updateUser(user: User | null | undefined) {
-    this.user$.next(user);
     this.user.set(user);
+    this.userLoaded.set(true)
   }
 
   signup(body: CreateUser) {

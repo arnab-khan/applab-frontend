@@ -21,15 +21,14 @@
     </app-form-fields>
 
     <app-loading-button [loading]="isSubmitting()" class="mt-6">
-      <button type="submit"
-        class="u-gradient-btn w-full py-2 rounded-lg font-semibold text-white transition hover:opacity-90 disabled:opacity-50">
-        Sign In
+      <button type="submit" class="u-gradient-btn w-full">
+        Login
       </button>
     </app-loading-button>
 
     <div class="text-center mt-6">
       <p class="text-gray-600 text-sm">Don't have an account?
-        <a href="#" class="text-blue-600 hover:text-blue-700 font-semibold">
+        <a routerLink="/auth/signup" class="text-blue-600 hover:text-blue-700 font-semibold">
           Sign up
         </a>
       </p>

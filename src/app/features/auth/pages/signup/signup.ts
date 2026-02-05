@@ -11,7 +11,7 @@ import { map } from 'rxjs';
 import { CreateUser } from '../../../../shared/interfaces/user';
 import { Auth } from '../../../../core/services/auth';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { POST_LOGIN_DEFAULT_ROUTE } from '../../../../shared/config/config';
 
@@ -24,6 +24,7 @@ import { POST_LOGIN_DEFAULT_ROUTE } from '../../../../shared/config/config';
     SanitizeInput,
     LoadingButton,
     MatSnackBarModule,
+    RouterModule,
   ],
   templateUrl: './signup.html',
   styleUrl: './signup.scss',
@@ -120,7 +121,7 @@ export class Signup implements OnInit {
         error: (error) => {
           this.isSubmitting.set(false);
           const message = error.error?.message || 'Signup failed. Please try again.';
-          this.snackBar.open(message, 'Close', { duration: 3000 });
+          this.snackBar.open(message, 'Close', { duration: 3000, panelClass: 'snackbar-error' });
           console.error('error creating user', error);
         }
       })

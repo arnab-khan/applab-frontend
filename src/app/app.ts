@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, inject, Injector, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Header } from './core/layout/header/header';
 import { Auth } from './core/services/auth';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { finalize } from 'rxjs';
+import { finalize, of } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -13,10 +13,13 @@ import { finalize } from 'rxjs';
   styleUrl: './app.scss'
 })
 export class App implements OnInit {
+
+  private injector = inject(Injector);
+
   isLoading = signal(true);
 
   constructor(
-   private authService: Auth,
+    private authService: Auth,
   ) { }
 
   ngOnInit(): void {
@@ -24,6 +27,10 @@ export class App implements OnInit {
   }
 
   getUser() {
+    const isBrowser = isPlatformBrowser(this.injector);
+    if (isBrowser) {
+      return;
+    }
     this.isLoading.set(true);
     this.authService.me().pipe(
       finalize(() => {
@@ -33,7 +40,7 @@ export class App implements OnInit {
       next: (response) => {
         console.log('current user', response)
       },
-      error: () => {}
+      error: () => { }
     })
   }
 }

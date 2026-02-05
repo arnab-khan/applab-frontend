@@ -32,7 +32,7 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanMatch {
     return runInInjectionContext(this.injector, () => {
       const isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-      // SSR: never block rendering
+      // SSR: Stop render on server
       if (!isBrowser) {
         return of(true);
       }

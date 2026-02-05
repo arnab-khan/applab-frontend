@@ -1,0 +1,64 @@
+@use '@angular/material' as mat;
+
+:root {
+
+  // ========== Start mat snack-bar ==========
+  .mat-mdc-snack-bar-container {
+    .mat-mdc-snackbar-surface {
+      width: calc(7vw + 40rem);
+      min-width: unset;
+      max-width: calc(100vw - 1rem);
+      border-radius: .5rem;
+
+      .mdc-button {
+        .mdc-button__label {
+          font-weight: 600;
+        }
+
+        &:hover {
+          .mdc-button__ripple {
+            opacity: .1;
+            border-radius: .5rem;
+          }
+        }
+      }
+    }
+  }
+
+  @include mat.snack-bar-overrides((container-color: #dbeafe,
+      supporting-text-color: #1e3a8a,
+      button-color: #1e3a8a,
+    ));
+
+  .snackbar-error {
+    @include mat.snack-bar-overrides((container-color: #fecaca,
+        supporting-text-color: #7f1d1d,
+        button-color: #7f1d1d,
+      ));
+  }
+
+  .snackbar-success {
+    @include mat.snack-bar-overrides((container-color: #d1fae5,
+        supporting-text-color: #065f46,
+        button-color: #065f46,
+      ));
+  }
+
+  // ========== End mat snack-bar ==========
+
+
+
+  // ========== Start mat dialog ==========
+
+  @include mat.dialog-overrides((content-padding: 0,
+      container-shape: 1rem,
+    ));
+
+  mat-dialog-content {
+    max-height: 90vh;
+    max-height: 90dvh;
+  }
+
+  // ========== End mat dialog ==========
+
+}
