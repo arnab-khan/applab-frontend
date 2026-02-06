@@ -3,7 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment.development';
 import { CreateUser, LoginUser, User } from '../../shared/interfaces/user';
-import { BehaviorSubject, catchError, finalize, of, tap } from 'rxjs';
+import { catchError, finalize, of, tap } from 'rxjs';
 import { LOGIN_ROUTE } from '../../shared/config/config';
 
 @Injectable({

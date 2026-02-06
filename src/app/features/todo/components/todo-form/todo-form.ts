@@ -48,6 +48,7 @@ export class TodoForm implements OnInit {
         [
           commonFormValidator({
             required: true,
+            maxLength: 100,
           }),
         ],
       ],
@@ -56,6 +57,7 @@ export class TodoForm implements OnInit {
         [
           commonFormValidator({
             required: true,
+            maxLength: 500,
           }),
         ],
       ],

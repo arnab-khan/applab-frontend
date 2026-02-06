@@ -3,6 +3,8 @@ export interface Todo {
     title?: string;
     description?: string;
     userId?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export interface CreateTodo {

@@ -23,6 +23,6 @@ export class TodoApi {
   }
 
   getAll() {
-    return this.httpClient.get<Todo[]>(this.baseApiUrl);
+    return this.httpClient.get<Todo[]>(`${this.baseApiUrl}/all`);
   }
 }
