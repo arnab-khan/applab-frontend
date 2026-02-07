@@ -1,7 +1,7 @@
 <nav class="sticky top-0 z-10 shadow u-gradient-background u-light-gradient c-header">
     <div class="flex flex-row justify-between items-center py-1 mx-auto u-container-1">
         <ul class="flex items-center">
-            @if (user()?.id) {
+            @if (user().user?.id) {
             <li>
                 <a routerLink="/todo" class="block c-nav-link">Todo</a>
             </li>
@@ -11,7 +11,7 @@
             </li>
         </ul>
         <ul class="flex items-center">
-            @if (user()?.id) {
+            @if (user().user?.id) {
             <li>
                 <button (click)="onLogout()" class="block c-nav-link">Logout</button>
             </li>

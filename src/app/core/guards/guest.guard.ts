@@ -39,12 +39,11 @@ export class GuestGuard implements CanActivate, CanActivateChild, CanMatch {
       }
 
       // Browser: wait for auth to load
-      return toObservable(this.authService.userLoaded).pipe(
-        filter(Boolean),
+      return toObservable(this.authService.authState).pipe(
+        filter(state => state.completed),
         take(1),
-        map(() => {
-          const user = this.authService.user();
-          return user?.id ? this.router.createUrlTree([POST_LOGIN_DEFAULT_ROUTE]) : true;
+        map(state => {
+          return state.user?.id ? this.router.createUrlTree([POST_LOGIN_DEFAULT_ROUTE]) : true;
         })
       );
     });

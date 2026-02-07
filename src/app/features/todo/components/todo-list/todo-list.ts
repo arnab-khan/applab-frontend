@@ -8,10 +8,11 @@ import { TodoListItem } from '../todo-list-item/todo-list-item';
 import { Todo } from '../../../../shared/interfaces/todo';
 import { Auth } from '../../../../core/services/auth';
 import { Platform } from '../../../../shared/services/platform';
+import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
 
 @Component({
   selector: 'app-todo-list',
-  imports: [CommonModule, FontAwesomeModule, TodoListItem],
+  imports: [CommonModule, FontAwesomeModule, TodoListItem, LoadingButton],
   templateUrl: './todo-list.html',
   styleUrl: './todo-list.scss',
 })
@@ -24,15 +25,19 @@ export class TodoList implements OnInit {
   faClipboardList = faClipboardList;
 
   todos = signal<Todo[] | undefined>(undefined);
-  user = this.auth.user;
-  userLoaded = this.auth.userLoaded;
+  authState = this.auth.authState;
+  currentPage = 0;
+  pageSize = 3;
+  hasMore = signal(true);
+  isLoadingMore = signal(false);
 
   constructor() {
     effect(() => {
       if (!this.platformService.isBrowser()) {
         return;
       }
-      if (this.userLoaded() && this.user()?.id) {
+      const state = this.authState();
+      if (state.status === 'authenticated' && state.user?.id) {
         this.getTodoList();
       }
     });
@@ -41,16 +46,26 @@ export class TodoList implements OnInit {
   ngOnInit() { }
 
   getTodoList() {
-    this.todoApi.getAll().subscribe({
+    this.isLoadingMore.set(true);
+    this.todoApi.getAll({ page: this.currentPage, size: this.pageSize, sort: 'createdAt,desc' }).subscribe({
       next: (response) => {
         console.log('todoList', response);
-        this.todos.set(response);
+        const currentTodos = this.todos() || [];
+        this.todos.set([...currentTodos, ...response.content]);
+        this.hasMore.set(!response.last);
+        this.isLoadingMore.set(false);
       },
       error: (err) => {
         console.error('Error fetching todos', err);
         this.todos.set([]);
+        this.isLoadingMore.set(false);
       }
     });
+  }
+
+  loadMore() {
+    this.currentPage++;
+    this.getTodoList();
   }
 
   openTodoForm() {

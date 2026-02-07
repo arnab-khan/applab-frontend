@@ -111,6 +111,10 @@
     @apply w-full max-w-lg overflow-hidden rounded-2xl bg-white/95 u-responsive-padding-xy shadow-2xl backdrop-blur-md;
 }
 
+@utility u-spinner {
+    @apply animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600;
+}
+
 
 /* ---------- Components ---------- */
 

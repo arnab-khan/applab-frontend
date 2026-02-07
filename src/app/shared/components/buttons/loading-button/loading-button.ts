@@ -11,4 +11,5 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class LoadingButton {
   @Input({ required: true }) loading = false;
   @Input() diameter = 20;
+  @Input() spinnerClass = 'stroke-violet-700';
 }

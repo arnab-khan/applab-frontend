@@ -38,12 +38,11 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanMatch {
       }
 
       // Browser: wait for auth to load
-      return toObservable(this.authService.userLoaded).pipe(
-        filter(Boolean),
+      return toObservable(this.authService.authState).pipe(
+        filter(state => state.completed),
         take(1),
-        map(() => {
-          const user = this.authService.user();
-          return user?.id
+        map(state => {
+          return state.user?.id
             ? true
             : this.router.createUrlTree([LOGIN_ROUTE]);
         })

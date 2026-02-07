@@ -61,4 +61,18 @@
 
   // ========== End mat dialog ==========
 
+
+
+  // ========== Start mat menu ==========
+
+  @include mat.menu-overrides((container-shape: 0.5rem,
+      container-color: #ffffff,
+    ));
+
+  .mat-mdc-menu-item:hover {
+    background-color: #f3f4f6 !important;
+  }
+
+  // ========== End mat menu ==========
+
 }

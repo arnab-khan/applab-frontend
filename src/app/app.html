@@ -1,19 +1,23 @@
 <div class="text-base h-full flex flex-col relative">
-  @if (isLoading()) {
-    <div class="absolute inset-0 z-50 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
-      <mat-spinner diameter="50" class="stroke-violet-700"></mat-spinner>
-    </div>
-  }
-
+  @if (this.authState().completed) {
   <header class="sticky top-0 z-10">
     <app-header></app-header>
   </header>
+  }
 
-  <main class="u-gradient-background grow">
+  <main class="u-gradient-background grow relative">
+    @if (showLoader()) {
+    <div class="absolute inset-0 z-50 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
+      <mat-spinner diameter="50" class="stroke-violet-700"></mat-spinner>
+    </div>
+    } @else {
     <router-outlet></router-outlet>
+    }
   </main>
 
+  @if (this.authState().completed) {
   <footer class="footer">
     <p>&copy; 2024 Applab. All rights reserved.</p>
   </footer>
+  }
 </div>

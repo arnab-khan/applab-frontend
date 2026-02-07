@@ -7,12 +7,12 @@
         Todo List
       </h1>
       <p class="text-lg text-gray-600">
-        Your tasks, all in one place
+        Organize and track your tasks efficiently
       </p>
     </div>
 
     <!-- Create Todo Button -->
-    <div class="flex justify-center mb-5">
+    <div class="flex justify-center">
       <button (click)="openTodoForm()" class="u-gradient-btn">
         <fa-icon [icon]="faPlus" class="mr-3"></fa-icon>
         Create New Todo
@@ -20,7 +20,7 @@
     </div>
 
     <!-- Todo Content Area -->
-    <div>
+    <div class="mt-10">
       <app-todo-list (createRequested)="openTodoForm()"></app-todo-list>
     </div>
 

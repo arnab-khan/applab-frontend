@@ -1,15 +1,21 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, Inject, inject, Injector, OnInit, PLATFORM_ID, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Header } from './core/layout/header/header';
 import { Auth } from './core/services/auth';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { finalize, of } from 'rxjs';
+import { filter, map } from 'rxjs';
 import { Platform } from './shared/services/platform';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule, Header, MatProgressSpinnerModule],
+  imports: [
+    RouterOutlet,
+    CommonModule,
+    Header,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -17,8 +23,26 @@ export class App implements OnInit {
 
   private authService = inject(Auth);
   private platformService = inject(Platform);
-  
-  isLoading = signal(true);
+  private router = inject(Router);
+
+  authState = this.authService.authState;
+
+  // Track if the router is currently loading a route/chunk
+  isRouting = toSignal(
+    this.router.events.pipe(
+      filter(event =>
+        event instanceof NavigationStart ||
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+      ),
+      map(event => event instanceof NavigationStart)
+    ),
+    { initialValue: false }
+  );
+
+  // Combine auth completion and routing status
+  showLoader = computed(() => !this.authState().completed || this.isRouting());
 
   ngOnInit(): void {
     this.getUser();
@@ -28,12 +52,7 @@ export class App implements OnInit {
     if (!this.platformService.isBrowser()) {
       return;
     }
-    this.isLoading.set(true);
-    this.authService.me().pipe(
-      finalize(() => {
-        this.isLoading.set(false);
-      })
-    ).subscribe({
+    this.authService.me().subscribe({
       next: (response) => {
         console.log('current user', response)
       },

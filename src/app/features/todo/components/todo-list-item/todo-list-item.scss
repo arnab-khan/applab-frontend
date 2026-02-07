@@ -1,0 +1,13 @@
+@use "tailwindcss";
+
+.todo-item.completed {
+  @apply bg-green-50 border-green-200;
+
+  .todo-title {
+    @apply text-green-700;
+  }
+
+  .todo-description {
+    @apply text-green-600;
+  }
+}

@@ -14,9 +14,18 @@
         <app-todo-list-item [todo]="todo"></app-todo-list-item>
       }
     </div>
+    @if (hasMore()) {
+      <div class="text-center mt-6">
+        <app-loading-button [loading]="isLoadingMore()" spinnerClass="stroke-gray-700">
+          <button (click)="loadMore()" [disabled]="isLoadingMore()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50">
+            Show More
+          </button>
+        </app-loading-button>
+      </div>
+    }
   }
 } @else {
   <div class="flex justify-center items-center py-16">
-    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    <div class="u-spinner"></div>
   </div>
 }

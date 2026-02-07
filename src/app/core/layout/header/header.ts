@@ -12,7 +12,7 @@ import { LOGIN_ROUTE } from '../../../shared/config/config';
 export class Header {
   private authService = inject(Auth);
   private router = inject(Router);
-  user = this.authService.user;
+  user = this.authService.authState;
 
   onLogout() {
     this.authService.logout().subscribe({
