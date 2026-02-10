@@ -25,11 +25,12 @@ export interface TodoQueryParams {
     page: number;
     size: number;
     sort?: string;
+    keyword?: string;
+    completed?: boolean;
 }
 
 export interface MarkTodoCompleteParams {
     id: number;
-    completed: boolean;
 }
 
 export type TodoPageResponse = PageResponse<Todo>;

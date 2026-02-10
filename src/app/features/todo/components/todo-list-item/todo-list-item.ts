@@ -19,11 +19,11 @@ export class TodoListItem {
   completed = signal(false);
   private todoApi = inject(TodoApi);
   private snackBar = inject(MatSnackBar);
-  
+
   faEllipsisVertical = faEllipsisVertical;
   faPenToSquare = faPenToSquare;
   faTrash = faTrash;
-  
+
   edit = output<Todo>();
   delete = output<number>();
 
@@ -41,22 +41,22 @@ export class TodoListItem {
     this.delete.emit(this.todo().id);
   }
 
-  onCompletedChange(completed: boolean) {
+  onCompletedChange() {
     const previousState = this.completed();
-    this.completed.set(completed);
-    this.todoApi.markAsComplete({ id: this.todo().id, completed }).subscribe({
+    this.completed.update(value => !value);
+    this.todoApi.markAsComplete({ id: this.todo().id }).subscribe({
       next: (updatedTodo) => {
-        this.completed.set(updatedTodo.completed || false);
+        const completed = updatedTodo?.completed;
         const message = completed ? 'Todo marked as completed' : 'Todo marked as incomplete';
-        this.snackBar.open(message, 'Close', { 
+        this.snackBar.open(message, 'Close', {
           duration: 3000,
-          panelClass: 'snackbar-success'
+          panelClass: completed ? 'snackbar-success' : 'snackbar-info'
         });
       },
       error: (err) => {
         console.error('Error updating todo completion status', err);
         this.completed.set(previousState);
-        this.snackBar.open('Failed to update todo status', 'Close', { 
+        this.snackBar.open('Failed to update todo status', 'Close', {
           duration: 3000,
           panelClass: 'snackbar-error'
         });

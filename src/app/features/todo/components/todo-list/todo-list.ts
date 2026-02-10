@@ -1,8 +1,11 @@
 import { Component, inject, output, signal, OnInit, DestroyRef, effect, Injector } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faClipboardList } from '@fortawesome/free-solid-svg-icons';
+import { faClipboardList, faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { TodoApi } from '../../services/todo-api';
 import { TodoListItem } from '../todo-list-item/todo-list-item';
 import { Todo } from '../../../../shared/interfaces/todo';
@@ -12,7 +15,7 @@ import { LoadingButton } from '../../../../shared/components/buttons/loading-but
 
 @Component({
   selector: 'app-todo-list',
-  imports: [CommonModule, FontAwesomeModule, TodoListItem, LoadingButton],
+  imports: [CommonModule, FormsModule, MatSelectModule, MatFormFieldModule, FontAwesomeModule, TodoListItem, LoadingButton],
   templateUrl: './todo-list.html',
   styleUrl: './todo-list.scss',
 })
@@ -23,6 +26,8 @@ export class TodoList implements OnInit {
 
   createRequested = output<void>();
   faClipboardList = faClipboardList;
+  faArrowDown = faArrowDown;
+  faArrowUp = faArrowUp;
 
   todos = signal<Todo[] | undefined>(undefined);
   authState = this.auth.authState;
@@ -30,6 +35,11 @@ export class TodoList implements OnInit {
   pageSize = 3;
   hasMore = signal(true);
   isLoadingMore = signal(false);
+  
+  keyword = '';
+  completedFilter: boolean | undefined = undefined;
+  sortField = 'createdAt';
+  sortDirection = 'desc';
 
   constructor() {
     effect(() => {
@@ -47,7 +57,13 @@ export class TodoList implements OnInit {
 
   getTodoList() {
     this.isLoadingMore.set(true);
-    this.todoApi.getAll({ page: this.currentPage, size: this.pageSize, sort: 'createdAt,desc' }).subscribe({
+    this.todoApi.getAll({ 
+      page: this.currentPage, 
+      size: this.pageSize, 
+      sort: `${this.sortField},${this.sortDirection}`,
+      keyword: this.keyword || undefined,
+      completed: this.completedFilter
+    }).subscribe({
       next: (response) => {
         console.log('todoList', response);
         const currentTodos = this.todos() || [];
@@ -63,9 +79,37 @@ export class TodoList implements OnInit {
     });
   }
 
+  onSearch() {
+    this.currentPage = 0;
+    this.todos.set([]);
+    this.getTodoList();
+  }
+
+  onFilterChange() {
+    this.currentPage = 0;
+    this.todos.set([]);
+    this.getTodoList();
+  }
+
+  onSortChange() {
+    this.currentPage = 0;
+    this.todos.set([]);
+    this.getTodoList();
+  }
+
   loadMore() {
     this.currentPage++;
     this.getTodoList();
+  }
+
+  toggleSort(field: string) {
+    if (this.sortField === field) {
+      this.sortDirection = this.sortDirection === 'desc' ? 'asc' : 'desc';
+    } else {
+      this.sortField = field;
+      this.sortDirection = 'desc';
+    }
+    this.onSortChange();
   }
 
   openTodoForm() {

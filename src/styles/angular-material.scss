@@ -1,6 +1,17 @@
+@use "tailwindcss";
 @use '@angular/material' as mat;
 
 :root {
+
+
+
+  input::placeholder,
+  textarea::placeholder,
+  .mat-mdc-select-placeholder {
+    color: #9ca3af;
+    opacity: 1;
+    @apply text-base text-gray-400;
+  }
 
   // ========== Start mat snack-bar ==========
   .mat-mdc-snack-bar-container {
@@ -69,10 +80,38 @@
       container-color: #ffffff,
     ));
 
-  .mat-mdc-menu-item:hover {
+  // ========== End mat menu ==========
+
+
+
+  // ========== Start mat select ==========
+
+  @include mat.select-overrides((panel-background-color: #ffffff,
+      placeholder-text-color:#9ca3af,
+    ));
+
+  mat-select {
+    padding: 0;
+  }
+
+  .mat-mdc-option:hover {
     background-color: #f3f4f6 !important;
   }
 
-  // ========== End mat menu ==========
+  .mat-mdc-select-trigger {
+    @apply px-4 py-1.5 lg:py-2
+  }
+
+  // ========== End mat select ==========
+
+
+
+  // ========== Start mat checkbox ==========
+
+  @include mat.checkbox-overrides((touch-target-size: 24px,
+      state-layer-size: 24px,
+    ));
+
+  // ========== End mat checkbox ==========
 
 }

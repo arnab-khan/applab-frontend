@@ -4,7 +4,9 @@ import { HttpParams } from "@angular/common/http";
 export function toHttpParams(obj: Record<string, any>): HttpParams {
     let params = new HttpParams();
     Object.entries(obj).forEach(([key, value]) => {
-        params = params.set(key, value.toString()); // `set(key, value)` Adds a new value for the key.
+        if (value) {
+            params = params.set(key, value.toString()); // `set(key, value)` Adds a new value for the key.
+        }
     });
     return params;
 }
