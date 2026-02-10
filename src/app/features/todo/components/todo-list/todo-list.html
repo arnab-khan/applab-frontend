@@ -1,53 +1,44 @@
 <div class="mb-6 space-y-4">
   <div class="flex flex-wrap gap-4">
-    <div class="flex-1 min-w-[200px]">
-      <input 
-        type="text" 
-        [(ngModel)]="keyword" 
-        (keyup.enter)="onSearch()"
-        placeholder="Search todos..."
-        class="form-field"
-      />
+    <div class="flex-1 min-w-50">
+      <input type="text" [(ngModel)]="keyword" (ngModelChange)="onSearch()" placeholder="Search todos..."
+        class="form-field" />
     </div>
-    <button 
-      (click)="onSearch()" 
-      class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-      Search
-    </button>
   </div>
-  
-  <div class="flex flex-wrap gap-4 justify-between items-center">
-    <div class="min-w-40 max-w-100 grow">
+
+  <div class="flex flex-wrap gap-4 justify-between items-end">
+    <div class="min-w-40 sm:max-w-100 grow-9999">
       <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Status</label>
-      <mat-select [(ngModel)]="completedFilter" (selectionChange)="onFilterChange()" placeholder="Select a status" class="form-field">
+      <mat-select [(ngModel)]="completedFilter" (selectionChange)="onFilterChange()" placeholder="Select a status"
+        class="form-field">
         <mat-option [value]="undefined">All</mat-option>
         <mat-option [value]="true">Completed</mat-option>
         <mat-option [value]="false">Incomplete</mat-option>
       </mat-select>
     </div>
-    
-    <div class="flex gap-3">
-      <button (click)="toggleSort('createdAt')" 
-        class="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors cursor-pointer">
+
+    <div class="flex gap-3 grow sm:grow-0 justify-between">
+      <button (click)="toggleSort('createdAt')"
+        class="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors cursor-pointer">
         <span class="text-sm font-medium text-gray-700">Created</span>
         <div>
-          <fa-icon [icon]="faArrowUp" 
+          <fa-icon [icon]="faArrowUp"
             [class]="sortField === 'createdAt' && sortDirection === 'asc' ? 'text-blue-600' : 'text-gray-400'"
             class="text-xs"></fa-icon>
-          <fa-icon [icon]="faArrowDown" 
+          <fa-icon [icon]="faArrowDown"
             [class]="sortField === 'createdAt' && sortDirection === 'desc' ? 'text-blue-600' : 'text-gray-400'"
             class="text-xs"></fa-icon>
         </div>
       </button>
-      
-      <button (click)="toggleSort('updatedAt')" 
-        class="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors cursor-pointer">
+
+      <button (click)="toggleSort('updatedAt')"
+        class="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors cursor-pointer">
         <span class="text-sm font-medium text-gray-700">Updated</span>
         <div>
-          <fa-icon [icon]="faArrowUp" 
+          <fa-icon [icon]="faArrowUp"
             [class]="sortField === 'updatedAt' && sortDirection === 'asc' ? 'text-blue-600' : 'text-gray-400'"
             class="text-xs"></fa-icon>
-          <fa-icon [icon]="faArrowDown" 
+          <fa-icon [icon]="faArrowDown"
             [class]="sortField === 'updatedAt' && sortDirection === 'desc' ? 'text-blue-600' : 'text-gray-400'"
             class="text-xs"></fa-icon>
         </div>
@@ -56,34 +47,34 @@
   </div>
 </div>
 
-@if (todos(); as todoItems) {
-  @if (todoItems.length === 0) {
-    <div class="text-center text-gray-500 py-16">
-      <fa-icon [icon]="faClipboardList" class="text-6xl mx-auto mb-4 text-gray-300"></fa-icon>
-      <p class="text-xl font-medium my-2">No todos yet</p>
-      <button (click)="openTodoForm()"
-        class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors">
-        Create your first todo
-      </button>
-    </div>
-  } @else {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      @for (todo of todoItems; track todo.id) {
-        <app-todo-list-item [todo]="todo"></app-todo-list-item>
-      }
-    </div>
-    @if (hasMore()) {
-      <div class="text-center mt-6">
-        <app-loading-button [loading]="isLoadingMore()" spinnerClass="stroke-gray-700">
-          <button (click)="loadMore()" [disabled]="isLoadingMore()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50">
-            Show More
-          </button>
-        </app-loading-button>
-      </div>
-    }
-  }
+@if (isLoadingList()&&!isLoadingMore()) {
+<div class="flex justify-center items-center py-16">
+  <div class="u-spinner"></div>
+</div>
+} @else if (todos(); as todoItems) {
+@if (todoItems.length === 0) {
+<div class="text-center text-gray-500 py-16">
+  <fa-icon [icon]="faClipboardList" class="text-6xl mx-auto mb-4 text-gray-300"></fa-icon>
+  <p class="text-xl font-medium my-2">No todos yet</p>
+  <button (click)="openTodoForm()" class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors">
+    Create your first todo
+  </button>
+</div>
 } @else {
-  <div class="flex justify-center items-center py-16">
-    <div class="u-spinner"></div>
-  </div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  @for (todo of todoItems; track todo.id) {
+  <app-todo-list-item [todo]="todo"></app-todo-list-item>
+  }
+</div>
+@if (hasMore()) {
+<div class="text-center mt-6">
+  <app-loading-button [loading]="isLoadingMore()" spinnerClass="stroke-gray-700">
+    <button (click)="loadMore()" [disabled]="isLoadingMore()"
+      class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50">
+      Show More
+    </button>
+  </app-loading-button>
+</div>
+}
+}
 }

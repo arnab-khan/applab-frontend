@@ -6,6 +6,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faClipboardList, faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { TodoApi } from '../../services/todo-api';
 import { TodoListItem } from '../todo-list-item/todo-list-item';
 import { Todo } from '../../../../shared/interfaces/todo';
@@ -19,10 +20,12 @@ import { LoadingButton } from '../../../../shared/components/buttons/loading-but
   templateUrl: './todo-list.html',
   styleUrl: './todo-list.scss',
 })
-export class TodoList implements OnInit {
+export class TodoList {
   private todoApi = inject(TodoApi);
   private auth = inject(Auth);
   private platformService = inject(Platform);
+  private destroyRef = inject(DestroyRef);
+  private search$ = new Subject<string>();
 
   createRequested = output<void>();
   faClipboardList = faClipboardList;
@@ -35,7 +38,8 @@ export class TodoList implements OnInit {
   pageSize = 3;
   hasMore = signal(true);
   isLoadingMore = signal(false);
-  
+  isLoadingList = signal(false);
+
   keyword = '';
   completedFilter: boolean | undefined = undefined;
   sortField = 'createdAt';
@@ -51,15 +55,24 @@ export class TodoList implements OnInit {
         this.getTodoList();
       }
     });
+
+    this.search$.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.currentPage = 0;
+      this.todos.set([]);
+      this.getTodoList();
+    });
   }
 
-  ngOnInit() { }
-
   getTodoList() {
+    this.isLoadingList.set(true);
     this.isLoadingMore.set(true);
-    this.todoApi.getAll({ 
-      page: this.currentPage, 
-      size: this.pageSize, 
+    this.todoApi.getAll({
+      page: this.currentPage,
+      size: this.pageSize,
       sort: `${this.sortField},${this.sortDirection}`,
       keyword: this.keyword || undefined,
       completed: this.completedFilter
@@ -69,20 +82,21 @@ export class TodoList implements OnInit {
         const currentTodos = this.todos() || [];
         this.todos.set([...currentTodos, ...response.content]);
         this.hasMore.set(!response.last);
+        this.isLoadingList.set(false);
         this.isLoadingMore.set(false);
       },
       error: (err) => {
         console.error('Error fetching todos', err);
         this.todos.set([]);
+        this.isLoadingList.set(false);
         this.isLoadingMore.set(false);
       }
     });
   }
 
   onSearch() {
-    this.currentPage = 0;
-    this.todos.set([]);
-    this.getTodoList();
+    this.isLoadingList.set(true);
+    this.search$.next(this.keyword.trim());
   }
 
   onFilterChange() {

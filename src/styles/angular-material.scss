@@ -3,12 +3,10 @@
 
 :root {
 
-
-
   input::placeholder,
   textarea::placeholder,
   .mat-mdc-select-placeholder {
-    color: #9ca3af;
+    color: theme('colors.gray.400');
     opacity: 1;
     @apply text-base text-gray-400;
   }
@@ -36,22 +34,22 @@
     }
   }
 
-  @include mat.snack-bar-overrides((container-color: #dbeafe,
-      supporting-text-color: #1e3a8a,
-      button-color: #1e3a8a,
+  @include mat.snack-bar-overrides((container-color: theme('colors.blue.100'),
+      supporting-text-color: theme('colors.blue.900'),
+      button-color: theme('colors.blue.900'),
     ));
 
   .snackbar-error {
-    @include mat.snack-bar-overrides((container-color: #fecaca,
-        supporting-text-color: #7f1d1d,
-        button-color: #7f1d1d,
+    @include mat.snack-bar-overrides((container-color: theme('colors.red.200'),
+        supporting-text-color: theme('colors.red.900'),
+        button-color: theme('colors.red.900'),
       ));
   }
 
   .snackbar-success {
-    @include mat.snack-bar-overrides((container-color: #d1fae5,
-        supporting-text-color: #065f46,
-        button-color: #065f46,
+    @include mat.snack-bar-overrides((container-color: theme('colors.emerald.100'),
+        supporting-text-color: theme('colors.emerald.800'),
+        button-color: theme('colors.emerald.800'),
       ));
   }
 
@@ -77,7 +75,7 @@
   // ========== Start mat menu ==========
 
   @include mat.menu-overrides((container-shape: 0.5rem,
-      container-color: #ffffff,
+      container-color: theme('colors.white'),
     ));
 
   // ========== End mat menu ==========
@@ -86,8 +84,8 @@
 
   // ========== Start mat select ==========
 
-  @include mat.select-overrides((panel-background-color: #ffffff,
-      placeholder-text-color:#9ca3af,
+  @include mat.select-overrides((panel-background-color: theme('colors.white'),
+      placeholder-text-color: theme('colors.gray.400'),
     ));
 
   mat-select {
@@ -95,11 +93,15 @@
   }
 
   .mat-mdc-option:hover {
-    background-color: #f3f4f6 !important;
+    background-color: theme('colors.gray.100') !important;
   }
 
   .mat-mdc-select-trigger {
-    @apply px-4 py-1.5 lg:py-2
+    @apply px-4 py-1.5 lg:py-2;
+  }
+
+  .mat-mdc-select-placeholder{
+    @apply pe-3;
   }
 
   // ========== End mat select ==========
