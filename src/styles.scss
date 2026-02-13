@@ -6,3 +6,9 @@ html {
         font-size: inherit;
     }
 }
+
+router-outlet + * {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}

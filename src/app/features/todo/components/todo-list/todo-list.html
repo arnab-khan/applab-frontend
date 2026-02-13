@@ -47,34 +47,41 @@
   </div>
 </div>
 
-@if (isLoadingList()&&!isLoadingMore()) {
+@if (todos(); as todoItems) {
+<div class="flex justify-center items-center py-16" [class.hidden]="!isLoadingList()">
+  <div class="u-spinner"></div>
+</div>
+
+<div [class.hidden]="isLoadingList()">
+  @if (todoItems.length === 0) {
+  <div class="text-center text-gray-500 py-16">
+    <fa-icon [icon]="faClipboardList" class="text-6xl mx-auto mb-4 text-gray-300"></fa-icon>
+    <p class="text-xl font-medium my-2">No todos yet</p>
+    <!-- <button (click)="openTodoForm()" class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors">
+      Create your first todo
+    </button> -->
+  </div>
+  } @else {
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (todo of todoItems; track todo.id) {
+    <app-todo-list-item [todo]="todo" (loaderState)="onTodoLoaderStateChange($event)" (getTodo)="onGetTodo()">
+    </app-todo-list-item>
+    }
+  </div>
+  @if (hasMore()) {
+  <div class="text-center mt-6">
+    <app-loading-button [loading]="isLoadingMore()" spinnerClass="stroke-gray-700">
+      <button (click)="loadMore()" [disabled]="isLoadingMore()"
+        class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50">
+        Show More
+      </button>
+    </app-loading-button>
+  </div>
+  }
+  }
+</div>
+} @else if (isLoadingList()) {
 <div class="flex justify-center items-center py-16">
   <div class="u-spinner"></div>
 </div>
-} @else if (todos(); as todoItems) {
-@if (todoItems.length === 0) {
-<div class="text-center text-gray-500 py-16">
-  <fa-icon [icon]="faClipboardList" class="text-6xl mx-auto mb-4 text-gray-300"></fa-icon>
-  <p class="text-xl font-medium my-2">No todos yet</p>
-  <button (click)="openTodoForm()" class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors">
-    Create your first todo
-  </button>
-</div>
-} @else {
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  @for (todo of todoItems; track todo.id) {
-  <app-todo-list-item [todo]="todo"></app-todo-list-item>
-  }
-</div>
-@if (hasMore()) {
-<div class="text-center mt-6">
-  <app-loading-button [loading]="isLoadingMore()" spinnerClass="stroke-gray-700">
-    <button (click)="loadMore()" [disabled]="isLoadingMore()"
-      class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50">
-      Show More
-    </button>
-  </app-loading-button>
-</div>
-}
-}
 }

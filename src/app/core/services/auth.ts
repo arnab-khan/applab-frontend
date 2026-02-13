@@ -35,7 +35,6 @@ export class Auth {
   }
 
   signup(body: CreateUser) {
-    this.authState.update(state => ({ ...state, status: 'loading', completed: false }));
     return this.httpClient.post<User>(`${this.baseApiUrl}/signup`, body).pipe(
       tap(user => this.updateUser(user)),
       finalize(() => this.authState.update(state => ({ ...state, completed: true })))
@@ -43,7 +42,6 @@ export class Auth {
   }
 
   login(body: LoginUser) {
-    this.authState.update(state => ({ ...state, status: 'loading', completed: false }));
     return this.httpClient.post<User>(`${this.baseApiUrl}/login`, body).pipe(
       tap(user => this.updateUser(user)),
       finalize(() => this.authState.update(state => ({ ...state, completed: true })))

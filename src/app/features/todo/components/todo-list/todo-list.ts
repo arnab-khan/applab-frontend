@@ -16,7 +16,15 @@ import { LoadingButton } from '../../../../shared/components/buttons/loading-but
 
 @Component({
   selector: 'app-todo-list',
-  imports: [CommonModule, FormsModule, MatSelectModule, MatFormFieldModule, FontAwesomeModule, TodoListItem, LoadingButton],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    FontAwesomeModule,
+    TodoListItem,
+    LoadingButton
+  ],
   templateUrl: './todo-list.html',
   styleUrl: './todo-list.scss',
 })
@@ -35,7 +43,7 @@ export class TodoList {
   todos = signal<Todo[] | undefined>(undefined);
   authState = this.auth.authState;
   currentPage = 0;
-  pageSize = 3;
+  pageSize = 6;
   hasMore = signal(true);
   isLoadingMore = signal(false);
   isLoadingList = signal(false);
@@ -52,6 +60,7 @@ export class TodoList {
       }
       const state = this.authState();
       if (state.status === 'authenticated' && state.user?.id) {
+        this.isLoadingList.set(true);
         this.getTodoList();
       }
     });
@@ -68,8 +77,6 @@ export class TodoList {
   }
 
   getTodoList() {
-    this.isLoadingList.set(true);
-    this.isLoadingMore.set(true);
     this.todoApi.getAll({
       page: this.currentPage,
       size: this.pageSize,
@@ -100,18 +107,21 @@ export class TodoList {
   }
 
   onFilterChange() {
+    this.isLoadingList.set(true);
     this.currentPage = 0;
     this.todos.set([]);
     this.getTodoList();
   }
 
   onSortChange() {
+    this.isLoadingList.set(true);
     this.currentPage = 0;
     this.todos.set([]);
     this.getTodoList();
   }
 
   loadMore() {
+    this.isLoadingMore.set(true);
     this.currentPage++;
     this.getTodoList();
   }
@@ -128,5 +138,15 @@ export class TodoList {
 
   openTodoForm() {
     this.createRequested.emit();
+  }
+
+  onTodoLoaderStateChange(isLoading: boolean) {
+    this.isLoadingList.set(isLoading);
+  }
+
+  onGetTodo() {
+    this.currentPage = 0;
+    this.todos.set([]);
+    this.getTodoList();
   }
 }

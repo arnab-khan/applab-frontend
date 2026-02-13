@@ -16,16 +16,16 @@ import { TodoApi } from '../../services/todo-api';
 })
 export class TodoListItem {
   todo = input.required<Todo>();
+  loaderState = output<boolean>();
+  getTodo = output<void>();
   completed = signal(false);
+  isCompleting = signal(false);
   private todoApi = inject(TodoApi);
   private snackBar = inject(MatSnackBar);
 
   faEllipsisVertical = faEllipsisVertical;
   faPenToSquare = faPenToSquare;
   faTrash = faTrash;
-
-  edit = output<Todo>();
-  delete = output<number>();
 
   constructor() {
     effect(() => {
@@ -34,14 +34,37 @@ export class TodoListItem {
   }
 
   onEdit() {
-    this.edit.emit(this.todo());
+
   }
 
   onDelete() {
-    this.delete.emit(this.todo().id);
+    const confirmed = window.confirm('Are you sure you want to delete this todo?');
+    if (!confirmed) {
+      return;
+    }
+    const todoId = this.todo().id;
+    this.loaderState.emit(true);
+    this.todoApi.delete(todoId).subscribe({
+      next: () => {
+        this.getTodo.emit();
+        this.snackBar.open('Todo deleted successfully', 'Close', {
+          duration: 3000,
+          panelClass: 'snackbar-success'
+        });
+      },
+      error: (err) => {
+        this.loaderState.emit(false);
+        console.error('Error deleting todo', err);
+        this.snackBar.open('Failed to delete todo', 'Close', {
+          duration: 3000,
+          panelClass: 'snackbar-error'
+        });
+      }
+    });
   }
 
   onCompletedChange() {
+    this.isCompleting.set(true);
     const previousState = this.completed();
     this.completed.update(value => !value);
     this.todoApi.markAsComplete({ id: this.todo().id }).subscribe({
@@ -52,6 +75,7 @@ export class TodoListItem {
           duration: 3000,
           panelClass: completed ? 'snackbar-success' : 'snackbar-info'
         });
+        this.isCompleting.set(false);
       },
       error: (err) => {
         console.error('Error updating todo completion status', err);
@@ -60,6 +84,7 @@ export class TodoListItem {
           duration: 3000,
           panelClass: 'snackbar-error'
         });
+        this.isCompleting.set(false);
       }
     });
   }

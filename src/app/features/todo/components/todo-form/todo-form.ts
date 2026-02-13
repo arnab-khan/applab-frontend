@@ -80,7 +80,7 @@ export class TodoForm implements OnInit {
         description: controls.description.value,
       };
       this.todoApi.add(todoData).subscribe({
-        next: (response) => {
+        next: () => {
           this.isSubmitting.set(false);
           this.snackBar.open('Todo added successfully', 'Close', { duration: 3000, panelClass: 'snackbar-success' });
           this.dialogRef?.close(true);

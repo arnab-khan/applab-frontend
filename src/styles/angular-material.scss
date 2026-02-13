@@ -100,7 +100,7 @@
     @apply px-4 py-1.5 lg:py-2;
   }
 
-  .mat-mdc-select-placeholder{
+  .mat-mdc-select-placeholder {
     @apply pe-3;
   }
 
@@ -113,6 +113,10 @@
   @include mat.checkbox-overrides((touch-target-size: 24px,
       state-layer-size: 24px,
     ));
+
+  .mdc-checkbox__background {
+    border-color: inherit !important;
+  }
 
   // ========== End mat checkbox ==========
 

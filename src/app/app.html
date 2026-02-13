@@ -1,11 +1,11 @@
-<div class="text-base h-full flex flex-col relative">
+<div class="text-base min-h-dvh flex flex-col relative">
   @if (this.authState().completed) {
-  <header class="sticky top-[-1px] z-10">
+  <header class="sticky top-0 z-10">
     <app-header></app-header>
   </header>
   }
 
-  <main class="u-gradient-background grow relative">
+  <main class="u-gradient-background grow relative flex flex-col">
     @if (showLoader()) {
     <div class="absolute inset-0 z-50 flex items-center justify-center bg-white/50 backdrop-blur-[1px]">
       <mat-spinner diameter="50" class="stroke-violet-700"></mat-spinner>

@@ -2,7 +2,8 @@
   class="c-todo-item p-4 md:p-5 xl:p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all relative h-full bg-white"
   [ngClass]="{'completed': completed()}">
   <div class="flex items-start gap-3 mb-2">
-    <mat-checkbox disableRipple [checked]="completed()" (change)="onCompletedChange()" class="mt-1">
+    <mat-checkbox disableRipple [checked]="completed()" [disabled]="isCompleting()" (change)="onCompletedChange()"
+      class="mt-1">
     </mat-checkbox>
     <h3 class="todo-title text-lg font-semibold flex-1 text-gray-900">{{ todo().title }}</h3>
     <button [matMenuTriggerFor]="menu" class="text-gray-400 hover:text-gray-600 -mt-1 -mr-1 p-1">
