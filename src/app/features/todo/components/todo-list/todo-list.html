@@ -57,14 +57,11 @@
   <div class="text-center text-gray-500 py-16">
     <fa-icon [icon]="faClipboardList" class="text-6xl mx-auto mb-4 text-gray-300"></fa-icon>
     <p class="text-xl font-medium my-2">No todos yet</p>
-    <!-- <button (click)="openTodoForm()" class="text-blue-600 hover:text-blue-800 underline font-medium transition-colors">
-      Create your first todo
-    </button> -->
   </div>
   } @else {
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     @for (todo of todoItems; track todo.id) {
-    <app-todo-list-item [todo]="todo" (loaderState)="onTodoLoaderStateChange($event)" (getTodo)="onGetTodo()">
+    <app-todo-list-item [todo]="todo" (loaderState)="onTodoLoaderStateChange($event)" (resetTodo)="resetTodo()">
     </app-todo-list-item>
     }
   </div>

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment.development';
-import { CreateTodo, MarkTodoCompleteParams, Todo, TodoPageResponse, TodoQueryParams, UpdateTodo } from '../../../shared/interfaces/todo';
+import { BaseTodo, MarkTodoCompleteParams, Todo, TodoPageResponse, TodoQueryParams } from '../../../shared/interfaces/todo';
 import { toHttpParams } from '../../../shared/utils/http';
 
 @Injectable({
@@ -11,11 +11,11 @@ export class TodoApi {
   private httpClient = inject(HttpClient);
   private baseApiUrl = `${environment.rootApiUrl}/todo`;
 
-  add(body: CreateTodo) {
+  add(body: BaseTodo) {
     return this.httpClient.post<Todo>(`${this.baseApiUrl}/add`, body);
   }
 
-  update(body: UpdateTodo) {
+  update(body: BaseTodo) {
     return this.httpClient.patch<Todo>(`${this.baseApiUrl}/update`, body);
   }
 

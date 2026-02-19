@@ -50,7 +50,7 @@ export class TodoList {
 
   keyword = '';
   completedFilter: boolean | undefined = undefined;
-  sortField = 'createdAt';
+  sortField = 'updatedAt';
   sortDirection = 'desc';
 
   constructor() {
@@ -144,9 +144,18 @@ export class TodoList {
     this.isLoadingList.set(isLoading);
   }
 
-  onGetTodo() {
+  private resetTodoListState() {
+    this.keyword = '';
+    this.completedFilter = undefined;
+    this.sortField = 'updatedAt';
+    this.sortDirection = 'desc';
     this.currentPage = 0;
     this.todos.set([]);
+  }
+
+  resetTodo() {
+    this.isLoadingList.set(true);
+    this.resetTodoListState();
     this.getTodoList();
   }
 }

@@ -13,12 +13,12 @@
     <app-form-fields [fieldConfig]="{label: 'Description'}" [dynamicFormControl]="descriptionControl"
       [hasClickedSubmit]="hasClickedSubmit">
       <textarea [formControl]="descriptionControl" class="form-field min-h-25" [placeholder]="'Enter task description'"
-        name="description" appSanitizeInput></textarea>
+        name="description" appSanitizeInput appAutoResizeTextarea></textarea>
     </app-form-fields>
 
     <app-loading-button [loading]="isSubmitting()" class="mt-4">
       <button type="submit" class="u-gradient-btn w-full">
-        Add Task
+        {{ todo()?.id ? 'Update Task' : 'Add Task' }}
       </button>
     </app-loading-button>
   </form>

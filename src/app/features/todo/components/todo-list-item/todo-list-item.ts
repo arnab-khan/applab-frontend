@@ -3,10 +3,12 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEllipsisVertical, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Todo } from '../../../../shared/interfaces/todo';
 import { TodoApi } from '../../services/todo-api';
+import { TodoFormDialog } from '../todo-form-dialog/todo-form-dialog';
 
 @Component({
   selector: 'app-todo-list-item',
@@ -17,11 +19,13 @@ import { TodoApi } from '../../services/todo-api';
 export class TodoListItem {
   todo = input.required<Todo>();
   loaderState = output<boolean>();
-  getTodo = output<void>();
+  resetTodo = output<void>();
   completed = signal(false);
   isCompleting = signal(false);
+
   private todoApi = inject(TodoApi);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   faEllipsisVertical = faEllipsisVertical;
   faPenToSquare = faPenToSquare;
@@ -34,7 +38,19 @@ export class TodoListItem {
   }
 
   onEdit() {
+    const dialogRef = this.dialog.open(TodoFormDialog, {
+      width: '50rem',
+      maxHeight: '90%',
+      data: {
+        todo: this.todo(),
+      },
+    });
 
+    dialogRef.afterClosed().subscribe((result?: { created?: boolean }) => {
+      if (result?.created) {
+        this.resetTodo.emit();
+      }
+    });
   }
 
   onDelete() {
@@ -46,7 +62,7 @@ export class TodoListItem {
     this.loaderState.emit(true);
     this.todoApi.delete(todoId).subscribe({
       next: () => {
-        this.getTodo.emit();
+        this.resetTodo.emit();
         this.snackBar.open('Todo deleted successfully', 'Close', {
           duration: 3000,
           panelClass: 'snackbar-success'

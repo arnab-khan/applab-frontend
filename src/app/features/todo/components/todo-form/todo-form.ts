@@ -1,14 +1,15 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormFieldsComponent } from '../../../../shared/components/form/form-fields/form-fields';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
-import { CreateTodo } from '../../../../shared/interfaces/todo';
+import { BaseTodo } from '../../../../shared/interfaces/todo';
 import { TodoApi } from '../../services/todo-api';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Todo } from '../../../../shared/interfaces/todo';
+import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
 
 @Component({
   selector: 'app-todo-form',
@@ -19,16 +20,19 @@ import { MatDialogRef } from '@angular/material/dialog';
     SanitizeInput,
     LoadingButton,
     MatSnackBarModule,
+    AutoResizeTextarea
   ],
   templateUrl: './todo-form.html',
   styleUrl: './todo-form.scss',
 })
-export class TodoForm implements OnInit {
+export class TodoForm {
+
+  todo = input<Todo | null>(null);
+  resetTodo = output<void>();
 
   private todoApi = inject(TodoApi);
   private formBuilder = inject(NonNullableFormBuilder);
   private snackBar = inject(MatSnackBar);
-  private dialogRef = inject(MatDialogRef, { optional: true });
 
   todoForm!: FormGroup<{
     title: FormControl<string>;
@@ -37,8 +41,11 @@ export class TodoForm implements OnInit {
   isSubmitting = signal(false);
   hasClickedSubmit = false;
 
-  ngOnInit(): void {
+  constructor() {
     this.createForm();
+    effect(() => {
+      this.patchFromValue();
+    });
   }
 
   createForm() {
@@ -48,7 +55,7 @@ export class TodoForm implements OnInit {
         [
           commonFormValidator({
             required: true,
-            maxLength: 100,
+            maxLength: 50,
           }),
         ],
       ],
@@ -57,10 +64,21 @@ export class TodoForm implements OnInit {
         [
           commonFormValidator({
             required: true,
-            maxLength: 500,
+            maxLength: 255,
           }),
         ],
       ],
+    });
+  }
+
+  patchFromValue() {
+    const todo = this.todo();
+    if (!todo) {
+      return;
+    }
+    this.todoForm.patchValue({
+      title: todo.title ?? '',
+      description: todo.description ?? '',
     });
   }
 
@@ -75,15 +93,17 @@ export class TodoForm implements OnInit {
   addTodo() {
     if (this.todoForm.valid) {
       const controls = this.todoForm.controls;
-      const todoData: CreateTodo = {
+      const id = this.todo()?.id;
+      const todoData: BaseTodo = {
+        ...(id && { id: id }),
         title: controls.title.value,
         description: controls.description.value,
       };
-      this.todoApi.add(todoData).subscribe({
+      const request$ = id ? this.todoApi.update(todoData) : this.todoApi.add(todoData);
+      request$.subscribe({
         next: () => {
-          this.isSubmitting.set(false);
           this.snackBar.open('Todo added successfully', 'Close', { duration: 3000, panelClass: 'snackbar-success' });
-          this.dialogRef?.close(true);
+          this.resetTodo.emit();
         },
         error: (error) => {
           this.isSubmitting.set(false);

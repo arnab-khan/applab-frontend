@@ -1,6 +1,6 @@
 @use "tailwindcss";
 
-.c-todo-item.completed {
+.c-todo-item.c-completed {
   @apply bg-green-50 border-green-200;
 
   .todo-title {

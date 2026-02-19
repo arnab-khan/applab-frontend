@@ -10,13 +10,8 @@ export interface Todo {
     updatedAt?: string;
 }
 
-export interface CreateTodo {
-    title: string;
-    description: string;
-}
-
-export interface UpdateTodo {
-    id: number;
+export interface BaseTodo {
+    id?: number;
     title?: string;
     description?: string;
 }
