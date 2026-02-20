@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, input, signal } from '@angular/core';
+import { Component, effect, input, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { SentenceCasePipe } from '../../../pipes/sentence-case-pipe';
@@ -19,11 +19,7 @@ export class FormFieldsComponent {
   text = input<{ validText?: string; pendingText?: string }>({});
 
   fieldErrorMessages = signal<string[]>([]);
-
-  showInvalid = computed(() => {
-    const control = this.dynamicFormControl();
-    return control.invalid && (control.touched || control.dirty || this.hasClickedSubmit());
-  });
+  showInvalid = signal(false);
 
   readonly errorOrder = [
     'required',
@@ -44,10 +40,10 @@ export class FormFieldsComponent {
       const control = this.dynamicFormControl();
 
       control.updateValueAndValidity();
-      this.updateErrorMessages();
+      this.updateViewState();
 
-      const statusSub: Subscription = control.statusChanges.subscribe(() => {
-        this.updateErrorMessages();
+      const statusSub: Subscription = control.events.subscribe(() => {
+        this.updateViewState();
       });
 
       onCleanup(() => statusSub.unsubscribe());
@@ -55,9 +51,15 @@ export class FormFieldsComponent {
 
     effect(() => {
       if (this.hasClickedSubmit()) {
-        this.updateErrorMessages();
+        this.updateViewState();
       }
     });
+  }
+
+  private updateViewState(): void {
+    const control = this.dynamicFormControl();
+    this.showInvalid.set(control.invalid && (control.touched || control.dirty || this.hasClickedSubmit()));
+    this.updateErrorMessages();
   }
 
   private updateErrorMessages(): void {

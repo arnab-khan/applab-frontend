@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { FormFieldsComponent } from '../../../../shared/components/form/form-fields/form-fields';
+import { FormFieldsComponent } from '../../../../shared/components/forms/form-fields/form-fields';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
 import { LoginUser } from '../../../../shared/interfaces/user';

@@ -1,5 +1,10 @@
+<div class="text-end pt-3 pe-3">
+  <button type="button" (click)="onCancel()">
+    <fa-icon [icon]="faXmark" class="text-md text-gray-500"></fa-icon>
+  </button>
+</div>
 <mat-dialog-content>
-  <div class="u-responsive-padding-xy c-todo-form-dialog">
+  <div class="u-responsive-padding-xy pt-2 c-todo-form-dialog">
     <h2 class="text-2xl font-bold text-gray-900">
       {{ todo() ? 'Edit Task' : 'Add New Task' }}
     </h2>

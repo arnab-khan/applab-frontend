@@ -1,8 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { FormFieldsComponent } from '../../../../shared/components/form/form-fields/form-fields';
-import { FieldConfig } from '../../../../shared/components/form/form-fields/form-fields.interface';
+import { FormFieldsComponent } from '../../../../shared/components/forms/form-fields/form-fields';
+import { FieldConfig } from '../../../../shared/components/forms/form-fields/form-fields.interface';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { User } from '../../../../core/services/user';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
