@@ -1,6 +1,7 @@
 <div class="mb-6 space-y-4">
   <div class="flex flex-wrap gap-4">
     <div class="flex-1 min-w-50">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Search Todo</label>
       <input type="text" [(ngModel)]="keyword" (ngModelChange)="onSearch()" placeholder="Search todos..."
         class="form-field" />
     </div>
@@ -18,31 +19,13 @@
     </div>
 
     <div class="flex gap-3 grow sm:grow-0 justify-between">
-      <button (click)="toggleSort('createdAt')"
-        class="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors cursor-pointer">
-        <span class="text-sm font-medium text-gray-700">Created</span>
-        <div>
-          <fa-icon [icon]="faArrowUp"
-            [class]="sortField === 'createdAt' && sortDirection === 'asc' ? 'text-blue-600' : 'text-gray-400'"
-            class="text-xs"></fa-icon>
-          <fa-icon [icon]="faArrowDown"
-            [class]="sortField === 'createdAt' && sortDirection === 'desc' ? 'text-blue-600' : 'text-gray-400'"
-            class="text-xs"></fa-icon>
-        </div>
-      </button>
+      <app-sort-button label="Created" field="createdAt" [activeField]="sortField" [direction]="sortDirection"
+        (toggle)="toggleSort($event)">
+      </app-sort-button>
 
-      <button (click)="toggleSort('updatedAt')"
-        class="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors cursor-pointer">
-        <span class="text-sm font-medium text-gray-700">Updated</span>
-        <div>
-          <fa-icon [icon]="faArrowUp"
-            [class]="sortField === 'updatedAt' && sortDirection === 'asc' ? 'text-blue-600' : 'text-gray-400'"
-            class="text-xs"></fa-icon>
-          <fa-icon [icon]="faArrowDown"
-            [class]="sortField === 'updatedAt' && sortDirection === 'desc' ? 'text-blue-600' : 'text-gray-400'"
-            class="text-xs"></fa-icon>
-        </div>
-      </button>
+      <app-sort-button label="Updated" field="updatedAt" [activeField]="sortField" [direction]="sortDirection"
+        (toggle)="toggleSort($event)">
+      </app-sort-button>
     </div>
   </div>
 </div>

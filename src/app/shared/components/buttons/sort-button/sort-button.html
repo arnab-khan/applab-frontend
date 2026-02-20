@@ -1,0 +1,12 @@
+<button (click)="onToggle()"
+  class="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors cursor-pointer">
+  <span class="text-sm font-medium text-gray-700">{{ label() }}</span>
+  <div>
+    <fa-icon [icon]="faArrowUp"
+      [class]="activeField() === field() && direction() === 'asc' ? 'text-blue-600' : 'text-gray-400'"
+      class="text-xs"></fa-icon>
+    <fa-icon [icon]="faArrowDown"
+      [class]="activeField() === field() && direction() === 'desc' ? 'text-blue-600' : 'text-gray-400'"
+      class="text-xs"></fa-icon>
+  </div>
+</button>

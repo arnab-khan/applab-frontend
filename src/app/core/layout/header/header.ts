@@ -1,18 +1,19 @@
-import { Component, inject } from '@angular/core';
-import { RouterModule, Router } from "@angular/router";
+import { Component, inject, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { RouterModule } from "@angular/router";
 import { Auth } from '../../services/auth';
-import { LOGIN_ROUTE } from '../../../shared/config/config';
+import { PORTFOLIO_URL } from '../../../shared/config/config';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterModule],
+  imports: [RouterModule, NgTemplateOutlet],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
 export class Header {
   private authService = inject(Auth);
-  private router = inject(Router);
   user = this.authService.authState;
+  portfolioUrl = signal(PORTFOLIO_URL);
 
   onLogout() {
     this.authService.logout().subscribe({
@@ -25,3 +26,6 @@ export class Header {
     });
   }
 }
+
+
+

@@ -1,9 +1,9 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { FieldConfig } from './form-fields.interface';
+import { Component, computed, effect, input, signal } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { SentenceCasePipe } from '../../../pipes/sentence-case-pipe';
+import { FieldConfig } from './form-fields.interface';
 
 @Component({
   selector: 'app-form-fields',
@@ -12,38 +12,18 @@ import { SentenceCasePipe } from '../../../pipes/sentence-case-pipe';
   templateUrl: './form-fields.html',
   styleUrl: './form-fields.scss',
 })
-export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() fieldConfig: FieldConfig | undefined;
-  @Input({ required: true }) dynamicFormControl!: FormControl;
-  @Input() hasClickedSubmit = false;
-  @Input() text: { validText?: string, pendingText?: string } = {}
+export class FormFieldsComponent {
+  fieldConfig = input<FieldConfig | undefined>();
+  dynamicFormControl = input.required<FormControl>();
+  hasClickedSubmit = input(false);
+  text = input<{ validText?: string; pendingText?: string }>({});
 
-  fieldErrorMessages: string[] = [];
-  changeFormControll$: Subscription | undefined;
+  fieldErrorMessages = signal<string[]>([]);
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['formControl'] && this.dynamicFormControl) {
-      this.dynamicFormControl.updateValueAndValidity();
-    }
-    if (changes['clickedOnSubmitButton'] && this.hasClickedSubmit) {
-      this.updateErrorMessages();
-    }
-  }
-
-  ngOnInit(): void {
-    this.updateErrorMessages();
-    this.changeFormControll$ = this.dynamicFormControl?.statusChanges.subscribe(() => {
-      this.updateErrorMessages();
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.changeFormControll$?.unsubscribe();
-  }
-
-  get showInvalid(): boolean {
-    return this.dynamicFormControl.invalid && (this.dynamicFormControl.touched || this.dynamicFormControl.dirty || this.hasClickedSubmit);
-  }
+  showInvalid = computed(() => {
+    const control = this.dynamicFormControl();
+    return control.invalid && (control.touched || control.dirty || this.hasClickedSubmit());
+  });
 
   readonly errorOrder = [
     'required',
@@ -59,23 +39,39 @@ export class FormFieldsComponent implements OnInit, OnChanges, OnDestroy {
     'specialCharRequired',
   ];
 
+  constructor() {
+    effect((onCleanup) => {
+      const control = this.dynamicFormControl();
+
+      control.updateValueAndValidity();
+      this.updateErrorMessages();
+
+      const statusSub: Subscription = control.statusChanges.subscribe(() => {
+        this.updateErrorMessages();
+      });
+
+      onCleanup(() => statusSub.unsubscribe());
+    });
+
+    effect(() => {
+      if (this.hasClickedSubmit()) {
+        this.updateErrorMessages();
+      }
+    });
+  }
+
   private updateErrorMessages(): void {
-    const errors = this.dynamicFormControl?.errors;
+    const errors = this.dynamicFormControl().errors;
 
     if (!errors) {
-      this.fieldErrorMessages = [];
+      this.fieldErrorMessages.set([]);
       return;
     }
 
-    this.fieldErrorMessages = this.errorOrder
-      .filter(key => errors[key])
-      .map(key =>
-        String(errors[key]).replace(
-          '{{LABEL}}',
-          this.fieldConfig?.label || ''
-        )
-      );
-    // console.log('fieldErrorMessages',this.fieldErrorMessages);
+    this.fieldErrorMessages.set(
+      this.errorOrder
+        .filter((key) => errors[key])
+        .map((key) => String(errors[key]).replace('{{LABEL}}', this.fieldConfig()?.label || '')),
+    );
   }
-
 }

@@ -9,6 +9,7 @@ import { faEllipsisVertical, faPenToSquare, faTrash } from '@fortawesome/free-so
 import { Todo } from '../../../../shared/interfaces/todo';
 import { TodoApi } from '../../services/todo-api';
 import { TodoFormDialog } from '../todo-form-dialog/todo-form-dialog';
+import { CommonDialog } from '../../../../shared/components/dialogs/common-dialog/common-dialog';
 
 @Component({
   selector: 'app-todo-list-item',
@@ -54,28 +55,40 @@ export class TodoListItem {
   }
 
   onDelete() {
-    const confirmed = window.confirm('Are you sure you want to delete this todo?');
-    if (!confirmed) {
-      return;
-    }
-    const todoId = this.todo().id;
-    this.loaderState.emit(true);
-    this.todoApi.delete(todoId).subscribe({
-      next: () => {
-        this.resetTodo.emit();
-        this.snackBar.open('Todo deleted successfully', 'Close', {
-          duration: 3000,
-          panelClass: 'snackbar-success'
-        });
+    const dialogRef = this.dialog.open(CommonDialog, {
+      width: '30rem',
+      maxWidth: '95%',
+      data: {
+        type: 'warning',
+        message: 'Are you sure you want to delete this todo?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
       },
-      error: (err) => {
-        this.loaderState.emit(false);
-        console.error('Error deleting todo', err);
-        this.snackBar.open('Failed to delete todo', 'Close', {
-          duration: 3000,
-          panelClass: 'snackbar-error'
-        });
+    });
+
+    dialogRef.afterClosed().subscribe((result?: { confirmed?: boolean }) => {
+      if (!result?.confirmed) {
+        return;
       }
+      const todoId = this.todo().id;
+      this.loaderState.emit(true);
+      this.todoApi.delete(todoId).subscribe({
+        next: () => {
+          this.resetTodo.emit();
+          this.snackBar.open('Todo deleted successfully', 'Close', {
+            duration: 3000,
+            panelClass: 'snackbar-success'
+          });
+        },
+        error: (err) => {
+          this.loaderState.emit(false);
+          console.error('Error deleting todo', err);
+          this.snackBar.open('Failed to delete todo', 'Close', {
+            duration: 3000,
+            panelClass: 'snackbar-error'
+          });
+        }
+      });
     });
   }
 

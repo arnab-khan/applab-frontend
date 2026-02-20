@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faClipboardList, faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
+import { faClipboardList } from '@fortawesome/free-solid-svg-icons';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { TodoApi } from '../../services/todo-api';
 import { TodoListItem } from '../todo-list-item/todo-list-item';
@@ -13,6 +13,7 @@ import { Todo } from '../../../../shared/interfaces/todo';
 import { Auth } from '../../../../core/services/auth';
 import { Platform } from '../../../../shared/services/platform';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
+import { SortButton, SortDirection } from '../../../../shared/components/buttons/sort-button/sort-button';
 
 @Component({
   selector: 'app-todo-list',
@@ -23,7 +24,8 @@ import { LoadingButton } from '../../../../shared/components/buttons/loading-but
     MatFormFieldModule,
     FontAwesomeModule,
     TodoListItem,
-    LoadingButton
+    LoadingButton,
+    SortButton
   ],
   templateUrl: './todo-list.html',
   styleUrl: './todo-list.scss',
@@ -37,8 +39,6 @@ export class TodoList {
 
   createRequested = output<void>();
   faClipboardList = faClipboardList;
-  faArrowDown = faArrowDown;
-  faArrowUp = faArrowUp;
 
   todos = signal<Todo[] | undefined>(undefined);
   authState = this.auth.authState;
@@ -51,7 +51,7 @@ export class TodoList {
   keyword = '';
   completedFilter: boolean | undefined = undefined;
   sortField = 'updatedAt';
-  sortDirection = 'desc';
+  sortDirection: SortDirection = 'desc';
 
   constructor() {
     effect(() => {

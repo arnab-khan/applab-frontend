@@ -60,6 +60,10 @@
     background-image: var(--light-gradient);
 }
 
+@utility u-dark-gradient {
+    background-image: var(--dark-gradient);
+}
+
 @utility u-small-gradient {
     background-image: var(--small-gradient);
 }

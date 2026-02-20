@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { filter, map } from 'rxjs';
 import { Platform } from './shared/services/platform';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Footer } from './core/layout/footer/footer';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +15,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
     RouterOutlet,
     CommonModule,
     Header,
+    Footer,
     MatProgressSpinnerModule,
   ],
   templateUrl: './app.html',
