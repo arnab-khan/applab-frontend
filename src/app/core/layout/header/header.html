@@ -6,7 +6,7 @@
             </ng-container>
             }
             <li>
-                <a [href]="portfolioUrl()" target="_blank" rel="noopener noreferrer" class="c-nav-link">
+                <a [href]="portfolioUrl()" target="_blank" rel="noopener noreferrer" class="u-nav-link">
                     Portfolio
                 </a>
             </li>
@@ -14,7 +14,7 @@
         <ul class="flex items-center">
             @if (user().user?.id) {
             <li>
-                <button (click)="onLogout()" class="c-nav-link">Logout</button>
+                <button (click)="onLogout()" class="u-nav-link">Logout</button>
             </li>
             } @else {
             <ng-container [ngTemplateOutlet]="routeLink"
@@ -30,8 +30,8 @@
 
 <ng-template #routeLink let-route="route" let-label="label">
     <li>
-        <a [routerLink]="route" routerLinkActive="c-is-active" [routerLinkActiveOptions]="{ exact: true }"
-            class="c-nav-link">
+        <a [routerLink]="route" routerLinkActive="u-is-active" [routerLinkActiveOptions]="{ exact: true }"
+            class="u-nav-link">
             {{ label }}
         </a>
     </li>

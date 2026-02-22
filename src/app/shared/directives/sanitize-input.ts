@@ -8,6 +8,7 @@ export class SanitizeInput {
 
   @Input() noSpaceAllow = false;
   @Input() consecutiveSpaceNotAllow = true;
+  @Input() preventNewline = true;
 
   constructor(
     private ngControl: NgControl
@@ -30,6 +31,10 @@ export class SanitizeInput {
       }
     } else {
       value = value.replace(/\s/g, ''); // Remove space
+    }
+
+    if (this.preventNewline) {
+      value = value.replace(/[\r\n]+/g, ''); // Remove enter/newline for single-line input
     }
 
     // Update the form control's value  

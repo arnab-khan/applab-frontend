@@ -77,6 +77,8 @@ export class TodoList {
   }
 
   getTodoList() {
+    console.log(this.completedFilter);
+    
     this.todoApi.getAll({
       page: this.currentPage,
       size: this.pageSize,
@@ -106,7 +108,8 @@ export class TodoList {
     this.search$.next(this.keyword.trim());
   }
 
-  onFilterChange() {
+  changeStatus(completed: boolean | undefined) {    
+    this.completedFilter = completed;
     this.isLoadingList.set(true);
     this.currentPage = 0;
     this.todos.set([]);

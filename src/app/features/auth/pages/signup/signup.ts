@@ -45,7 +45,7 @@ export class Signup implements OnInit {
   usernameConfig!: FieldConfig;
   passwordConfig!: FieldConfig;
   isSubmitting = signal(false);
-  hasClickedSubmit = false;
+  hasClickedSubmit = signal(false);
   usernameExists = true;
 
   ngOnInit(): void {
@@ -97,7 +97,7 @@ export class Signup implements OnInit {
   }
 
   onSubmit(): void {
-    this.hasClickedSubmit = true;
+    this.hasClickedSubmit.set(true);
     console.log('Form Value:', this.signupForm.value);
     if (this.signupForm.valid) {
       this.isSubmitting.set(true);
@@ -128,3 +128,4 @@ export class Signup implements OnInit {
     }
   }
 }
+

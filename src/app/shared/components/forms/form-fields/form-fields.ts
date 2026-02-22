@@ -39,9 +39,6 @@ export class FormFieldsComponent {
     effect((onCleanup) => {
       const control = this.dynamicFormControl();
 
-      control.updateValueAndValidity();
-      this.updateViewState();
-
       const statusSub: Subscription = control.events.subscribe(() => {
         this.updateViewState();
       });
