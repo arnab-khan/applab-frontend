@@ -1,0 +1,46 @@
+# ===================================================================
+# 📦 GitHub Actions Workflow: Auto-deploy Applab frontend to Server
+# ===================================================================
+# This workflow automatically connects to Ubuntu server
+# via SSH and runs deployment script whenever push code
+# to the `master` branch of your frontend repository.
+# ===================================================================
+
+name: Deploy Applab frontend
+
+# ---------------------------------------------------------------
+# 🔁 Trigger: This defines WHEN the workflow should run
+# ---------------------------------------------------------------
+on:
+  push:              # Trigger this workflow whenever someone pushes new commits
+    branches:
+      - master       # Only run for commits pushed to the master branch
+
+# ---------------------------------------------------------------
+# 🧩 Job definition
+# ---------------------------------------------------------------
+jobs:
+  deploy:
+    name: Deploy to Applab Server
+    runs-on: ubuntu-latest   # GitHub-hosted runner (temporary Linux machine)
+
+    steps:
+      # ---------------------------------------------------------
+      # Step 1️⃣: Checkout the latest code from repository
+      # ---------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ---------------------------------------------------------
+      # Step 2️⃣: SSH into server and run deployment script
+      # ---------------------------------------------------------
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: applab.arnabkhan.in           # Server's public IP or domain
+          username: root                          # Usually "root" or another user
+          key: ${{ secrets.SERVER_SSH_KEY }}      # Private SSH key stored securely in GitHub Secrets
+          script: |                               # Commands to run remotely
+            cd /root/My_Scripts/Applications/applab      # Go to where deploy script is stored
+            chmod +x deploy-applab-frontend.sh            # Ensure script is executable
+            ./deploy-applab-frontend.sh                   # Run frontend deployment script
