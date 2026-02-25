@@ -57,7 +57,6 @@ export class TodoListItem {
   onDelete() {
     const dialogRef = this.dialog.open(CommonDialog, {
       width: '30rem',
-      maxWidth: '95%',
       data: {
         type: 'warning',
         message: 'Are you sure you want to delete this todo?',

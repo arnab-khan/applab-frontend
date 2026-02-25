@@ -9,7 +9,7 @@
     @let usernameControl=loginForm.controls.username;
     <app-form-fields [fieldConfig]="{label: 'Username'}" [dynamicFormControl]="usernameControl"
       [hasClickedSubmit]="hasClickedSubmit">
-      <input type="text" [formControl]="usernameControl" class="u-form-field" [placeholder]="'Enter username'"
+      <input type="text" [formControl]="usernameControl" class="lowercase u-form-field" [placeholder]="'Enter username'"
         name="username" appSanitizeInput [noSpaceAllow]="true" />
     </app-form-fields>
 

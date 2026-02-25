@@ -13,7 +13,7 @@
         @let nameControl=signupForm.controls.name;
         <app-form-fields [fieldConfig]="{label: 'Name'}" [dynamicFormControl]="nameControl"
             [hasClickedSubmit]="hasClickedSubmit()">
-            <input type="text" [formControl]="nameControl" class="u-form-field" [placeholder]="'Enter text'" name="name"
+            <input type="text" [formControl]="nameControl" class="u-form-field" [placeholder]="'Enter name'" name="name"
                 appSanitizeInput />
         </app-form-fields>
 
@@ -21,7 +21,7 @@
         <app-form-fields [fieldConfig]="{label: 'Username'}" [dynamicFormControl]="usernameControl"
             [hasClickedSubmit]="hasClickedSubmit()"
             [text]="{pendingText: 'Checking username availability', validText: 'Username is available'}">
-            <input type="text" [formControl]="usernameControl" class="u-form-field" [placeholder]="'Enter text'"
+            <input type="text" [formControl]="usernameControl" class="u-form-field lowercase" [placeholder]="'Enter username'"
                 name="username" appSanitizeInput [noSpaceAllow]="true" />
         </app-form-fields>
 
