@@ -1,5 +1,5 @@
 <nav class="sticky top-0 z-10 shadow px-3 u-gradient-background u-light-gradient c-header">
-    <div class="flex flex-row justify-between items-center py-1 mx-auto u-container-1">
+    <div class="flex flex-row justify-between items-center py-2 mx-auto u-container-1">
         <ul class="flex items-center">
             @if (user().user?.id) {
             <ng-container [ngTemplateOutlet]="routeLink" [ngTemplateOutletContext]="{ route: '/todo', label: 'Todo' }">

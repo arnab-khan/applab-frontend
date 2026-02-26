@@ -14,6 +14,7 @@ import { Auth } from '../../../../core/services/auth';
 import { Platform } from '../../../../shared/services/platform';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
 import { SortButton, SortDirection } from '../../../../shared/components/buttons/sort-button/sort-button';
+import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 
 @Component({
   selector: 'app-todo-list',
@@ -25,7 +26,8 @@ import { SortButton, SortDirection } from '../../../../shared/components/buttons
     FontAwesomeModule,
     TodoListItem,
     LoadingButton,
-    SortButton
+    SortButton,
+    SanitizeInput,
   ],
   templateUrl: './todo-list.html',
   styleUrl: './todo-list.scss',
@@ -52,6 +54,7 @@ export class TodoList {
   completedFilter: boolean | undefined = undefined;
   sortField = 'updatedAt';
   sortDirection: SortDirection = 'desc';
+  private lastSearchedKeyword = '';
 
   constructor() {
     effect(() => {
@@ -69,7 +72,8 @@ export class TodoList {
       debounceTime(500),
       distinctUntilChanged(),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(() => {
+    ).subscribe((keyword) => {
+      this.lastSearchedKeyword = keyword;
       this.currentPage = 0;
       this.todos.set([]);
       this.getTodoList();
@@ -77,13 +81,12 @@ export class TodoList {
   }
 
   getTodoList() {
-    console.log(this.completedFilter);
-    
+    const keyword = this.keyword?.trim();
     this.todoApi.getAll({
       page: this.currentPage,
       size: this.pageSize,
       sort: `${this.sortField},${this.sortDirection}`,
-      keyword: this.keyword || undefined,
+      ...(keyword && { keyword: this.keyword }),
       completed: this.completedFilter
     }).subscribe({
       next: (response) => {
@@ -103,12 +106,18 @@ export class TodoList {
     });
   }
 
-  onSearch() {
+  onSearch(keyword: string) {
+    this.keyword = keyword;
+    const trimmedKeyword = this.keyword?.trim();
     this.isLoadingList.set(true);
-    this.search$.next(this.keyword.trim());
+    if (trimmedKeyword === this.lastSearchedKeyword) {
+      this.isLoadingList.set(false);
+      return;
+    }
+    this.search$.next(trimmedKeyword);
   }
 
-  changeStatus(completed: boolean | undefined) {    
+  changeStatus(completed: boolean | undefined) {
     this.completedFilter = completed;
     this.isLoadingList.set(true);
     this.currentPage = 0;

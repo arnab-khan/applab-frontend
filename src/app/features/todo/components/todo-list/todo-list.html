@@ -2,8 +2,8 @@
   <div class="flex flex-wrap gap-4">
     <div class="flex-1 min-w-50">
       <label class="block text-sm font-medium text-gray-700 mb-1">Search Todo</label>
-      <input type="text" [(ngModel)]="keyword" (ngModelChange)="onSearch()" placeholder="Search todos..."
-        class="u-form-field" />
+      <input type="text" appSanitizeInput [ngModel]="keyword" (ngModelChange)="onSearch($event)"
+        placeholder="Search todos..." class="u-form-field" />
     </div>
   </div>
 
