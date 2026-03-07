@@ -6,6 +6,13 @@ export interface User {
     updatedAt?: Date;
 }
 
+export interface UserProfileImage {
+    fileData: string;
+    fileName: string;
+    fileType: string;
+    userId: number;
+}
+
 export interface CreateUser {
     name: string;
     username: string;

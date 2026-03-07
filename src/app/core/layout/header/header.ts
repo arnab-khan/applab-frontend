@@ -3,10 +3,11 @@ import { NgTemplateOutlet } from '@angular/common';
 import { RouterModule } from "@angular/router";
 import { Auth } from '../../services/auth';
 import { PORTFOLIO_URL } from '../../../shared/config/config';
+import { Thumbnail } from '../../../shared/media/thumbnail/thumbnail';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterModule, NgTemplateOutlet],
+  imports: [RouterModule, NgTemplateOutlet, Thumbnail],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })

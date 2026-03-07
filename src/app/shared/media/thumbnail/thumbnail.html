@@ -1,0 +1,12 @@
+<div class="overflow-hidden" [ngStyle]="{ width: size(), height: size(), 'border-radius': radius() }">
+  @if (loading()) {
+  <div class="h-full w-full bg-gray-300 animate-pulse"></div>
+  } @else if (profileImage()?.fileData) {
+  <img [src]="'data:' + (profileImage()?.fileType || 'image/jpeg') + ';base64,' + profileImage()?.fileData"
+    [alt]="alt()" class="h-full w-full object-cover" />
+  } @else {
+  <div class="flex h-full w-full items-center justify-center bg-slate-100 text-slate-400 c-thumbnail-fallback-icon">
+    <fa-icon [icon]="faUser" [ngStyle]="{ 'font-size': 'calc(' + size() + ' * .7)' }"></fa-icon>
+  </div>
+  }
+</div>

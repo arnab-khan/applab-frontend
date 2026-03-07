@@ -1,6 +1,6 @@
-<nav class="sticky top-0 z-10 shadow px-3 u-gradient-background u-light-gradient c-header">
-    <div class="flex flex-row justify-between items-center py-2 mx-auto u-container-1">
-        <ul class="flex items-center">
+<div class="sticky top-0 z-10 shadow px-3 u-gradient-background u-light-gradient c-header">
+    <nav class="flex flex-row justify-between items-center py-2 mx-auto u-container-1">
+        <ul class="flex gap-x-1 items-center">
             @if (user().user?.id) {
             <ng-container [ngTemplateOutlet]="routeLink" [ngTemplateOutletContext]="{ route: '/todo', label: 'Todo' }">
             </ng-container>
@@ -11,8 +11,15 @@
                 </a>
             </li>
         </ul>
-        <ul class="flex items-center">
+        <ul class="flex gap-x-1 items-center">
             @if (user().user?.id) {
+            <li>
+                <a [routerLink]="'/profile'" routerLinkActive="u-is-active" [routerLinkActiveOptions]="{ exact: false }"
+                    class="u-nav-link flex items-center gap-2">
+                    <app-thumbnail [profileImage]="user().profileImage" [loading]="user().profileImageLoading" size="1.5rem" radius="50%"></app-thumbnail>
+                    <span>{{ user().user?.name || user().user?.username || 'Profile' }}</span>
+                </a>
+            </li>
             <li>
                 <button (click)="onLogout()" class="u-nav-link">Logout</button>
             </li>
@@ -25,12 +32,12 @@
             </ng-container>
             }
         </ul>
-    </div>
-</nav>
+    </nav>
+</div>
 
 <ng-template #routeLink let-route="route" let-label="label">
     <li>
-        <a [routerLink]="route" routerLinkActive="u-is-active" [routerLinkActiveOptions]="{ exact: true }"
+        <a [routerLink]="route" routerLinkActive="u-is-active" [routerLinkActiveOptions]="{ exact: false }"
             class="u-nav-link">
             {{ label }}
         </a>
