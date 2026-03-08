@@ -1,1 +1,125 @@
-<p>edit-profile works!</p>
+<section class="flex items-center justify-center grow u-responsive-padding-xy">
+  <div
+    class="overflow-hidden rounded-3xl border border-white/50 bg-cyan-50 shadow-xl u-responsive-padding-xy u-container-2">
+    @if (authState().user; as user) {
+    <div class="grid gap-6 md:grid-cols-[220px_1fr]">
+      <div class="flex flex-col items-center rounded-2xl border border-slate-200 bg-white/80 p-4">
+        <app-thumbnail [profileImage]="profileState().profileImage" [loading]="profileState().loading" size="9rem"
+          [alt]="(user.name || user.username || 'User') + ' profile image'">
+        </app-thumbnail>
+        <p class="mt-3 text-sm font-medium text-slate-600">Profile Photo</p>
+
+        <div class="mt-4 flex w-full flex-col gap-2">
+          <button type="button"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50">
+            Upload New
+          </button>
+          <button type="button"
+            class="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 transition hover:bg-rose-100">
+            Remove Photo
+          </button>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white/90 p-5">
+        <a routerLink="/profile/view-profile"
+          class="mb-4 inline-flex items-center rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-sm font-semibold text-cyan-700 no-underline transition hover:border-cyan-300 hover:bg-cyan-100">
+          <fa-icon [icon]="faArrowLeft" class="mr-2 text-xs"></fa-icon>
+          Go Back
+        </a>
+        <div class="mb-5">
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">Edit Profile</h1>
+          <p class="mt-1 text-sm text-slate-600">Update your profile information and save your changes.</p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Profile Basics</h2>
+            @if (basicForm) {
+            <form [formGroup]="basicForm" (ngSubmit)="onBasicSubmit()">
+              @let nameControl = basicForm.controls.name;
+              <app-form-fields [fieldConfig]="{label: 'Name'}" [dynamicFormControl]="nameControl"
+                [hasClickedSubmit]="hasClickedBasicSubmit()">
+                <input type="text" [formControl]="nameControl" class="u-form-field" [placeholder]="'Enter name'"
+                  name="name" appSanitizeInput />
+              </app-form-fields>
+
+              @let bioControl = basicForm.controls.bio;
+              <app-form-fields [fieldConfig]="{label: 'Bio'}" [dynamicFormControl]="bioControl"
+                [hasClickedSubmit]="hasClickedBasicSubmit()">
+                <textarea [formControl]="bioControl" class="u-form-field min-h-25" [placeholder]="'Short bio'"
+                  name="bio" appSanitizeInput appAutoResizeTextarea></textarea>
+              </app-form-fields>
+
+              <div class="mt-4">
+                <button type="submit"
+                  class="rounded-lg bg-cyan-600 px-4 sm:px-9 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 max-sm:w-full">
+                  Save Basic Info
+                </button>
+              </div>
+            </form>
+            }
+          </div>
+
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Credentials</h2>
+            @if (credentialsForm) {
+            <form [formGroup]="credentialsForm" (ngSubmit)="onCredentialsSubmit()">
+              @let usernameControl = credentialsForm.controls.username;
+              <app-form-fields [fieldConfig]="{label: 'Username'}" [dynamicFormControl]="usernameControl"
+                [hasClickedSubmit]="hasClickedCredentialsSubmit()">
+                <input type="text" [formControl]="usernameControl"
+                  class="u-form-field lowercase placeholder:normal-case" [placeholder]="'Enter username'"
+                  name="username" appSanitizeInput [noSpaceAllow]="true" />
+              </app-form-fields>
+
+              @let passwordControl = credentialsForm.controls.password;
+              @let confirmPasswordControl = credentialsForm.controls.confirmPassword;
+              <div class="grid gap-4 sm:grid-cols-2">
+                <app-form-fields [fieldConfig]="{label: 'New Password'}" [dynamicFormControl]="passwordControl"
+                  [hasClickedSubmit]="hasClickedCredentialsSubmit()">
+                  <input type="password" [formControl]="passwordControl" class="u-form-field"
+                    [placeholder]="'Enter new password'" name="password" appSanitizeInput [noSpaceAllow]="true" />
+                </app-form-fields>
+
+                <app-form-fields [fieldConfig]="{label: 'Confirm New Password'}"
+                  [dynamicFormControl]="confirmPasswordControl" [hasClickedSubmit]="hasClickedCredentialsSubmit()">
+                  <input type="password" [formControl]="confirmPasswordControl" class="u-form-field"
+                    [placeholder]="'Re-enter new password'" name="confirmPassword" appSanitizeInput
+                    [noSpaceAllow]="true" />
+                </app-form-fields>
+              </div>
+
+              @let currentPasswordControl = credentialsForm.controls.currentPassword;
+              <app-form-fields [fieldConfig]="{label: 'Current Password'}" [dynamicFormControl]="currentPasswordControl"
+                [hasClickedSubmit]="hasClickedCredentialsSubmit()">
+                <input type="password" [formControl]="currentPasswordControl" class="u-form-field"
+                  [placeholder]="'Enter current password'" name="currentPassword" appSanitizeInput
+                  [noSpaceAllow]="true" />
+
+              </app-form-fields>
+
+              <div class="mt-4">
+                <button type="submit"
+                  class="rounded-lg bg-cyan-600 px-4 sm:px-9 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:bg-cyan-400 max-sm:w-full">
+                  Save Credentials
+                </button>
+              </div>
+            </form>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    } @else {
+    <div class="relative z-10 rounded-2xl border border-slate-200 bg-white/90 p-8 text-center">
+      <h2 class="text-xl font-semibold text-slate-900">No Profile Data</h2>
+      <p class="mt-2 text-slate-600">Please login to edit your profile details.</p>
+      <a routerLink="/auth/login"
+        class="mt-4 inline-flex items-center justify-center rounded-lg bg-cyan-600 px-5 py-2 text-sm font-semibold text-white no-underline transition hover:bg-cyan-700">
+        Go to Login
+      </a>
+    </div>
+    }
+  </div>
+</section>
