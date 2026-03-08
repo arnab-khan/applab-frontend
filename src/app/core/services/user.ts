@@ -20,13 +20,13 @@ export class User {
   }
 
   getProfileImage() {
-    this.authService.authState.update(state => ({ ...state, profileImageLoading: true }));
+    this.authService.profileState.update(state => ({ ...state, loading: true }));
     return this.httpClient.get<UserProfileImage>(`${this.baseApiUrl}/profile-image`).pipe(
       tap(profileImage => {
-        this.authService.authState.update(state => ({ ...state, profileImage }));
+        this.authService.profileState.update(state => ({ ...state, profileImage }));
       }),
       finalize(() => {
-        this.authService.authState.update(state => ({ ...state, profileImageLoading: false }));
+        this.authService.profileState.update(state => ({ ...state, loading: false }));
       })
     );
   }
@@ -34,10 +34,10 @@ export class User {
   updateProfileImage(profileImage: File) {
     const body = new FormData();
     body.append('profileImage', profileImage);
-    this.authService.authState.update(state => ({ ...state, profileImageLoading: true }));
+    this.authService.profileState.update(state => ({ ...state, loading: true }));
     return this.httpClient.patch(`${this.baseApiUrl}/update-profile-image`, body).pipe(
       finalize(() => {
-        this.authService.authState.update(state => ({ ...state, profileImageLoading: false }));
+        this.authService.profileState.update(state => ({ ...state, loading: false }));
       })
     );
   }

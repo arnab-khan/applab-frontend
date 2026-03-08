@@ -3,9 +3,8 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Header } from './core/layout/header/header';
 import { Auth } from './core/services/auth';
-import { User } from './core/services/user';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { filter, map, of, switchMap } from 'rxjs';
+import { filter, map } from 'rxjs';
 import { Platform } from './shared/services/platform';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Footer } from './core/layout/footer/footer';
@@ -25,7 +24,6 @@ import { Footer } from './core/layout/footer/footer';
 export class App implements OnInit {
 
   private authService = inject(Auth);
-  private userService = inject(User);
   private platformService = inject(Platform);
   private router = inject(Router);
 

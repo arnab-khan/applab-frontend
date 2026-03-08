@@ -2,7 +2,7 @@ import { NgStyle } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
-import { UserProfileImage } from '../../interfaces/user';
+import { UserProfileImage } from '../../../interfaces/user';
 
 @Component({
   selector: 'app-thumbnail',

@@ -20,16 +20,20 @@ export class Auth {
 
   authState = signal<{
     user: User | null;
-    profileImage: UserProfileImage | null;
-    profileImageLoading: boolean;
     status: AuthStatus;
     completed: boolean;
   }>({
     user: null,
-    profileImage: null,
-    profileImageLoading: true,
     status: 'idle',
     completed: false
+  });
+
+  profileState = signal<{
+    profileImage: UserProfileImage | null;
+    loading: boolean;
+  }>({
+    profileImage: null,
+    loading: true
   });
 
   private updateUser(user: User | null, options?: {
@@ -41,11 +45,13 @@ export class Auth {
 
     this.authState.set({
       user,
-      profileImage: user ? this.authState().profileImage : null,
-      profileImageLoading: user ? this.authState().profileImageLoading : false,
       status: updateStatus ? (user ? 'authenticated' : 'anonymous') : this.authState().status,
       completed: options?.completed ?? this.authState().completed
     });
+
+    if (!user) {
+      this.profileState.set({ profileImage: null, loading: false });
+    }
 
     if (options?.fetchProfileImage && user?.id) {
       this.injector.get(UserService).getProfileImage().subscribe();
@@ -85,10 +91,10 @@ export class Auth {
   }
 
   logout() {
-    this.updateUser(null);
     return this.httpClient.post(`${this.baseApiUrl}/logout`, {}, { responseType: 'text' }).pipe(
       tap({
         complete: () => {
+          this.updateUser(null);
           this.router.navigate([LOGIN_ROUTE]);
         }
       })
