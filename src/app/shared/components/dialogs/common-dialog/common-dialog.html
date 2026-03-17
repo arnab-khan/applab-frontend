@@ -1,9 +1,5 @@
 <div class="p-4 pt-2">
-  <div class="text-end">
-    <button type="button" (click)="onCancel()">
-      <fa-icon [icon]="faXmark" class="text-md text-gray-500"></fa-icon>
-    </button>
-  </div>
+  <app-dialog-header></app-dialog-header>
 
   <mat-dialog-content>
     @if (message()) {

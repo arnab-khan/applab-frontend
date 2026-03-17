@@ -4,11 +4,13 @@ import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Auth } from '../../../../core/services/auth';
+import { User } from '../../../../core/services/user';
 import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
 import { FormFieldsComponent } from '../../../../shared/components/forms/form-fields/form-fields';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
+import { ImageUploader } from '../../../../shared/components/media/image-uploader/image-uploader';
 
 @Component({
   selector: 'app-edit-profile',
@@ -20,12 +22,14 @@ import { commonFormValidator } from '../../../../shared/validators/common-form-v
     FormFieldsComponent,
     SanitizeInput,
     AutoResizeTextarea,
+    ImageUploader,
   ],
   templateUrl: './edit-profile.html',
   styleUrl: './edit-profile.scss',
 })
 export class EditProfile implements OnInit {
   private authService = inject(Auth);
+  private userService = inject(User);
   private formBuilder = inject(NonNullableFormBuilder);
 
   authState = this.authService.authState;
@@ -105,5 +109,11 @@ export class EditProfile implements OnInit {
   onCredentialsSubmit() {
     this.hasClickedCredentialsSubmit.set(true);
     console.log('Credentials form value:', this.credentialsForm.value);
+  }
+
+  onProfilePhotoSelected(files: File[]) {
+    const profileImage = files[0];
+    if (!profileImage) return;
+    this.userService.updateProfileImage(profileImage).subscribe();
   }
 }

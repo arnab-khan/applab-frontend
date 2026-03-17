@@ -74,7 +74,7 @@ export class TodoListItem {
       this.todoApi.delete(todoId).subscribe({
         next: () => {
           this.resetTodo.emit();
-          this.snackBar.open('Todo deleted successfully', 'Close', {
+          this.snackBar.open('Todo deleted successfully', '✖', {
             duration: 3000,
             panelClass: 'snackbar-success'
           });
@@ -82,7 +82,7 @@ export class TodoListItem {
         error: (err) => {
           this.loaderState.emit(false);
           console.error('Error deleting todo', err);
-          this.snackBar.open('Failed to delete todo', 'Close', {
+          this.snackBar.open('Failed to delete todo', '✖', {
             duration: 3000,
             panelClass: 'snackbar-error'
           });
@@ -99,7 +99,7 @@ export class TodoListItem {
       next: (updatedTodo) => {
         const completed = updatedTodo?.completed;
         const message = completed ? 'Todo marked as completed' : 'Todo marked as incomplete';
-        this.snackBar.open(message, 'Close', {
+        this.snackBar.open(message, '✖', {
           duration: 3000,
           panelClass: completed ? 'snackbar-success' : 'snackbar-info'
         });
@@ -108,7 +108,7 @@ export class TodoListItem {
       error: (err) => {
         console.error('Error updating todo completion status', err);
         this.completed.set(previousState);
-        this.snackBar.open('Failed to update todo status', 'Close', {
+        this.snackBar.open('Failed to update todo status', '✖', {
           duration: 3000,
           panelClass: 'snackbar-error'
         });

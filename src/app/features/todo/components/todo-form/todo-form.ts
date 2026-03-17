@@ -102,13 +102,13 @@ export class TodoForm {
       const request$ = id ? this.todoApi.update(todoData) : this.todoApi.add(todoData);
       request$.subscribe({
         next: () => {
-          this.snackBar.open('Todo added successfully', 'Close', { duration: 3000, panelClass: 'snackbar-success' });
+          this.snackBar.open('Todo added successfully', '✖', { duration: 3000, panelClass: 'snackbar-success' });
           this.resetTodo.emit();
         },
         error: (error) => {
           this.isSubmitting.set(false);
           const message = error.error?.message || 'Failed to add todo. Please try again.';
-          this.snackBar.open(message, 'Close', { duration: 5000, panelClass: 'snackbar-error' });
+          this.snackBar.open(message, '✖', { duration: 5000, panelClass: 'snackbar-error' });
         },
       });
     }

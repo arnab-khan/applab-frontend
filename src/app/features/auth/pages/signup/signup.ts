@@ -121,7 +121,7 @@ export class Signup implements OnInit {
         error: (error) => {
           this.isSubmitting.set(false);
           const message = error.error?.message || 'Signup failed. Please try again.';
-          this.snackBar.open(message, 'Close', { duration: 3000, panelClass: 'snackbar-error' });
+          this.snackBar.open(message, '✖', { duration: 3000, panelClass: 'snackbar-error' });
           console.error('error creating user', error);
         }
       })

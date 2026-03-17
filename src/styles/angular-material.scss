@@ -63,6 +63,15 @@
       container-shape: 1rem,
     ));
 
+  app-dialog-header {
+    padding: 0 !important;
+    margin: 0 !important;
+
+    &::before {
+      content: none;
+    }
+  }
+
   mat-dialog-content {
     max-height: 90vh;
     max-height: 90dvh;
@@ -71,6 +80,10 @@
 
   mat-dialog-actions {
     padding: 0 !important;
+  }
+
+  .cdk-overlay-pane.mat-mdc-dialog-panel {
+    max-width: calc(100vw - 2rem);
   }
 
   // ========== End mat dialog ==========
