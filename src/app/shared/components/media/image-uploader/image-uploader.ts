@@ -2,6 +2,7 @@ import { Component, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import imageCompression from 'browser-image-compression';
 import { ALLOWED_EXTENSIONS, isFileFormatAllowed } from '../../../utils/file-formats';
 import { ImageCropper, ImageCropperDialogResult } from '../image-cropper/image-cropper';
 
@@ -16,13 +17,14 @@ export class ImageUploader {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
 
-  maxSize = input<number>(20); // Default 10MB
+  maxSize = input<number>(20);
+  maxCompressedSizeMb = input<number>(0.1);
   allowedFormats = input<string[]>(Object.values(ALLOWED_EXTENSIONS).flat());
   multiple = input<boolean>(false);
   maxFiles = input<number>(1);
   fileSelected = output<File[]>();
 
-  onFileSelected(event: Event) {
+  async onFileSelected(event: Event) {
     const inputElement = event.target as HTMLInputElement;
     if (!inputElement.files || inputElement.files.length === 0) {
       return;
@@ -46,7 +48,7 @@ export class ImageUploader {
         if (!result?.file) {
           return;
         }
-        this.fileSelected.emit([result.file]);
+        void this.emitCompressedFiles([result.file]);
       });
     } else {
       const selectedFiles: File[] = [];
@@ -56,9 +58,26 @@ export class ImageUploader {
         }
       }
       if (selectedFiles.length) {
-        this.fileSelected.emit(selectedFiles);
+        await this.emitCompressedFiles(selectedFiles);
       }
     }
+  }
+
+  private async emitCompressedFiles(files: File[]) {
+    try {
+      const compressedFiles = await Promise.all(files.map(file => this.compressImage(file)));
+      this.fileSelected.emit(compressedFiles);
+    } catch {
+      this.showError('Unable to process the selected image. Please try again.');
+    }
+  }
+
+  private async compressImage(file: File): Promise<File> {
+    return imageCompression(file, {
+      maxSizeMB: this.maxCompressedSizeMb(),
+      useWebWorker: true,
+      initialQuality: 1,
+    });
   }
 
   private validate(file: File): boolean {

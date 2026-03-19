@@ -40,6 +40,14 @@ export class User {
   updateProfileImage(profileImage: File) {
     const formData = new FormData();
     formData.append('profileImage', profileImage);
+    for (const [key, value] of formData.entries()) {
+      const file = value as File;
+
+      console.log("Field:", key);
+      console.log("Name:", file.name);
+      console.log("Size KB:", file.size / 1024);
+      console.log("Type:", file.type);
+    }
     return this.withProfileImageLoading(
       this.httpClient.patch<UserProfileImage>(`${this.baseApiUrl}/update-profile-image`, formData)
     );

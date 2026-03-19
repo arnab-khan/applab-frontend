@@ -38,9 +38,6 @@ export class ImageCropper {
   readonly maintainAspectRatio = computed(() => this.data?.maintainAspectRatio ?? true);
   readonly aspectRatio = computed(() => this.data?.aspectRatio ?? 1);
   readonly roundCropper = computed(() => this.data?.roundCropper ?? false);
-  readonly resizeToWidth = computed(() => this.data?.resizeToWidth);
-  readonly resizeToHeight = computed(() => this.data?.resizeToHeight);
-  readonly outputFormat = computed(() => this.data?.outputFormat ?? 'png');
 
   onImageCropped(event: ImageCroppedEvent) {
     this.latestCropped.set(event);
@@ -61,9 +58,12 @@ export class ImageCropper {
     }
 
     const ext = this.outputFormat();
-    const newName = sourceFile.name.replace(/\.[^.]+$/, '') + `-cropped.${ext}`;
+    const newName = `${sourceFile.name.replace(/\.[^.]+$/, '')}.${ext}`;
     const file = new File([cropped.blob], newName, { type: cropped.blob.type || sourceFile.type });
-
     this.dialogRef?.close({ file });
+  }
+
+  outputFormat(): 'png' | 'jpeg' | 'webp' {
+    return 'jpeg';
   }
 }

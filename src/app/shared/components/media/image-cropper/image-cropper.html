@@ -6,8 +6,8 @@
     @if (file(); as selectedFile) {
     <div class="mt-4 rounded-xl border border-slate-200 bg-white p-3">
       <image-cropper [imageFile]="selectedFile" [maintainAspectRatio]="maintainAspectRatio()"
-        [aspectRatio]="aspectRatio()" [roundCropper]="roundCropper()" [resizeToWidth]="resizeToWidth()"
-        [resizeToHeight]="resizeToHeight()" [format]="outputFormat()" [output]="'blob'"
+        [aspectRatio]="aspectRatio()" [roundCropper]="roundCropper()" [resizeToWidth]="1000"
+        [format]="outputFormat()" [output]="'blob'"
         (imageCropped)="onImageCropped($event)" />
     </div>
     } @else {
