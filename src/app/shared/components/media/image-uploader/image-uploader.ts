@@ -1,10 +1,15 @@
 import { Component, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import imageCompression from 'browser-image-compression';
 import { ALLOWED_EXTENSIONS, isFileFormatAllowed } from '../../../utils/file-formats';
 import { ImageCropper, ImageCropperDialogResult } from '../image-cropper/image-cropper';
+
+export interface ImageUploaderSelection {
+  files: File[];
+  dialogRef?: MatDialogRef<ImageCropper, ImageCropperDialogResult>;
+}
 
 @Component({
   selector: 'app-image-uploader',
@@ -17,12 +22,14 @@ export class ImageUploader {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
 
-  maxSize = input<number>(20);
+  maxSize = input<number>(50);
   maxCompressedSizeMb = input<number>(0.1);
   allowedFormats = input<string[]>(Object.values(ALLOWED_EXTENSIONS).flat());
   multiple = input<boolean>(false);
   maxFiles = input<number>(1);
-  fileSelected = output<File[]>();
+  cropButtonText = input<string>('Crop');
+  onCrop = input<((file: File, dialogRef: MatDialogRef<ImageCropper, ImageCropperDialogResult>) => void) | undefined>();
+  fileSelected = output<ImageUploaderSelection>();
 
   async onFileSelected(event: Event) {
     const inputElement = event.target as HTMLInputElement;
@@ -40,15 +47,19 @@ export class ImageUploader {
       const file = files[0];
       if (!file) return;
       if (!this.validate(file)) return;
-      const dialogRef = this.dialog.open<ImageCropper, { file: File }, ImageCropperDialogResult>(ImageCropper, {
+      this.dialog.open<ImageCropper, {
+        file: File;
+        confirmButtonText?: string;
+        onCrop?: (file: File, dialogRef: MatDialogRef<ImageCropper, ImageCropperDialogResult>) => void
+      }, ImageCropperDialogResult>(ImageCropper, {
         width: '60rem',
-        data: { file },
-      });
-      dialogRef.afterClosed().subscribe((result) => {
-        if (!result?.file) {
-          return;
-        }
-        void this.emitCompressedFiles([result.file]);
+        data: {
+          file,
+          confirmButtonText: this.cropButtonText(),
+          onCrop: (croppedFile: File, cropperDialogRef: MatDialogRef<ImageCropper, ImageCropperDialogResult>) => {
+            this.emitCompressedFiles(croppedFile, cropperDialogRef);
+          },
+        },
       });
     } else {
       const selectedFiles: File[] = [];
@@ -58,18 +69,20 @@ export class ImageUploader {
         }
       }
       if (selectedFiles.length) {
-        await this.emitCompressedFiles(selectedFiles);
+        this.fileSelected.emit({ files: selectedFiles });
       }
     }
   }
 
-  private async emitCompressedFiles(files: File[]) {
-    try {
-      const compressedFiles = await Promise.all(files.map(file => this.compressImage(file)));
-      this.fileSelected.emit(compressedFiles);
-    } catch {
+  private emitCompressedFiles(
+    file: File,
+    dialogRef?: MatDialogRef<ImageCropper, ImageCropperDialogResult>
+  ) {
+    this.compressImage(file).then((compressedFile) => {
+      this.fileSelected.emit({ files: [compressedFile], dialogRef });
+    }).catch(() => {
       this.showError('Unable to process the selected image. Please try again.');
-    }
+    });
   }
 
   private async compressImage(file: File): Promise<File> {
@@ -77,7 +90,14 @@ export class ImageUploader {
       maxSizeMB: this.maxCompressedSizeMb(),
       useWebWorker: true,
       initialQuality: 1,
+      maxWidthOrHeight: this.getMaxDimension(this.maxCompressedSizeMb())
     });
+  }
+  getMaxDimension(targetMB: number) {
+    if (targetMB <= 0.05) return 400;
+    if (targetMB <= 0.1) return 600;
+    if (targetMB <= 0.2) return 800;
+    return 1200;
   }
 
   private validate(file: File): boolean {
@@ -85,8 +105,7 @@ export class ImageUploader {
       this.showError(`Invalid file format for "${file.name}". Allowed formats: ${this.allowedFormats().join(', ')}`);
       return false;
     }
-
-    if (file.size > this.maxSize() * 1024 * 1024) {
+    if (file.size > ((this.maxSize() + 10) * 1024 * 1024)) {
       this.showError(`File "${file.name}" is too large. Maximum allowed size is ${this.maxSize()}MB.`);
       return false;
     }

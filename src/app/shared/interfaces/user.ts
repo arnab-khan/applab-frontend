@@ -7,9 +7,10 @@ export interface User {
 }
 
 export interface UserProfileImage {
-    fileData: string;
-    fileName: string;
-    fileType: string;
+    fileData?: string;
+    compressedFileData?: string;
+    fileName?: string;
+    fileType?: string;
     userId: number;
 }
 

@@ -4,7 +4,7 @@ import { environment } from '../../../environments/environment.development';
 import { IsUsernameExist } from '../../shared/interfaces/is-username-exist';
 import { UserProfileImage } from '../../shared/interfaces/user';
 import { toHttpParams } from '../../shared/utils/http';
-import { finalize, Observable, tap } from 'rxjs';
+import { finalize, Observable, of, tap } from 'rxjs';
 import { Auth } from './auth';
 
 @Injectable({
@@ -15,14 +15,29 @@ export class User {
   private authService = inject(Auth);
   private baseApiUrl = `${environment.rootApiUrl}/user`;
 
-  private withProfileImageLoading(request$: Observable<UserProfileImage>) {
-    this.authService.profileState.update(state => ({ ...state, loading: true }));
+  private withProfileImageLoading(request$: Observable<UserProfileImage>, options?: { showLoader?: boolean }) {
+    const showLoader = options?.showLoader;
+
+    if (showLoader) {
+      this.authService.profileState.update(state => ({ ...state, loading: true }));
+    }
+
     return request$.pipe(
       tap(profileImage => {
-        this.authService.profileState.update(state => ({ ...state, profileImage }));
+        this.authService.profileState.update(state => ({
+          ...state,
+          profileImage: state.profileImage ? {
+            ...state.profileImage,
+            ...Object.fromEntries(
+              Object.entries(profileImage).filter(([, value]) => value != null)
+            ),
+          } : profileImage,
+        }));
       }),
       finalize(() => {
-        this.authService.profileState.update(state => ({ ...state, loading: false }));
+        if (showLoader) {
+          this.authService.profileState.update(state => ({ ...state, loading: false }));
+        }
       })
     );
   }
@@ -31,10 +46,21 @@ export class User {
     return this.httpClient.get<IsUsernameExist>(`${this.baseApiUrl}/public/is-username-exist?${toHttpParams(params)}`);
   }
 
-  getProfileImage() {
+  getProfileImage(params?: { fullImage: boolean }) {
     return this.withProfileImageLoading(
-      this.httpClient.get<UserProfileImage>(`${this.baseApiUrl}/profile-image`)
+      this.httpClient.get<UserProfileImage>(
+        `${this.baseApiUrl}/profile-image${params ? `?${toHttpParams(params)}` : ''}`
+      ),
+      { showLoader: !params?.fullImage }
     );
+  }
+
+  getFullProfileImage() {
+    const profileImage = this.authService.profileState().profileImage;
+    if (profileImage?.fileData) {
+      return of(profileImage);
+    }
+    return this.getProfileImage({ fullImage: true });
   }
 
   updateProfileImage(profileImage: File) {

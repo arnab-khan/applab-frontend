@@ -8,12 +8,17 @@ import { LoadingButton } from '../../buttons/loading-button/loading-button';
 export interface ImageCropperDialogData {
   file: File;
   title?: string;
+  confirmButtonText?: string;
   maintainAspectRatio?: boolean;
   aspectRatio?: number;
   roundCropper?: boolean;
   resizeToWidth?: number;
   resizeToHeight?: number;
   outputFormat?: 'png' | 'jpeg' | 'webp';
+  onCrop?: (
+    file: File,
+    dialogRef: MatDialogRef<ImageCropper, ImageCropperDialogResult>
+  ) => void;
 }
 
 export interface ImageCropperDialogResult {
@@ -31,16 +36,22 @@ export class ImageCropper {
   private readonly data = inject<ImageCropperDialogData | null>(MAT_DIALOG_DATA, { optional: true });
 
   private readonly latestCropped = signal<ImageCroppedEvent | null>(null);
+  readonly isImageLoading = signal(true);
   readonly isCropping = signal(false);
 
   readonly file = computed(() => this.data?.file ?? null);
   readonly title = computed(() => this.data?.title ?? 'Crop image');
+  readonly confirmButtonText = computed(() => this.data?.confirmButtonText ?? 'Crop');
   readonly maintainAspectRatio = computed(() => this.data?.maintainAspectRatio ?? true);
   readonly aspectRatio = computed(() => this.data?.aspectRatio ?? 1);
   readonly roundCropper = computed(() => this.data?.roundCropper ?? false);
 
   onImageCropped(event: ImageCroppedEvent) {
     this.latestCropped.set(event);
+  }
+
+  onImageLoaded() {
+    this.isImageLoading.set(false);
   }
 
   onCancel() {
@@ -60,6 +71,11 @@ export class ImageCropper {
     const ext = this.outputFormat();
     const newName = `${sourceFile.name.replace(/\.[^.]+$/, '')}.${ext}`;
     const file = new File([cropped.blob], newName, { type: cropped.blob.type || sourceFile.type });
+    if (this.data?.onCrop && this.dialogRef) {
+      this.data.onCrop(file, this.dialogRef);
+      return;
+    }
+
     this.dialogRef?.close({ file });
   }
 

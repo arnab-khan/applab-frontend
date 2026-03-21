@@ -16,7 +16,9 @@
             <li>
                 <a [routerLink]="'/profile'" routerLinkActive="u-is-active" [routerLinkActiveOptions]="{ exact: false }"
                     class="u-nav-link flex items-center gap-2">
-                    <app-thumbnail [profileImage]="profileState().profileImage" [loading]="profileState().loading" size="1.5rem" radius="50%"></app-thumbnail>
+                    <app-thumbnail [imageData]="profileState().profileImage?.compressedFileData"
+                        [fileType]="profileState().profileImage?.fileType" [loading]="profileState().loading" size="1.5rem"
+                        radius="50%"></app-thumbnail>
                     <app-formatted-text
                         [text]="authState().user?.name || authState().user?.username || 'Profile'"
                         [maxLength]="11">
