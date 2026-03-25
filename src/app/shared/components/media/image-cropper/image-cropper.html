@@ -5,14 +5,12 @@
     @if (file(); as selectedFile) {
     <div class="rounded-xl border border-slate-200 bg-white p-3 h-full flex items-center relative content-center">
       @if (isImageLoading()) {
-      <div class="w-full flex justify-center u-absolute-center-xy">
-        <div class="u-spinner"></div>
-      </div>
+      <div class="u-absolute-center-xy u-spinner"></div>
       }
       <image-cropper [imageFile]="selectedFile" [maintainAspectRatio]="maintainAspectRatio()"
         [aspectRatio]="aspectRatio()" [roundCropper]="roundCropper()" [resizeToWidth]="500" [format]="outputFormat()"
-        [output]="'blob'" (imageCropped)="onImageCropped($event)" (imageLoaded)="onImageLoaded()"
-        class="max-h-full" [class.hidden]="isImageLoading()"/>
+        [output]="'blob'" (imageCropped)="onImageCropped($event)" (imageLoaded)="onImageLoaded()" class="max-h-full"
+        [class.hidden]="isImageLoading()" />
     </div>
     } @else {
     <p class="text-sm text-slate-600">No image selected.</p>

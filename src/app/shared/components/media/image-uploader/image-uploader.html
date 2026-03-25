@@ -1,5 +1,4 @@
-<button type="button" (click)="fileInput.click()" class="w-full h-full box-border"
-  [attr.title]="maxFiles() ? ('Max ' + maxFiles() + ' file' + (maxFiles() === 1 ? '' : 's')) : null">
+<button type="button" (click)="fileInput.click()" class="w-full h-full box-border">
   <ng-content></ng-content>
 </button>
 <input type="file" #fileInput (change)="onFileSelected($event)" [accept]="allowedFormats().join(',')"

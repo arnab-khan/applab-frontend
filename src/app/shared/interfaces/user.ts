@@ -1,6 +1,7 @@
 export interface User {
     id: number;
     name?: string;
+    bio?: string;
     username?: string;
     createdAt?: Date;
     updatedAt?: Date;
@@ -23,4 +24,9 @@ export interface CreateUser {
 export interface LoginUser {
     username: string;
     password: string;
+}
+
+export interface UpdateProfileBasics {
+    name?: string;
+    bio?: string;
 }

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.development';
 import { IsUsernameExist } from '../../shared/interfaces/is-username-exist';
-import { UserProfileImage } from '../../shared/interfaces/user';
+import { UpdateProfileBasics, User as AuthUser, UserProfileImage } from '../../shared/interfaces/user';
 import { toHttpParams } from '../../shared/utils/http';
 import { finalize, Observable, of, tap } from 'rxjs';
 import { Auth } from './auth';
@@ -61,6 +61,17 @@ export class User {
       return of(profileImage);
     }
     return this.getProfileImage({ fullImage: true });
+  }
+
+  updateProfileBasics(body: UpdateProfileBasics) {
+    return this.httpClient.patch<AuthUser>(`${this.baseApiUrl}/update-profile-basics`, body).pipe(
+      tap(user => {
+        this.authService.authState.update(state => ({
+          ...state,
+          user: state.user ? { ...state.user, ...user } : user,
+        }));
+      })
+    );
   }
 
   updateProfileImage(profileImage: File) {

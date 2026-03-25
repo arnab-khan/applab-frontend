@@ -33,6 +33,7 @@ export class FormFieldsComponent {
     'uppercaseRequired',
     'lowercaseRequired',
     'specialCharRequired',
+    'valueMismatch',
   ];
 
   constructor() {

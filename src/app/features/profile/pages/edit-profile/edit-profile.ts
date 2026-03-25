@@ -12,8 +12,10 @@ import { FormFieldsComponent } from '../../../../shared/components/forms/form-fi
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
+import { matchControlValidator } from '../../../../shared/validators/match-control-validator';
 import { ImageUploader, ImageUploaderSelection } from '../../../../shared/components/media/image-uploader/image-uploader';
 import { ImageCropper, ImageCropperDialogResult } from '../../../../shared/components/media/image-cropper/image-cropper';
+import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
 
 @Component({
   selector: 'app-edit-profile',
@@ -27,6 +29,7 @@ import { ImageCropper, ImageCropperDialogResult } from '../../../../shared/compo
     SanitizeInput,
     AutoResizeTextarea,
     ImageUploader,
+    LoadingButton,
   ],
   templateUrl: './edit-profile.html',
   styleUrl: './edit-profile.scss',
@@ -44,6 +47,8 @@ export class EditProfile implements OnInit {
   hasClickedBasicSubmit = signal(false);
   hasClickedCredentialsSubmit = signal(false);
   profileImageLoading = signal(false);
+  basicSaveLoading = signal(false);
+  credentialsSaveLoading = signal(false);
 
   basicForm!: FormGroup<{
     name: FormControl<string>;
@@ -52,7 +57,7 @@ export class EditProfile implements OnInit {
 
   credentialsForm!: FormGroup<{
     username: FormControl<string>;
-    password: FormControl<string>;
+    newPassword: FormControl<string>;
     confirmPassword: FormControl<string>;
     currentPassword: FormControl<string>;
   }>;
@@ -80,7 +85,9 @@ export class EditProfile implements OnInit {
         disallowSpecialChars: true,
         maxLength: 30,
       })]],
-      bio: ['', [commonFormValidator({ maxLength: 80 })]],
+      bio: [user?.bio || '', [commonFormValidator({
+        maxLength: 80
+      })]],
     });
 
     this.credentialsForm = this.formBuilder.group({
@@ -91,7 +98,7 @@ export class EditProfile implements OnInit {
         minLength: 3,
         maxLength: 20,
       })]],
-      password: ['', [commonFormValidator({
+      newPassword: ['', [commonFormValidator({
         requireNumber: true,
         requireLetter: true,
         disallowSpaces: true,
@@ -100,7 +107,6 @@ export class EditProfile implements OnInit {
       })]],
       confirmPassword: ['', [commonFormValidator({
         disallowSpaces: true,
-        minLength: 6,
         maxLength: 20,
       })]],
       currentPassword: ['', [commonFormValidator({
@@ -108,6 +114,12 @@ export class EditProfile implements OnInit {
         minLength: 6,
         maxLength: 20,
       })]],
+    }, {
+      validators: [matchControlValidator({
+        sourceControlName: 'newPassword',
+        targetControlName: 'confirmPassword',
+        sourceControlLabel: 'new password',
+      })],
     });
   }
 
@@ -116,7 +128,17 @@ export class EditProfile implements OnInit {
     this.hasClickedBasicSubmit.set(true);
     console.log('Basic form value:', this.basicForm.value);
     if (this.basicForm.valid) {
-
+      this.basicSaveLoading.set(true);
+      this.userService.updateProfileBasics(this.basicForm.getRawValue()).pipe(
+        finalize(() => this.basicSaveLoading.set(false))
+      ).subscribe({
+        next: () => {
+          this.snackBar.open('Profile basics updated successfully', '✖', {
+            duration: 3000,
+            panelClass: 'snackbar-success',
+          });
+        },
+      });
     }
   }
 
@@ -125,7 +147,7 @@ export class EditProfile implements OnInit {
     console.log('Credentials form value:', this.credentialsForm.value);
   }
 
-  onProfilePhotoSelected(selection: ImageUploaderSelection) {    
+  onProfilePhotoSelected(selection: ImageUploaderSelection) {
     const profileImage = selection.files[0];
     if (!profileImage) return;
 

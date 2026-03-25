@@ -4,8 +4,7 @@
     @if (authState().user; as user) {
     <div class="grid gap-6 md:grid-cols-[220px_1fr]">
       <div class="flex flex-col items-center rounded-2xl border border-slate-200 bg-white/80 p-4">
-        <app-thumbnail
-          [imageData]="profileState().profileImage?.fileData"
+        <app-thumbnail [imageData]="profileState().profileImage?.fileData"
           [fileType]="profileState().profileImage?.fileType" [loading]="profileImageLoading()" size="9rem"
           [alt]="(user.name || user.username || 'User') + ' profile image'">
         </app-thumbnail>
@@ -18,16 +17,14 @@
               Upload Photo
             </div>
           </app-image-uploader>
-          <button type="button"
-            class="u-btn-danger-rose">
+          <button type="button" class="u-btn-danger-rose">
             Remove Photo
           </button>
         </div>
       </div>
 
       <div class="rounded-2xl border border-slate-200 bg-white/90 p-5">
-        <a routerLink="/profile/view-profile"
-          class="mb-4 inline-flex items-center rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-sm font-semibold text-cyan-700 no-underline transition hover:border-cyan-300 hover:bg-cyan-100">
+        <a routerLink="/profile/view-profile" class="u-btn-outline-cyan mb-4">
           <fa-icon [icon]="faArrowLeft" class="mr-2 text-xs"></fa-icon>
           Go Back
         </a>
@@ -56,10 +53,11 @@
               </app-form-fields>
 
               <div class="mt-4">
-                <button type="submit"
-                  class="u-btn-primary-cyan">
-                  Save Basic Info
-                </button>
+                <app-loading-button [loading]="basicSaveLoading()" class="w-fit">
+                  <button type="submit" class="u-btn-primary-cyan" [disabled]="basicSaveLoading()">
+                    Save Basic Info
+                  </button>
+                </app-loading-button>
               </div>
             </form>
             }
@@ -77,20 +75,21 @@
                   name="username" appSanitizeInput [noSpaceAllow]="true" />
               </app-form-fields>
 
-              @let passwordControl = credentialsForm.controls.password;
+              @let newPasswordControl = credentialsForm.controls.newPassword;
               @let confirmPasswordControl = credentialsForm.controls.confirmPassword;
               <div class="grid gap-4 sm:grid-cols-2">
-                <app-form-fields [fieldConfig]="{label: 'New Password'}" [dynamicFormControl]="passwordControl"
+                <app-form-fields [fieldConfig]="{label: 'New Password'}" [dynamicFormControl]="newPasswordControl"
                   [hasClickedSubmit]="hasClickedCredentialsSubmit()">
-                  <input type="password" [formControl]="passwordControl" class="u-form-field"
-                    [placeholder]="'Enter new password'" name="password" appSanitizeInput [noSpaceAllow]="true" />
+                  <input type="password" [formControl]="newPasswordControl" class="u-form-field"
+                    [placeholder]="'Enter new password'" name="newPassword" autocomplete="new-password"
+                    appSanitizeInput [noSpaceAllow]="true" />
                 </app-form-fields>
 
-                <app-form-fields [fieldConfig]="{label: 'Confirm New Password'}"
+                <app-form-fields [fieldConfig]="{label: 'Confirm Password'}"
                   [dynamicFormControl]="confirmPasswordControl" [hasClickedSubmit]="hasClickedCredentialsSubmit()">
                   <input type="password" [formControl]="confirmPasswordControl" class="u-form-field"
                     [placeholder]="'Re-enter new password'" name="confirmPassword" appSanitizeInput
-                    [noSpaceAllow]="true" />
+                    autocomplete="new-password" [noSpaceAllow]="true" />
                 </app-form-fields>
               </div>
 
@@ -99,15 +98,15 @@
                 [hasClickedSubmit]="hasClickedCredentialsSubmit()">
                 <input type="password" [formControl]="currentPasswordControl" class="u-form-field"
                   [placeholder]="'Enter current password'" name="currentPassword" appSanitizeInput
-                  [noSpaceAllow]="true" />
-
+                  autocomplete="current-password" [noSpaceAllow]="true" />
               </app-form-fields>
 
               <div class="mt-4">
-                <button type="submit"
-                  class="u-btn-primary-cyan disabled:cursor-not-allowed disabled:bg-cyan-400">
-                  Save Credentials
-                </button>
+                <app-loading-button [loading]="credentialsSaveLoading()" class="w-fit">
+                  <button type="submit" class="u-btn-primary-cyan" [disabled]="credentialsSaveLoading()">
+                    Save Credentials
+                  </button>
+                </app-loading-button>
               </div>
             </form>
             }
