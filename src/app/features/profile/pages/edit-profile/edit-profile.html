@@ -5,21 +5,24 @@
     <div class="grid gap-6 md:grid-cols-[220px_1fr]">
       <div class="flex flex-col items-center rounded-2xl border border-slate-200 bg-white/80 p-4">
         <app-thumbnail [imageData]="profileState().profileImage?.fileData"
-          [fileType]="profileState().profileImage?.fileType" [loading]="profileImageLoading()" size="9rem"
+          [fileType]="profileState().profileImage?.fileType" [name]="user.name"
+          [loading]="profileImageLoading()" size="9rem"
           [alt]="(user.name || user.username || 'User') + ' profile image'">
         </app-thumbnail>
         <p class="mt-3 text-sm font-medium text-slate-600">Profile Photo</p>
 
         <div class="mt-4 flex w-full flex-col gap-4">
           <app-image-uploader [cropButtonText]="'Save'" (fileSelected)="onProfilePhotoSelected($event)">
-            <div
-              class="cursor-pointer rounded-lg bg-cyan-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 active:bg-cyan-800">
+            <div class="u-btn-primary-cyan">
               Upload Photo
             </div>
           </app-image-uploader>
-          <button type="button" class="u-btn-danger-rose">
+          @if (profileState().profileImage?.fileData) {
+          <button type="button" class="u-btn-danger-rose" (click)="onRemovePhoto()"
+            [disabled]="profileImageLoading()">
             Remove Photo
           </button>
+          }
         </div>
       </div>
 
@@ -47,14 +50,14 @@
 
               @let bioControl = basicForm.controls.bio;
               <app-form-fields [fieldConfig]="{label: 'Bio'}" [dynamicFormControl]="bioControl"
-                [hasClickedSubmit]="hasClickedBasicSubmit()">
+                [hasClickedSubmit]="hasClickedBasicSubmit()" class="leading-0">
                 <textarea [formControl]="bioControl" class="u-form-field min-h-25" [placeholder]="'Short bio'"
                   name="bio" appSanitizeInput appAutoResizeTextarea></textarea>
               </app-form-fields>
 
-              <div class="mt-4">
+              <div class="mt-6">
                 <app-loading-button [loading]="basicSaveLoading()" class="w-fit">
-                  <button type="submit" class="u-btn-primary-cyan" [disabled]="basicSaveLoading()">
+                  <button type="submit" class="u-btn-primary-cyan text-base" [disabled]="basicSaveLoading()">
                     Save Basic Info
                   </button>
                 </app-loading-button>
@@ -67,9 +70,19 @@
             <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Credentials</h2>
             @if (credentialsForm) {
             <form [formGroup]="credentialsForm" (ngSubmit)="onCredentialsSubmit()">
+
+              <!-- Added to extra dummy field to stop browser auto porefield -->
+              <input type="text" name="username" class="sr-only" />
+              <input type="password" name="password" class="sr-only" />
+
               @let usernameControl = credentialsForm.controls.username;
               <app-form-fields [fieldConfig]="{label: 'Username'}" [dynamicFormControl]="usernameControl"
-                [hasClickedSubmit]="hasClickedCredentialsSubmit()">
+                [hasClickedSubmit]="hasClickedCredentialsSubmit()" [text]="{
+                  pendingText: 'Checking username availability',
+                  validText: usernameControl.value?.trim() === authState().user?.username
+                    ? 'This is your current username'
+                    : 'Username is available'
+                }">
                 <input type="text" [formControl]="usernameControl"
                   class="u-form-field lowercase placeholder:normal-case" [placeholder]="'Enter username'"
                   name="username" appSanitizeInput [noSpaceAllow]="true" />
@@ -80,30 +93,35 @@
               <div class="grid gap-4 sm:grid-cols-2">
                 <app-form-fields [fieldConfig]="{label: 'New Password'}" [dynamicFormControl]="newPasswordControl"
                   [hasClickedSubmit]="hasClickedCredentialsSubmit()">
-                  <input type="password" [formControl]="newPasswordControl" class="u-form-field"
-                    [placeholder]="'Enter new password'" name="newPassword" autocomplete="new-password"
-                    appSanitizeInput [noSpaceAllow]="true" />
+                  <app-password-field>
+                    <input type="password" [formControl]="newPasswordControl" class="u-form-field"
+                      [placeholder]="'Enter new password'" name="newPassword" appSanitizeInput [noSpaceAllow]="true" />
+                  </app-password-field>
                 </app-form-fields>
 
                 <app-form-fields [fieldConfig]="{label: 'Confirm Password'}"
                   [dynamicFormControl]="confirmPasswordControl" [hasClickedSubmit]="hasClickedCredentialsSubmit()">
-                  <input type="password" [formControl]="confirmPasswordControl" class="u-form-field"
-                    [placeholder]="'Re-enter new password'" name="confirmPassword" appSanitizeInput
-                    autocomplete="new-password" [noSpaceAllow]="true" />
+                  <app-password-field>
+                    <input type="password" [formControl]="confirmPasswordControl" class="u-form-field"
+                      [placeholder]="'Re-enter new password'" name="confirmPassword" appSanitizeInput
+                      [noSpaceAllow]="true" />
+                  </app-password-field>
                 </app-form-fields>
               </div>
 
               @let currentPasswordControl = credentialsForm.controls.currentPassword;
               <app-form-fields [fieldConfig]="{label: 'Current Password'}" [dynamicFormControl]="currentPasswordControl"
                 [hasClickedSubmit]="hasClickedCredentialsSubmit()">
-                <input type="password" [formControl]="currentPasswordControl" class="u-form-field"
-                  [placeholder]="'Enter current password'" name="currentPassword" appSanitizeInput
-                  autocomplete="current-password" [noSpaceAllow]="true" />
+                <app-password-field>
+                  <input type="password" [formControl]="currentPasswordControl" class="u-form-field"
+                    [placeholder]="'Enter current password'" name="currentPassword" appSanitizeInput
+                    [noSpaceAllow]="true" />
+                </app-password-field>
               </app-form-fields>
 
-              <div class="mt-4">
+              <div class="mt-6">
                 <app-loading-button [loading]="credentialsSaveLoading()" class="w-fit">
-                  <button type="submit" class="u-btn-primary-cyan" [disabled]="credentialsSaveLoading()">
+                  <button type="submit" class="u-btn-primary-cyan text-base" [disabled]="credentialsSaveLoading()">
                     Save Credentials
                   </button>
                 </app-loading-button>

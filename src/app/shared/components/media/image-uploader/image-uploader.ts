@@ -3,13 +3,27 @@ import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import imageCompression from 'browser-image-compression';
-import { ALLOWED_EXTENSIONS, isFileFormatAllowed } from '../../../utils/file-formats';
+import { FileCategory, isAllowedFileCategory } from '../../../utils/file-formats';
 import { ImageCropper, ImageCropperDialogResult } from '../image-cropper/image-cropper';
 
 export interface ImageUploaderSelection {
   files: File[];
   dialogRef?: MatDialogRef<ImageCropper, ImageCropperDialogResult>;
 }
+
+const CATEGORY_ACCEPT_TYPES: Record<Exclude<FileCategory, 'all'>, string> = {
+  image: 'image/*',
+  video: 'video/*',
+  audio: 'audio/*',
+  application: 'application/*',
+};
+
+const CATEGORY_LABELS: Record<Exclude<FileCategory, 'all'>, string> = {
+  image: 'image',
+  video: 'video',
+  audio: 'audio',
+  application: 'application',
+};
 
 @Component({
   selector: 'app-image-uploader',
@@ -24,7 +38,7 @@ export class ImageUploader {
 
   maxSize = input<number>(50);
   maxCompressedSizeMb = input<number>(0.1);
-  allowedFormats = input<string[]>(Object.values(ALLOWED_EXTENSIONS).flat());
+  allowedCategories = input<FileCategory[]>(['image']);
   multiple = input<boolean>(false);
   maxFiles = input<number>(1);
   cropButtonText = input<string>('Crop');
@@ -100,13 +114,40 @@ export class ImageUploader {
     return 1200;
   }
 
+  getAcceptTypes(): string {
+    const categories = this.allowedCategories();
+    if (categories.includes('all')) return '';
+    return categories
+      .filter((category): category is Exclude<FileCategory, 'all'> => category !== 'all')
+      .map((category) => CATEGORY_ACCEPT_TYPES[category])
+      .join(',');
+  }
+
+  private getInvalidTypeMessage(categories: FileCategory[]): string {
+    if (categories.includes('all')) {
+      return 'Only supported file types are allowed.';
+    }
+
+    const labels = categories
+      .filter((category): category is Exclude<FileCategory, 'all'> => category !== 'all')
+      .map((category) => CATEGORY_LABELS[category]);
+
+    if (labels.length === 1) {
+      return `Only ${labels[0]} files are supported.`;
+    }
+
+    return `Only ${labels.join(', ')} files are supported.`;
+  }
+
   private validate(file: File): boolean {
-    if (!isFileFormatAllowed(file, this.allowedFormats())) {
-      this.showError(`Invalid file format for "${file.name}". Allowed formats: ${this.allowedFormats().join(', ')}`);
+    const categories = this.allowedCategories();
+    const isAllowed = categories.includes('all') || categories.some((category) => category !== 'all' && isAllowedFileCategory(file, category));
+    if (!isAllowed) {
+      this.showError(this.getInvalidTypeMessage(categories));
       return false;
     }
     if (file.size > ((this.maxSize() + 10) * 1024 * 1024)) {
-      this.showError(`File "${file.name}" is too large. Maximum allowed size is ${this.maxSize()}MB.`);
+      this.showError(`File size must be ${this.maxSize()}MB or less.`);
       return false;
     }
     return true;

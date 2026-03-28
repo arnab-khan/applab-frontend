@@ -28,8 +28,20 @@
         @let passwordControl=signupForm.controls.password;
         <app-form-fields [fieldConfig]="{label: 'Password'}" [dynamicFormControl]="passwordControl"
             [hasClickedSubmit]="hasClickedSubmit()">
-            <input type="password" [formControl]="passwordControl" class="u-form-field" name="password"
-                [placeholder]="'Enter password'" appSanitizeInput [noSpaceAllow]="true" />
+            <app-password-field>
+                <input type="password" [formControl]="passwordControl" class="u-form-field" name="password"
+                    [placeholder]="'Enter password'" appSanitizeInput [noSpaceAllow]="true" />
+            </app-password-field>
+        </app-form-fields>
+
+        @let confirmPasswordControl=signupForm.controls.confirmPassword;
+        <app-form-fields [fieldConfig]="{label: 'Confirm Password'}" [dynamicFormControl]="confirmPasswordControl"
+            [hasClickedSubmit]="hasClickedSubmit()">
+            <app-password-field>
+                <input type="password" [formControl]="confirmPasswordControl" class="u-form-field"
+                    name="confirmPassword" [placeholder]="'Re-enter password'" appSanitizeInput
+                    [noSpaceAllow]="true" />
+            </app-password-field>
         </app-form-fields>
 
         <app-loading-button [loading]="isSubmitting()" class="mt-6">

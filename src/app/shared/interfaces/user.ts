@@ -30,3 +30,9 @@ export interface UpdateProfileBasics {
     name?: string;
     bio?: string;
 }
+
+export interface UpdateProfileCredentials {
+    username?: string;
+    password?: string;
+    currentPassword: string;
+}

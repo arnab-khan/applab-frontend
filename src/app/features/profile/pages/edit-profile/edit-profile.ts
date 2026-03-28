@@ -1,26 +1,31 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import { finalize } from 'rxjs';
+import { finalize, map } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
 import { User } from '../../../../core/services/user';
-import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
-import { FormFieldsComponent } from '../../../../shared/components/forms/form-fields/form-fields';
-import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
-import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
-import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
-import { matchControlValidator } from '../../../../shared/validators/match-control-validator';
-import { ImageUploader, ImageUploaderSelection } from '../../../../shared/components/media/image-uploader/image-uploader';
-import { ImageCropper, ImageCropperDialogResult } from '../../../../shared/components/media/image-cropper/image-cropper';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
+import { FormFieldsComponent } from '../../../../shared/components/forms/form-fields/form-fields';
+import { PasswordField } from '../../../../shared/components/forms/password-field/password-field';
+import { CommonDialog, CommonDialogResult } from '../../../../shared/components/dialogs/common-dialog/common-dialog';
+import { ImageUploader, ImageUploaderSelection } from '../../../../shared/components/media/image-uploader/image-uploader';
+import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
+import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
+import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
+import { UpdateProfileCredentials } from '../../../../shared/interfaces/user';
+import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
+import { existsValidator } from '../../../../shared/validators/exists-validator';
+import { matchControlValidator } from '../../../../shared/validators/match-control-validator';
 
 @Component({
   selector: 'app-edit-profile',
   imports: [
     ReactiveFormsModule,
+    MatDialogModule,
     MatSnackBarModule,
     RouterModule,
     FontAwesomeModule,
@@ -30,6 +35,7 @@ import { LoadingButton } from '../../../../shared/components/buttons/loading-but
     AutoResizeTextarea,
     ImageUploader,
     LoadingButton,
+    PasswordField,
   ],
   templateUrl: './edit-profile.html',
   styleUrl: './edit-profile.scss',
@@ -39,6 +45,7 @@ export class EditProfile implements OnInit {
   private userService = inject(User);
   private formBuilder = inject(NonNullableFormBuilder);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   authState = this.authService.authState;
   profileState = this.authService.profileState;
@@ -91,13 +98,32 @@ export class EditProfile implements OnInit {
     });
 
     this.credentialsForm = this.formBuilder.group({
-      username: [user?.username || '', [commonFormValidator({
-        required: true,
-        disallowSpaces: true,
-        disallowSpecialChars: true,
-        minLength: 3,
-        maxLength: 20,
-      })]],
+      username: [
+        user?.username || '',
+        {
+          validators: [
+            commonFormValidator({
+              required: true,
+              disallowSpaces: true,
+              disallowSpecialChars: true,
+              minLength: 3,
+              maxLength: 20,
+            }),
+          ],
+          asyncValidators: [
+            existsValidator({
+              ignoreValue: () => this.authState().status === 'authenticated'
+                ? this.authState().user?.username
+                : null,
+              apiObserable: (value) => {
+                return this.userService.checkIfUserExists({ username: value }).pipe(
+                  map(response => response.exists)
+                )
+              }
+            }),
+          ],
+        },
+      ],
       newPassword: ['', [commonFormValidator({
         requireNumber: true,
         requireLetter: true,
@@ -110,8 +136,8 @@ export class EditProfile implements OnInit {
         maxLength: 20,
       })]],
       currentPassword: ['', [commonFormValidator({
+        required: true,
         disallowSpaces: true,
-        minLength: 6,
         maxLength: 20,
       })]],
     }, {
@@ -122,7 +148,6 @@ export class EditProfile implements OnInit {
       })],
     });
   }
-
 
   onBasicSubmit() {
     this.hasClickedBasicSubmit.set(true);
@@ -138,6 +163,13 @@ export class EditProfile implements OnInit {
             panelClass: 'snackbar-success',
           });
         },
+        error: (error) => {
+          const message = error.error?.message || error.error || 'Profile basics update failed. Please try again.';
+          this.snackBar.open(message, '✖', {
+            duration: 3000,
+            panelClass: 'snackbar-error',
+          });
+        },
       });
     }
   }
@@ -145,6 +177,33 @@ export class EditProfile implements OnInit {
   onCredentialsSubmit() {
     this.hasClickedCredentialsSubmit.set(true);
     console.log('Credentials form value:', this.credentialsForm.value);
+    if (this.credentialsForm.valid) {
+      const { username, newPassword: password, currentPassword } = this.credentialsForm.getRawValue();
+      const body: UpdateProfileCredentials = {
+        username,
+        currentPassword,
+        ...(password?.trim() && { password }),
+      };
+
+      this.credentialsSaveLoading.set(true);
+      this.userService.updateCredentials(body).pipe(
+        finalize(() => this.credentialsSaveLoading.set(false))
+      ).subscribe({
+        next: () => {
+          this.snackBar.open('Credentials updated successfully', '✖', {
+            duration: 3000,
+            panelClass: 'snackbar-success',
+          });
+        },
+        error: (error) => {
+          const message = error.error?.message || error.error || 'Credentials update failed. Please try again.';
+          this.snackBar.open(message, '✖', {
+            duration: 3000,
+            panelClass: 'snackbar-error',
+          });
+        },
+      });
+    }
   }
 
   onProfilePhotoSelected(selection: ImageUploaderSelection) {
@@ -162,6 +221,42 @@ export class EditProfile implements OnInit {
       error: () => {
         selection.dialogRef?.componentInstance?.isCropping.set(false);
       }
+    });
+  }
+
+  onRemovePhoto() {
+    this.dialog.open(CommonDialog, {
+      width: '30rem',
+      data: {
+        type: 'warning',
+        message: 'Are you sure you want to remove your profile photo?',
+        confirmText: 'Remove Photo',
+        cancelText: 'Cancel',
+        onConfirm: (dialogRef: MatDialogRef<CommonDialog, CommonDialogResult>, dialog: CommonDialog) => {
+          this.profileImageLoading.set(true);
+          this.userService.deleteProfileImage().pipe(
+            finalize(() => {
+              this.profileImageLoading.set(false);
+              dialog.isConfirming.set(false);
+            })
+          ).subscribe({
+            next: () => {
+              dialogRef.close({ confirmed: true });
+              this.snackBar.open('Profile photo removed successfully', '✖', {
+                duration: 3000,
+                panelClass: 'snackbar-success',
+              });
+            },
+            error: (error) => {
+              const message = error.error?.message || error.error || 'Failed to remove profile photo. Please try again.';
+              this.snackBar.open(message, '✖', {
+                duration: 3000,
+                panelClass: 'snackbar-error',
+              });
+            },
+          });
+        },
+      },
     });
   }
 }

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.development';
 import { IsUsernameExist } from '../../shared/interfaces/is-username-exist';
-import { UpdateProfileBasics, User as AuthUser, UserProfileImage } from '../../shared/interfaces/user';
+import { UpdateProfileBasics, UpdateProfileCredentials, User as AuthUser, UserProfileImage } from '../../shared/interfaces/user';
 import { toHttpParams } from '../../shared/utils/http';
 import { finalize, Observable, of, tap } from 'rxjs';
 import { Auth } from './auth';
@@ -14,6 +14,13 @@ export class User {
   private httpClient = inject(HttpClient);
   private authService = inject(Auth);
   private baseApiUrl = `${environment.rootApiUrl}/user`;
+
+  private mergeAuthUser(user: AuthUser) {
+    this.authService.authState.update(state => ({
+      ...state,
+      user: state.user ? { ...state.user, ...user } : user,
+    }));
+  }
 
   private withProfileImageLoading(request$: Observable<UserProfileImage>, options?: { showLoader?: boolean }) {
     const showLoader = options?.showLoader;
@@ -65,12 +72,13 @@ export class User {
 
   updateProfileBasics(body: UpdateProfileBasics) {
     return this.httpClient.patch<AuthUser>(`${this.baseApiUrl}/update-profile-basics`, body).pipe(
-      tap(user => {
-        this.authService.authState.update(state => ({
-          ...state,
-          user: state.user ? { ...state.user, ...user } : user,
-        }));
-      })
+      tap(user => this.mergeAuthUser(user))
+    );
+  }
+
+  updateCredentials(body: UpdateProfileCredentials) {
+    return this.httpClient.patch<AuthUser>(`${this.baseApiUrl}/update-credentials`, body).pipe(
+      tap(user => this.mergeAuthUser(user))
     );
   }
 
@@ -87,6 +95,17 @@ export class User {
     }
     return this.withProfileImageLoading(
       this.httpClient.patch<UserProfileImage>(`${this.baseApiUrl}/update-profile-image`, formData)
+    );
+  }
+
+  deleteProfileImage() {
+    return this.httpClient.delete<void>(`${this.baseApiUrl}/profile-image`).pipe(
+      tap(() => {
+        this.authService.profileState.update(state => ({
+          ...state,
+          profileImage: null,
+        }));
+      })
     );
   }
 }

@@ -22,9 +22,9 @@ describe('ImageUploader', () => {
     expect(component).toBeTruthy();
   });
 
-  it('validates by file extension when MIME type is empty', () => {
-    (component.allowedFormats as any).set(['.png']);
-    const file = new File([new Uint8Array([1, 2, 3])], 'avatar.PNG', { type: '' });
+  it('validates by file category', () => {
+    (component.allowedCategories as any).set(['image']);
+    const file = new File([new Uint8Array([1, 2, 3])], 'avatar.png', { type: 'image/png' });
     expect((component as any).validate(file)).toBe(true);
   });
 });

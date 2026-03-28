@@ -10,6 +10,7 @@ import { LoadingButton } from '../../../../shared/components/buttons/loading-but
 import { Router, RouterLink } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { POST_LOGIN_DEFAULT_ROUTE } from '../../../../shared/config/config';
+import { PasswordField } from '../../../../shared/components/forms/password-field/password-field';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +22,8 @@ import { POST_LOGIN_DEFAULT_ROUTE } from '../../../../shared/config/config';
     LoadingButton,
     MatSnackBarModule,
     RouterLink,
-],
+    PasswordField,
+  ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })

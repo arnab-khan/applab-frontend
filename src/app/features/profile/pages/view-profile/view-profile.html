@@ -6,7 +6,8 @@
       <div class="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white/80 p-4">
         <app-thumbnail
           [imageData]="profileState().profileImage?.fileData"
-          [fileType]="profileState().profileImage?.fileType" [loading]="profileImageLoading()" size="9rem"
+          [fileType]="profileState().profileImage?.fileType" [name]="user.name"
+          [loading]="profileImageLoading()" size="9rem"
           [alt]="(user.name || user.username || 'User') + ' profile image'">
         </app-thumbnail>
         <p class="mt-3 text-sm font-medium text-slate-600">Profile Photo</p>

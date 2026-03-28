@@ -1,4 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { addControlError, removeControlError } from '../utils/form-error.utils';
 
 export interface MatchControlConfig {
   sourceControlName: string;
@@ -19,21 +20,17 @@ export function matchControlValidator(config: MatchControlConfig): ValidatorFn {
     const sourceValue = sourceControl.value;
     const targetValue = targetControl.value;
     const errorKey = config.errorKey || 'valueMismatch';
-    const targetExistingErrors = targetControl.errors ?? {};
 
     if (!targetValue || sourceValue === targetValue) {
-      if (targetExistingErrors[errorKey]) {
-        const { [errorKey]: _, ...targetRemainingErrors } = targetExistingErrors;
-        targetControl.setErrors(Object.keys(targetRemainingErrors).length ? targetRemainingErrors : null);
-      }
-
+      removeControlError(targetControl, errorKey);
       return null;
     }
 
-    targetControl.setErrors({
-      ...targetExistingErrors,
-      [errorKey]: `{{LABEL}} must match the ${config.sourceControlLabel ?? 'the other field'}`,
-    });
+    addControlError(
+      targetControl,
+      errorKey,
+      `{{LABEL}} must match the ${config.sourceControlLabel ?? 'the other field'}`
+    );
 
     return null;
   };

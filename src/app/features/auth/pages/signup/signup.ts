@@ -14,6 +14,8 @@ import { LoadingButton } from '../../../../shared/components/buttons/loading-but
 import { Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { POST_LOGIN_DEFAULT_ROUTE } from '../../../../shared/config/config';
+import { PasswordField } from '../../../../shared/components/forms/password-field/password-field';
+import { matchControlValidator } from '../../../../shared/validators/match-control-validator';
 
 @Component({
   selector: 'app-signup',
@@ -25,6 +27,7 @@ import { POST_LOGIN_DEFAULT_ROUTE } from '../../../../shared/config/config';
     LoadingButton,
     MatSnackBarModule,
     RouterModule,
+    PasswordField,
   ],
   templateUrl: './signup.html',
   styleUrl: './signup.scss',
@@ -41,6 +44,7 @@ export class Signup implements OnInit {
     name: FormControl<string>;
     username: FormControl<string>;
     password: FormControl<string>;
+    confirmPassword: FormControl<string>;
   }>;
   usernameConfig!: FieldConfig;
   passwordConfig!: FieldConfig;
@@ -93,6 +97,16 @@ export class Signup implements OnInit {
         minLength: 6,
         maxLength: 20,
       }),]],
+      confirmPassword: ['', [commonFormValidator({
+        disallowSpaces: true,
+        maxLength: 20,
+      })]],
+    }, {
+      validators: [matchControlValidator({
+        sourceControlName: 'password',
+        targetControlName: 'confirmPassword',
+        sourceControlLabel: 'password',
+      })],
     });
   }
 
