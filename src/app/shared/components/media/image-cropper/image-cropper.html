@@ -1,0 +1,28 @@
+<app-dialog-header mat-dialog-title [title]="title()" containerClass="u-responsive-padding-x py-2 shadow">
+</app-dialog-header>
+<mat-dialog-content class="h-0 grow">
+  <div class="u-responsive-padding-x h-full pt-3">
+    @if (file(); as selectedFile) {
+    <div class="rounded-xl border border-slate-200 bg-white p-3 h-full flex items-center relative content-center">
+      @if (isImageLoading()) {
+      <div class="u-absolute-center-xy u-spinner"></div>
+      }
+      <image-cropper [imageFile]="selectedFile" [maintainAspectRatio]="maintainAspectRatio()"
+        [aspectRatio]="aspectRatio()" [roundCropper]="roundCropper()" [resizeToWidth]="500" [format]="outputFormat()"
+        [output]="'blob'" (imageCropped)="onImageCropped($event)" (imageLoaded)="onImageLoaded()" class="max-h-full"
+        [class.hidden]="isImageLoading()" />
+    </div>
+    } @else {
+    <p class="text-sm text-slate-600">No image selected.</p>
+    }
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <div class="u-responsive-padding-x py-3 w-full flex justify-center">
+    <app-loading-button [loading]="isCropping()" class="min-w-[50%]">
+      <button type="button" class="u-btn-secondary-gray w-full" (click)="onConfirm()">
+        {{ confirmButtonText() }}
+      </button>
+    </app-loading-button>
+  </div>
+</mat-dialog-actions>

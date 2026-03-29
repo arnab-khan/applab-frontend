@@ -1,8 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { DialogHeader } from '../dialog-header/dialog-header';
+import { LoadingButton } from '../../buttons/loading-button/loading-button';
 
 export type CommonDialogType = 'warning' | 'error' | 'success' | 'confirm';
 
@@ -11,6 +11,10 @@ export interface CommonDialogData {
   message?: string;
   confirmText?: string;
   cancelText?: string;
+  onConfirm?: (
+    dialogRef: MatDialogRef<CommonDialog, CommonDialogResult>,
+    dialog: CommonDialog
+  ) => void;
 }
 
 export interface CommonDialogResult {
@@ -19,7 +23,7 @@ export interface CommonDialogResult {
 
 @Component({
   selector: 'app-common-dialog',
-  imports: [MatDialogModule, MatButtonModule, FontAwesomeModule],
+  imports: [MatDialogModule, MatButtonModule, DialogHeader, LoadingButton],
   templateUrl: './common-dialog.html',
   styleUrl: './common-dialog.scss',
 })
@@ -34,12 +38,11 @@ export class CommonDialog {
     cancelText: this.incomingData?.cancelText,
   });
 
-  readonly faXmark = faXmark;
-
   readonly type = computed(() => this.dialogData().type);
   readonly message = computed(() => this.dialogData().message);
   readonly confirmText = computed(() => this.dialogData().confirmText);
   readonly cancelText = computed(() => this.dialogData().cancelText);
+  readonly isConfirming = signal(false);
   readonly confirmButtonClass = computed(() => {
     switch (this.type()) {
       case 'warning':
@@ -55,10 +58,20 @@ export class CommonDialog {
   });
 
   onConfirm() {
+    this.isConfirming.set(true);
+
+    if (this.incomingData?.onConfirm && this.dialogRef) {
+      this.incomingData.onConfirm(this.dialogRef, this);
+      return;
+    }
+
     this.dialogRef?.close({ confirmed: true });
   }
 
   onCancel() {
+    if (this.isConfirming()) {
+      return;
+    }
     this.dialogRef?.close({ confirmed: false });
   }
 }

@@ -1,13 +1,7 @@
-<div class="text-end pt-3 pe-3">
-  <button type="button" (click)="onCancel()">
-    <fa-icon [icon]="faXmark" class="text-md text-gray-500"></fa-icon>
-  </button>
-</div>
+<app-dialog-header containerClass="u-responsive-padding-x py-2 shadow"
+  [title]="todo() ? 'Edit Task' : 'Add New Task'"></app-dialog-header>
 <mat-dialog-content>
   <div class="u-responsive-padding-xy pt-2 c-todo-form-dialog">
-    <h2 class="text-2xl font-bold text-gray-900">
-      {{ todo() ? 'Edit Task' : 'Add New Task' }}
-    </h2>
     <app-todo-form [todo]="todo()" (resetTodo)="onResetTodo()"></app-todo-form>
   </div>
 </mat-dialog-content>

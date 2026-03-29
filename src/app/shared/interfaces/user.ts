@@ -1,9 +1,18 @@
 export interface User {
     id: number;
     name?: string;
+    bio?: string;
     username?: string;
     createdAt?: Date;
     updatedAt?: Date;
+}
+
+export interface UserProfileImage {
+    fileData?: string;
+    compressedFileData?: string;
+    fileName?: string;
+    fileType?: string;
+    userId: number;
 }
 
 export interface CreateUser {
@@ -15,4 +24,15 @@ export interface CreateUser {
 export interface LoginUser {
     username: string;
     password: string;
+}
+
+export interface UpdateProfileBasics {
+    name?: string;
+    bio?: string;
+}
+
+export interface UpdateProfileCredentials {
+    username?: string;
+    password?: string;
+    currentPassword: string;
 }

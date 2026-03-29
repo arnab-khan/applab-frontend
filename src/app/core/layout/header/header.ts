@@ -3,29 +3,18 @@ import { NgTemplateOutlet } from '@angular/common';
 import { RouterModule } from "@angular/router";
 import { Auth } from '../../services/auth';
 import { PORTFOLIO_URL } from '../../../shared/config/config';
+import { Thumbnail } from '../../../shared/components/media/thumbnail/thumbnail';
+import { FormattedText } from '../../../shared/components/text/formatted-text/formatted-text';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterModule, NgTemplateOutlet],
+  imports: [RouterModule, NgTemplateOutlet, Thumbnail, FormattedText],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
 export class Header {
   private authService = inject(Auth);
-  user = this.authService.authState;
+  authState = this.authService.authState;
+  profileState = this.authService.profileState;
   portfolioUrl = signal(PORTFOLIO_URL);
-
-  onLogout() {
-    this.authService.logout().subscribe({
-      next: () => {
-        console.log('Logout successful');
-      },
-      error: (error) => {
-        console.error('Logout error', error);
-      }
-    });
-  }
 }
-
-
-

@@ -5,6 +5,42 @@
     </div>
     @if (signupForm) {
     <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="space-y-5">
+        <app-form-fields [fieldConfig]="{label: 'Profile Photo'}" [dynamicFormControl]="profilePhotoControl">
+            <div class="w-fit">
+                <app-image-uploader [cropButtonText]="'Save'" (fileSelected)="onProfilePhotoSelected($event)" class="block leading-0">
+                    <button type="button"
+                        class="u-form-field block w-auto overflow-hidden rounded-[10%] p-0 outline-none"
+                        [ngClass]="{
+                            'ng-valid': profilePhotoControl.valid,
+                            'ng-invalid': profilePhotoControl.invalid,
+                            'ng-touched': profilePhotoControl.touched,
+                            'ng-dirty': profilePhotoControl.dirty,
+                            'is-empty': !selectedProfileImage()
+                        }">
+                        <app-thumbnail [imageData]="selectedProfileImage()?.imageData" [fileType]="selectedProfileImage()?.fileType"
+                            size="7rem" [alt]="'Selected profile image'">
+                        </app-thumbnail>
+                    </button>
+                </app-image-uploader>
+
+                <div class="flex items-center justify-center gap-2 mt-2">
+                    <app-image-uploader [cropButtonText]="'Save'" (fileSelected)="onProfilePhotoSelected($event)">
+                        <button type="button"
+                            class="flex h-9 w-9 items-center justify-center rounded-full border border-cyan-200 bg-white text-cyan-600 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-700">
+                            <fa-icon [icon]="selectedProfileImage() ? faPen : faCamera"></fa-icon>
+                        </button>
+                    </app-image-uploader>
+
+                    @if (selectedProfileImage()) {
+                    <button type="button"
+                        class="flex h-9 w-9 items-center justify-center rounded-full border border-rose-200 bg-white text-rose-500 shadow-sm transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600"
+                        (click)="onRemovePhoto()">
+                        <fa-icon [icon]="faTrash"></fa-icon>
+                    </button>
+                    }
+                </div>
+            </div>
+        </app-form-fields>
 
         <!-- Added to extra dummy field to stop browser auto porefield -->
         <input type="text" name="username" class="sr-only" />
@@ -28,8 +64,20 @@
         @let passwordControl=signupForm.controls.password;
         <app-form-fields [fieldConfig]="{label: 'Password'}" [dynamicFormControl]="passwordControl"
             [hasClickedSubmit]="hasClickedSubmit()">
-            <input type="password" [formControl]="passwordControl" class="u-form-field" name="password"
-                [placeholder]="'Enter password'" appSanitizeInput [noSpaceAllow]="true" />
+            <app-password-field>
+                <input type="password" [formControl]="passwordControl" class="u-form-field" name="password"
+                    [placeholder]="'Enter password'" appSanitizeInput [noSpaceAllow]="true" />
+            </app-password-field>
+        </app-form-fields>
+
+        @let confirmPasswordControl=signupForm.controls.confirmPassword;
+        <app-form-fields [fieldConfig]="{label: 'Confirm Password'}" [dynamicFormControl]="confirmPasswordControl"
+            [hasClickedSubmit]="hasClickedSubmit()">
+            <app-password-field>
+                <input type="password" [formControl]="confirmPasswordControl" class="u-form-field"
+                    name="confirmPassword" [placeholder]="'Re-enter password'" appSanitizeInput
+                    [noSpaceAllow]="true" />
+            </app-password-field>
         </app-form-fields>
 
         <app-loading-button [loading]="isSubmitting()" class="mt-6">

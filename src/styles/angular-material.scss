@@ -63,14 +63,30 @@
       container-shape: 1rem,
     ));
 
+  .mat-mdc-dialog-title {
+    padding: 0 !important;
+    margin: 0 !important;
+
+    &::before {
+      content: none;
+    }
+  }
+
   mat-dialog-content {
-    max-height: 90vh;
-    max-height: 90dvh;
+    max-height: none;
     padding: 0 !important;
   }
 
   mat-dialog-actions {
     padding: 0 !important;
+    min-height: none;
+  }
+
+  .cdk-overlay-pane.mat-mdc-dialog-panel {
+    max-width: calc(100vw - 2rem);
+    max-width: calc(100dvw - 2rem);
+    max-height: 90vh;
+    max-height: 90dvh;
   }
 
   // ========== End mat dialog ==========

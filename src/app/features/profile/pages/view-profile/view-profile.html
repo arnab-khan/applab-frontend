@@ -1,0 +1,62 @@
+<section class="flex items-center justify-center grow u-responsive-padding-xy">
+  <div
+    class="overflow-hidden rounded-3xl border border-white/50 bg-cyan-50 shadow-xl u-responsive-padding-xy u-container-2">
+    @if (authState().user; as user) {
+    <div class="grid gap-6 md:grid-cols-[220px_1fr]">
+      <div class="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white/80 p-4">
+        <app-thumbnail
+          [imageData]="profileState().profileImage?.fileData"
+          [fileType]="profileState().profileImage?.fileType" [name]="user.name"
+          [loading]="profileImageLoading()" size="9rem"
+          [alt]="(user.name || user.username || 'User') + ' profile image'">
+        </app-thumbnail>
+        <p class="mt-3 text-sm font-medium text-slate-600">Profile Photo</p>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white/90 p-5">
+        <div class="mb-5">
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">{{ user.name || 'Unnamed User' }}</h1>
+          <div class="mt-4 flex flex-wrap gap-3">
+            <a routerLink="/profile/edit-profile"
+              class="u-btn-primary-cyan inline-flex items-center justify-center leading-5 no-underline max-sm:grow">
+              Edit Profile
+            </a>
+            <button type="button" (click)="onLogout()"
+              class="u-btn-danger-rose px-4 sm:px-9 font-semibold max-sm:grow">
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">User ID</p>
+            <p class="mt-1 text-base font-medium text-slate-900">{{ user.id }}</p>
+          </div>
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Username</p>
+            <p class="mt-1 text-base font-medium text-slate-900">{{ user.username || 'N/A' }}</p>
+          </div>
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Created At</p>
+            <p class="mt-1 text-base font-medium text-slate-900">
+              {{ user.createdAt ? (user.createdAt | date:'d MMM y, h:mm a') : 'N/A' }}
+            </p>
+          </div>
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Updated At</p>
+            <p class="mt-1 text-base font-medium text-slate-900">
+              {{ user.updatedAt ? (user.updatedAt | date:'d MMM y, h:mm a') : 'N/A' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    } @else {
+    <div class="relative z-10 rounded-2xl border border-slate-200 bg-white/90 p-8 text-center">
+      <h2 class="text-xl font-semibold text-slate-900">No Profile Data</h2>
+      <p class="mt-2 text-slate-600">Please login to view your profile details.</p>
+    </div>
+    }
+  </div>
+</section>
