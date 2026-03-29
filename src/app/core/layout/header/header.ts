@@ -17,17 +17,4 @@ export class Header {
   authState = this.authService.authState;
   profileState = this.authService.profileState;
   portfolioUrl = signal(PORTFOLIO_URL);
-
-  onLogout() {
-    this.authService.logout().subscribe({
-      next: () => {
-        console.log('Logout successful');
-      },
-      error: (error) => {
-        console.error('Logout error', error);
-      }
-    });
-  }
 }
-
-

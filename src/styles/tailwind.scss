@@ -183,7 +183,7 @@
     .u-form-field {
         @apply text-lg w-full px-4 py-1.5 lg:py-2 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition;
 
-        &.ng-valid:not(:placeholder-shown):not(.mat-mdc-select-empty) {
+        &.ng-valid:not(:placeholder-shown):not(.mat-mdc-select-empty):not(.is-empty) {
             @apply border-green-500 focus:ring-0;
         }
 

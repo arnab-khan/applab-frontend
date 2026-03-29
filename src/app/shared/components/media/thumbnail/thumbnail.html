@@ -5,7 +5,7 @@
   <img [src]="'data:' + (fileType() || 'image/jpeg') + ';base64,' + imageData()" [alt]="alt()"
     class="h-full w-full object-cover" />
   } @else {
-  <div class="flex h-full w-full items-center justify-center bg-slate-100 c-thumbnail-fallback-icon">
+  <div class="flex h-full w-full items-center justify-center c-thumbnail-fallback-icon">
     @if (fallbackInitial()) {
     <span class="c-thumbnail-fallback-initial"
       [ngStyle]="{ 'font-size': 'calc(' + size() + ' * .42)', 'background-color': fallbackBackgroundColor() }">

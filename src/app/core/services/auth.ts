@@ -61,7 +61,7 @@ export class Auth {
   signup(body: CreateUser) {
     return this.httpClient.post<User>(`${this.baseApiUrl}/signup`, body).pipe(
       tap(user => this.updateUser(user)),
-      finalize(() => this.updateUser(this.authState().user, { updateStatus: false, completed: true, fetchProfileImage: true }))
+      finalize(() => this.updateUser(this.authState().user, { updateStatus: false, completed: true, fetchProfileImage: false }))
     );
   }
 

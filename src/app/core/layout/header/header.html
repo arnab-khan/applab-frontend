@@ -19,14 +19,10 @@
                     <app-thumbnail [imageData]="profileState().profileImage?.compressedFileData"
                         [fileType]="profileState().profileImage?.fileType" [name]="authState().user?.name"
                         [loading]="profileState().loading" size="1.5rem" radius="50%"></app-thumbnail>
-                    <app-formatted-text
-                        [text]="authState().user?.name || authState().user?.username || 'Profile'"
+                    <app-formatted-text [text]="authState().user?.name || authState().user?.username || 'Profile'"
                         [maxLength]="11">
                     </app-formatted-text>
                 </a>
-            </li>
-            <li>
-                <button (click)="onLogout()" class="u-nav-link">Logout</button>
             </li>
             } @else {
             <ng-container [ngTemplateOutlet]="routeLink"
