@@ -165,11 +165,11 @@
     }
 
     .u-btn-primary-cyan {
-        @apply rounded-lg bg-cyan-600 px-4 sm:px-9 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 max-sm:w-full;
+        @apply rounded-lg bg-cyan-600 px-3 py-2 text-base font-semibold text-white transition hover:bg-cyan-700 max-sm:w-full;
     }
 
     .u-btn-danger-rose {
-        @apply rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100;
+        @apply rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-base font-semibold text-rose-700 transition hover:bg-rose-100;
     }
 
     .u-btn-secondary-gray {
@@ -177,7 +177,7 @@
     }
 
     .u-btn-outline-cyan {
-        @apply inline-flex items-center rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-1.5 text-sm font-semibold text-cyan-700 no-underline transition hover:border-cyan-300 hover:bg-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2;
+        @apply inline-flex items-center rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-2 text-base font-semibold text-cyan-700 no-underline transition hover:border-cyan-300 hover:bg-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2;
     }
 
     .u-form-field {
