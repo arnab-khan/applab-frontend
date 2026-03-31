@@ -85,7 +85,7 @@
               <app-form-fields [fieldConfig]="{label: 'Username'}" [dynamicFormControl]="usernameControl"
                 [hasClickedSubmit]="hasClickedCredentialsSubmit()" [text]="{
                   pendingText: 'Checking username availability',
-                  validText: usernameControl.value?.trim() === authState().user?.username
+                  validText: usernameControl.value.trim() === authState().user?.username
                     ? 'This is your current username'
                     : 'Username is available'
                 }">
