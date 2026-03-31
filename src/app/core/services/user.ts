@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { IsUsernameExist } from '../../shared/interfaces/is-username-exist';
 import { UpdateProfileBasics, UpdateProfileCredentials, User as AuthUser, UserProfileImage } from '../../shared/interfaces/user';
 import { toHttpParams } from '../../shared/utils/http';
