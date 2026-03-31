@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, Injector, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { CreateUser, LoginUser, User, UserProfileImage } from '../../shared/interfaces/user';
 import { catchError, finalize, of, tap } from 'rxjs';
 import { LOGIN_ROUTE } from '../../shared/config/config';
