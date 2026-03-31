@@ -1,5 +1,5 @@
 <button type="button" (click)="fileInput.click()" class="w-full h-full box-border">
   <ng-content></ng-content>
 </button>
-<input type="file" #fileInput (change)="onFileSelected($event)" [accept]="getAcceptTypes()"
-  [multiple]="maxFiles()>1" class="hidden" />
+<input type="file" #fileInput (change)="onFileSelected($event)" [accept]="getAcceptTypes()" [multiple]="maxFiles()>1"
+  class="hidden" />

@@ -1,9 +1,13 @@
 <section class="flex items-center justify-center grow u-responsive-padding-xy">
   <div
-    class="overflow-hidden rounded-3xl border border-white/50 bg-cyan-50 shadow-xl u-responsive-padding-xy u-container-2">
+    class="overflow-hidden rounded-3xl md:border border-white/50 md:bg-cyan-50 md:shadow-xl md:u-responsive-padding-xy u-container-2">
     @if (authState().user; as user) {
+    <a routerLink="/profile/view-profile" class="u-btn-outline-cyan border-0 bg-white/80 mb-4 md:hidden">
+      <fa-icon [icon]="faArrowLeft" class="mr-2 text-xs"></fa-icon>
+      Go Back
+    </a>
     <div class="grid gap-6 md:grid-cols-[220px_1fr]">
-      <div class="flex flex-col items-center rounded-2xl border border-slate-200 bg-white/80 p-4">
+      <div class="flex flex-col items-center rounded-2xl border border-slate-200 bg-white/80 p-4 py-5">
         <app-thumbnail [imageData]="profileState().profileImage?.fileData"
           [fileType]="profileState().profileImage?.fileType" [name]="user.name"
           [loading]="profileImageLoading()" size="9rem"
@@ -11,14 +15,14 @@
         </app-thumbnail>
         <p class="mt-3 text-sm font-medium text-slate-600">Profile Photo</p>
 
-        <div class="mt-4 flex w-full flex-col gap-4">
+        <div class="mt-4 flex w-full flex-col gap-7">
           <app-image-uploader [cropButtonText]="'Save'" (fileSelected)="onProfilePhotoSelected($event)">
-            <div class="u-btn-primary-cyan">
-              Upload Photo
+            <div class="u-btn-primary-cyan text-base">
+              {{ profileState().profileImage?.fileData ? 'Edit Photo' : 'Upload Photo' }}
             </div>
           </app-image-uploader>
           @if (profileState().profileImage?.fileData) {
-          <button type="button" class="u-btn-danger-rose" (click)="onRemovePhoto()"
+          <button type="button" class="u-btn-danger-rose text-base" (click)="onRemovePhoto()"
             [disabled]="profileImageLoading()">
             Remove Photo
           </button>
@@ -26,8 +30,8 @@
         </div>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 bg-white/90 p-5">
-        <a routerLink="/profile/view-profile" class="u-btn-outline-cyan mb-4">
+      <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 py-5 md:p-5">
+        <a routerLink="/profile/view-profile" class="u-btn-outline-cyan mb-4 hidden md:inline-block">
           <fa-icon [icon]="faArrowLeft" class="mr-2 text-xs"></fa-icon>
           Go Back
         </a>
@@ -37,7 +41,7 @@
         </div>
 
         <div class="space-y-4">
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div class="md:rounded-xl md:border border-slate-200 md:bg-slate-50 md:p-4">
             <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Profile Basics</h2>
             @if (basicForm) {
             <form [formGroup]="basicForm" (ngSubmit)="onBasicSubmit()">
@@ -66,7 +70,9 @@
             }
           </div>
 
-          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <hr class="-mx-5 my-10 border-2 border-violet-500">
+
+          <div class="md:rounded-xl md:border border-slate-200 md:bg-slate-50 md:p-4">
             <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-600">Credentials</h2>
             @if (credentialsForm) {
             <form [formGroup]="credentialsForm" (ngSubmit)="onCredentialsSubmit()">
@@ -79,7 +85,7 @@
               <app-form-fields [fieldConfig]="{label: 'Username'}" [dynamicFormControl]="usernameControl"
                 [hasClickedSubmit]="hasClickedCredentialsSubmit()" [text]="{
                   pendingText: 'Checking username availability',
-                  validText: usernameControl.value?.trim() === authState().user?.username
+                  validText: usernameControl.value.trim() === authState().user?.username
                     ? 'This is your current username'
                     : 'Username is available'
                 }">
