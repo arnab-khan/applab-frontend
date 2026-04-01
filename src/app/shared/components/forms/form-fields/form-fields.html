@@ -5,6 +5,9 @@
   <div class="pb-1">
     <label class="block text-lg font-medium text-gray-700 first-letter:uppercase">
       {{ label }}
+      @if (isFieldRequired()) {
+      <span class="text-red-600">*</span>
+      }
     </label>
   </div>
   }

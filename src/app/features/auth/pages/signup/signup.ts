@@ -3,10 +3,11 @@ import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder } f
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCamera, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faFile, faFolderOpen, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FormFieldsComponent } from '../../../../shared/components/forms/form-fields/form-fields';
 import { FieldConfig } from '../../../../shared/components/forms/form-fields/form-fields.interface';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
+import { isMobile } from '../../../../shared/utils/device';
 import { User } from '../../../../core/services/user';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
 import { existsValidator } from '../../../../shared/validators/exists-validator';
@@ -63,6 +64,8 @@ export class Signup implements OnInit {
   hasClickedSubmit = signal(false);
   usernameExists = true;
   faCamera = faCamera;
+  readonly faFolderOpen = faFolderOpen;
+  faFile = faFile;
   faPen = faPen;
   faTrash = faTrash;
   selectedProfileImage = signal<{
@@ -70,6 +73,8 @@ export class Signup implements OnInit {
     imageData: string;
     fileType: string;
   } | null>(null);
+
+  isMobileDevice = isMobile();
 
   ngOnInit(): void {
     this.createForm();

@@ -1,4 +1,5 @@
-<button type="button" (click)="fileInput.click()" class="w-full h-full box-border">
+<button type="button" (click)="shouldUseImagePicker() ? openImagePicker() : fileInput.click()"
+  class="w-full h-full box-border">
   <ng-content></ng-content>
 </button>
 <input type="file" #fileInput (change)="onFileSelected($event)" [accept]="getAcceptTypes()" [multiple]="maxFiles()>1"

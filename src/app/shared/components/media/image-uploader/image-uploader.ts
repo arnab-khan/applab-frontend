@@ -5,6 +5,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import imageCompression from 'browser-image-compression';
 import { FileCategory, isAllowedFileCategory } from '../../../utils/file-formats';
 import { ImageCropper, ImageCropperDialogResult } from '../image-cropper/image-cropper';
+import { ImagePicker } from '../image-picker/image-picker';
+import { isMobile } from '../../../utils/device';
 
 export interface ImageUploaderSelection {
   files: File[];
@@ -45,6 +47,19 @@ export class ImageUploader {
   onCrop = input<((file: File, dialogRef: MatDialogRef<ImageCropper, ImageCropperDialogResult>) => void) | undefined>();
   fileSelected = output<ImageUploaderSelection>();
 
+  shouldUseImagePicker(): boolean {
+    return isMobile() && this.getAcceptTypes() === 'image/*' && this.maxFiles() === 1;
+  }
+
+  openImagePicker() {
+    const dialogRef = this.dialog.open(ImagePicker);
+    dialogRef.afterClosed().subscribe((file: File) => {
+      if (file) {
+        this.processSelectedFile(file);
+      }
+    });
+  }
+
   async onFileSelected(event: Event) {
     const inputElement = event.target as HTMLInputElement;
     if (!inputElement.files || inputElement.files.length === 0) {
@@ -60,21 +75,7 @@ export class ImageUploader {
     if (maxFiles === 1) {
       const file = files[0];
       if (!file) return;
-      if (!this.validate(file)) return;
-      this.dialog.open<ImageCropper, {
-        file: File;
-        confirmButtonText?: string;
-        onCrop?: (file: File, dialogRef: MatDialogRef<ImageCropper, ImageCropperDialogResult>) => void
-      }, ImageCropperDialogResult>(ImageCropper, {
-        width: '60rem',
-        data: {
-          file,
-          confirmButtonText: this.cropButtonText(),
-          onCrop: (croppedFile: File, cropperDialogRef: MatDialogRef<ImageCropper, ImageCropperDialogResult>) => {
-            this.emitCompressedFiles(croppedFile, cropperDialogRef);
-          },
-        },
-      });
+      this.processSelectedFile(file);
     } else {
       const selectedFiles: File[] = [];
       for (const file of files) {
@@ -86,6 +87,24 @@ export class ImageUploader {
         this.fileSelected.emit({ files: selectedFiles });
       }
     }
+  }
+
+  private processSelectedFile(file: File) {
+    if (!this.validate(file)) return;
+    this.dialog.open<ImageCropper, {
+      file: File;
+      confirmButtonText?: string;
+      onCrop?: (file: File, dialogRef: MatDialogRef<ImageCropper, ImageCropperDialogResult>) => void
+    }, ImageCropperDialogResult>(ImageCropper, {
+      width: '60rem',
+      data: {
+        file,
+        confirmButtonText: this.cropButtonText(),
+        onCrop: (croppedFile: File, cropperDialogRef: MatDialogRef<ImageCropper, ImageCropperDialogResult>) => {
+          this.emitCompressedFiles(croppedFile, cropperDialogRef);
+        },
+      },
+    });
   }
 
   private emitCompressedFiles(

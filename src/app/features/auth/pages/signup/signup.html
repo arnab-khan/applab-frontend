@@ -27,7 +27,7 @@
                     <app-image-uploader [cropButtonText]="'Save'" (fileSelected)="onProfilePhotoSelected($event)">
                         <button type="button"
                             class="flex h-9 w-9 items-center justify-center rounded-full border border-cyan-200 bg-white text-cyan-600 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-700">
-                            <fa-icon [icon]="selectedProfileImage() ? faPen : faCamera"></fa-icon>
+                            <fa-icon [icon]="selectedProfileImage() ? faPen : (isMobileDevice ? faCamera : faFolderOpen)"></fa-icon>
                         </button>
                     </app-image-uploader>
 
