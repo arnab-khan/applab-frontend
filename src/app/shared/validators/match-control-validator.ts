@@ -1,5 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { addControlError, removeControlError } from '../utils/form-error.utils';
+import { addControlError, removeControlError } from '../utils/form-validation';
 
 export interface MatchControlConfig {
   sourceControlName: string;
@@ -29,7 +29,7 @@ export function matchControlValidator(config: MatchControlConfig): ValidatorFn {
     addControlError(
       targetControl,
       errorKey,
-      `{{LABEL}} must match the ${config.sourceControlLabel ?? 'the other field'}`
+      `{{LABEL}} must match the ${config.sourceControlLabel ?? 'the other field'}.`
     );
 
     return null;

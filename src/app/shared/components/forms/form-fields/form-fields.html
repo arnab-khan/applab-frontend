@@ -13,9 +13,9 @@
   }
   <ng-content></ng-content>
   @if (showInvalid()) {
-  <div class="text-red-600 text-sm mt-1">
+  <div class="text-red-600 text-sm">
     @for (error of fieldErrorMessages(); track $index) {
-    <span class="block first-letter:uppercase">
+    <span class="block mt-1">
       {{ error | sentenceCase }}
     </span>
     }

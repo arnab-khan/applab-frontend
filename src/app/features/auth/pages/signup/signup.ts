@@ -23,6 +23,7 @@ import { matchControlValidator } from '../../../../shared/validators/match-contr
 import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
 import { ImageUploader, ImageUploaderSelection } from '../../../../shared/components/media/image-uploader/image-uploader';
 import { CommonDialog } from '../../../../shared/components/dialogs/common-dialog/common-dialog';
+import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
 
 @Component({
   selector: 'app-signup',
@@ -38,6 +39,7 @@ import { CommonDialog } from '../../../../shared/components/dialogs/common-dialo
     PasswordField,
     Thumbnail,
     ImageUploader,
+    ScrollToInvalid,
   ],
   templateUrl: './signup.html',
   styleUrl: './signup.scss',

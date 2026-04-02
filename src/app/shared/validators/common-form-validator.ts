@@ -47,7 +47,7 @@ export function commonFormValidator(
       rules.push({
         ok: !value,
         key: 'required',
-        msg: '{{LABEL}} is required',
+        msg: '{{LABEL}} is required.',
       });
     }
 
@@ -56,14 +56,14 @@ export function commonFormValidator(
         rules.push({
           ok: !hasNumber,
           key: 'numberRequired',
-          msg: '{{LABEL}} must contain at least one number',
+          msg: '{{LABEL}} must contain at least one number.',
         });
       }
       if (config.disallowNumber) {
         rules.push({
           ok: hasNumber,
           key: 'disallowNumber',
-          msg: 'Number are not allowed',
+          msg: 'Number are not allowed.',
         });
       }
 
@@ -71,21 +71,21 @@ export function commonFormValidator(
         rules.push({
           ok: !(hasLowercase || hasUppercase),
           key: 'requireLetter',
-          msg: '{{LABEL}} must contain at least one letter',
+          msg: '{{LABEL}} must contain at least one letter.',
         });
       }
       if (config.requireUppercase) {
         rules.push({
           ok: !hasUppercase,
           key: 'uppercaseRequired',
-          msg: '{{LABEL}} must contain an uppercase letter',
+          msg: '{{LABEL}} must contain an uppercase letter.',
         });
       }
       if (config.requireLowercase) {
         rules.push({
           ok: !hasLowercase,
           key: 'lowercaseRequired',
-          msg: '{{LABEL}} must contain a lowercase letter',
+          msg: '{{LABEL}} must contain a lowercase letter.',
         });
       }
 
@@ -93,14 +93,14 @@ export function commonFormValidator(
         rules.push({
           ok: hasSpecialChar,
           key: 'disallowSpecialChar',
-          msg: 'Special characters are not allowed',
+          msg: 'Special characters are not allowed.',
         });
       }
       if (config.disallowSpecialChars) {
         rules.push({
           ok: hasSpecialChar,
           key: 'disallowSpecialChar',
-          msg: 'Special characters are not allowed',
+          msg: 'Special characters are not allowed.',
         });
       }
 
@@ -108,7 +108,7 @@ export function commonFormValidator(
         rules.push({
           ok: hasSpace,
           key: 'disallowSpaces',
-          msg: 'Spaces are not allowed',
+          msg: 'Spaces are not allowed.',
         });
       }
 
@@ -116,7 +116,7 @@ export function commonFormValidator(
         rules.push({
           ok: charLength < config.minLength,
           key: 'minLength',
-          msg: `{{LABEL}} must be at least ${config.minLength} characters`,
+          msg: `{{LABEL}} must be at least ${config.minLength} characters.`,
         });
       }
 
@@ -124,7 +124,7 @@ export function commonFormValidator(
         rules.push({
           ok: charLength > config.maxLength,
           key: 'maxLength',
-          msg: `{{LABEL}} must not exceed ${config.maxLength} characters`,
+          msg: `{{LABEL}} must not exceed ${config.maxLength} characters.`,
         });
       }
     }

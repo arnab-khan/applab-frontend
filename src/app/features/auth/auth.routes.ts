@@ -7,7 +7,11 @@ export const authRoutes: Routes = [
         children: [
             { path: '', redirectTo: 'login', pathMatch: 'full' },
             { path: 'login', loadComponent: () => import('./pages/login/login').then(m => m.Login) },
-            { path: 'signup', loadComponent: () => import('./pages/signup/signup').then(m => m.Signup) },
+            {
+                path: 'signup',
+                loadComponent: () => import('./pages/signup/signup').then(m => m.Signup),
+                data: { containerClass: 'u-container-3' },
+            },
         ],
     },
 ];

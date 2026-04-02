@@ -84,10 +84,10 @@
               @let usernameControl = credentialsForm.controls.username;
               <app-form-fields [fieldConfig]="{label: 'Username'}" [dynamicFormControl]="usernameControl"
                 [hasClickedSubmit]="hasClickedCredentialsSubmit()" [text]="{
-                  pendingText: 'Checking username availability',
+                  pendingText: 'Checking username availability.',
                   validText: usernameControl.value.trim() === authState().user?.username
-                    ? 'This is your current username'
-                    : 'Username is available'
+                    ? 'This is your current username.'
+                    : 'Username is available.'
                 }">
                 <input type="text" [formControl]="usernameControl"
                   class="u-form-field lowercase placeholder:normal-case" [placeholder]="'Enter username'"
