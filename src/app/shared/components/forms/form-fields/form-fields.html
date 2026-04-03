@@ -21,7 +21,7 @@
     }
     @if (dynamicFormControl().errors?.['alreadyTaken']) {
     <span>
-      {{ `This ${label} is already taken. Please choose another.` | sentenceCase }}
+      {{ `❌ This ${label} is already taken. Please choose another.` | sentenceCase }}
     </span>
     }
   </div>
