@@ -60,7 +60,7 @@
                 @let usernameControl=signupForm.controls.username;
                 <app-form-fields [fieldConfig]="{label: 'Username'}" [dynamicFormControl]="usernameControl"
                     [hasClickedSubmit]="hasClickedSubmit()"
-                    [text]="{pendingText: 'Checking username availability.', validText: 'Username is available.'}">
+                    [text]="{pendingText: '⏳ Checking username availability.', validText: 'Username is available.'}">
                     <input type="text" [formControl]="usernameControl"
                         class="u-form-field lowercase placeholder:normal-case" [placeholder]="'Enter username'"
                         name="username" appSanitizeInput [noSpaceAllow]="true" />
