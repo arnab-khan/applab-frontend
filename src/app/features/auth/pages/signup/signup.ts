@@ -1,12 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCamera, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faFile, faFolderOpen, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FormFieldsComponent } from '../../../../shared/components/forms/form-fields/form-fields';
 import { FieldConfig } from '../../../../shared/components/forms/form-fields/form-fields.interface';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
+import { isMobile } from '../../../../shared/utils/device';
 import { User } from '../../../../core/services/user';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
 import { existsValidator } from '../../../../shared/validators/exists-validator';
@@ -22,6 +23,8 @@ import { matchControlValidator } from '../../../../shared/validators/match-contr
 import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
 import { ImageUploader, ImageUploaderSelection } from '../../../../shared/components/media/image-uploader/image-uploader';
 import { CommonDialog } from '../../../../shared/components/dialogs/common-dialog/common-dialog';
+import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
+import { FormValidation } from '../../../../shared/services/form-validation';
 
 @Component({
   selector: 'app-signup',
@@ -37,6 +40,7 @@ import { CommonDialog } from '../../../../shared/components/dialogs/common-dialo
     PasswordField,
     Thumbnail,
     ImageUploader,
+    ScrollToInvalid,
   ],
   templateUrl: './signup.html',
   styleUrl: './signup.scss',
@@ -49,6 +53,7 @@ export class Signup implements OnInit {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private formValidation = inject(FormValidation);
 
   signupForm!: FormGroup<{
     name: FormControl<string>;
@@ -63,6 +68,8 @@ export class Signup implements OnInit {
   hasClickedSubmit = signal(false);
   usernameExists = true;
   faCamera = faCamera;
+  readonly faFolderOpen = faFolderOpen;
+  faFile = faFile;
   faPen = faPen;
   faTrash = faTrash;
   selectedProfileImage = signal<{
@@ -70,6 +77,8 @@ export class Signup implements OnInit {
     imageData: string;
     fileType: string;
   } | null>(null);
+
+  isMobileDevice = isMobile();
 
   ngOnInit(): void {
     this.createForm();
@@ -132,11 +141,10 @@ export class Signup implements OnInit {
 
   onSubmit(): void {
     this.hasClickedSubmit.set(true);
-    console.log('Form Value:', this.signupForm.value);
-    if (this.signupForm.valid) {
+    this.formValidation.validateAndRun(this.signupForm, () => {
       this.isSubmitting.set(true);
       this.createUser();
-    }
+    });
   }
 
   createUser() {
@@ -155,16 +163,47 @@ export class Signup implements OnInit {
             return of(null);
           }
 
-          const dialogRef = this.dialog.open(CommonDialog, {
-            disableClose: true,
-            data: {
-              type: 'confirm',
-              message: 'Profile created successfully. Adding your profile photo now, please wait...',
-            },
-          });
+          let dialogRef: MatDialogRef<CommonDialog> | null = null;
+          let canCloseDialog = false;
+          let shouldCloseDialog = false;
+          let minVisibleTimeout: ReturnType<typeof setTimeout> | null = null;
+          const dialogOpenTimeout = setTimeout(() => {
+            dialogRef = this.dialog.open(CommonDialog, {
+              disableClose: true,
+              data: {
+                type: 'confirm',
+                message: 'Profile created successfully. Adding your profile photo now, please wait...',
+              },
+            });
+            minVisibleTimeout = setTimeout(() => {
+              canCloseDialog = true;
+              if (shouldCloseDialog) {
+                dialogRef?.close();
+              }
+            }, 1000);
+          }, 2000);
 
           return this.userService.updateProfileImage(profileImage.file).pipe(
-            finalize(() => dialogRef.close())
+            finalize(() => {
+              clearTimeout(dialogOpenTimeout);
+              if (minVisibleTimeout) {
+                clearTimeout(minVisibleTimeout);
+              }
+
+              if (!dialogRef) {
+                return;
+              }
+
+              if (canCloseDialog) {
+                dialogRef.close();
+              } else {
+                shouldCloseDialog = true;
+                minVisibleTimeout = setTimeout(() => {
+                  canCloseDialog = true;
+                  dialogRef?.close();
+                }, 1000);
+              }
+            })
           );
         }),
         finalize(() => this.isSubmitting.set(false))

@@ -20,6 +20,7 @@ export class FormFieldsComponent {
 
   fieldErrorMessages = signal<string[]>([]);
   showInvalid = signal(false);
+  isFieldRequired = signal(false);
 
   readonly errorOrder = [
     'required',
@@ -52,12 +53,34 @@ export class FormFieldsComponent {
         this.updateViewState();
       }
     });
+
+    effect(() => {
+      this.dynamicFormControl();
+      this.updateViewState();
+    });
   }
 
   private updateViewState(): void {
+    setTimeout(() => {
+      const control = this.dynamicFormControl();
+      this.showInvalid.set(control.invalid && (control.touched || control.dirty || this.hasClickedSubmit()));
+      this.updateErrorMessages();
+      this.updateIsFieldRequired();
+    });
+  }
+
+  private updateIsFieldRequired(): void {
     const control = this.dynamicFormControl();
-    this.showInvalid.set(control.invalid && (control.touched || control.dirty || this.hasClickedSubmit()));
-    this.updateErrorMessages();
+    const errors = this.dynamicFormControl().errors;
+    let isRequired = false;
+    if (control.validator) {
+      const validator = control.validator({} as any);
+      isRequired = validator && (validator['required']);
+    }
+    if (errors) {
+      isRequired = isRequired || errors['required'];
+    }
+    this.isFieldRequired.set(isRequired);
   }
 
   private updateErrorMessages(): void {

@@ -15,11 +15,13 @@ import { CommonDialog, CommonDialogResult } from '../../../../shared/components/
 import { ImageUploader, ImageUploaderSelection } from '../../../../shared/components/media/image-uploader/image-uploader';
 import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
 import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
+import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { UpdateProfileCredentials } from '../../../../shared/interfaces/user';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
 import { existsValidator } from '../../../../shared/validators/exists-validator';
 import { matchControlValidator } from '../../../../shared/validators/match-control-validator';
+import { FormValidation } from '../../../../shared/services/form-validation';
 
 @Component({
   selector: 'app-edit-profile',
@@ -33,6 +35,7 @@ import { matchControlValidator } from '../../../../shared/validators/match-contr
     FormFieldsComponent,
     SanitizeInput,
     AutoResizeTextarea,
+    ScrollToInvalid,
     ImageUploader,
     LoadingButton,
     PasswordField,
@@ -46,6 +49,7 @@ export class EditProfile implements OnInit {
   private formBuilder = inject(NonNullableFormBuilder);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private formValidation = inject(FormValidation);
 
   authState = this.authService.authState;
   profileState = this.authService.profileState;
@@ -103,7 +107,6 @@ export class EditProfile implements OnInit {
         {
           validators: [
             commonFormValidator({
-              required: true,
               disallowSpaces: true,
               disallowSpecialChars: true,
               minLength: 3,
@@ -145,42 +148,45 @@ export class EditProfile implements OnInit {
         sourceControlName: 'newPassword',
         targetControlName: 'confirmPassword',
         sourceControlLabel: 'new password',
+        targetRequiredWhenSourceHasValue: true,
       })],
     });
   }
 
   onBasicSubmit() {
     this.hasClickedBasicSubmit.set(true);
-    console.log('Basic form value:', this.basicForm.value);
-    if (this.basicForm.valid) {
+    this.formValidation.validateAndRun(this.basicForm, () => {
       this.basicSaveLoading.set(true);
       this.userService.updateProfileBasics(this.basicForm.getRawValue()).pipe(
         finalize(() => this.basicSaveLoading.set(false))
       ).subscribe({
         next: () => {
+          this.credentialsForm.controls.currentPassword.reset('');
+          this.credentialsForm.controls.newPassword.reset('');
+          this.credentialsForm.controls.confirmPassword.reset('');
           this.snackBar.open('Profile basics updated successfully', '✖', {
-            duration: 3000,
+            duration: 5000,
             panelClass: 'snackbar-success',
           });
         },
         error: (error) => {
           const message = error.error?.message || error.error || 'Profile basics update failed. Please try again.';
           this.snackBar.open(message, '✖', {
-            duration: 3000,
+            duration: 5000,
             panelClass: 'snackbar-error',
           });
+          this.hasClickedBasicSubmit.set(false);
         },
       });
-    }
+    });
   }
 
   onCredentialsSubmit() {
     this.hasClickedCredentialsSubmit.set(true);
-    console.log('Credentials form value:', this.credentialsForm.value);
-    if (this.credentialsForm.valid) {
+    this.formValidation.validateAndRun(this.credentialsForm, () => {
       const { username, newPassword: password, currentPassword } = this.credentialsForm.getRawValue();
       const body: UpdateProfileCredentials = {
-        username,
+        ...(username && { username }),
         currentPassword,
         ...(password?.trim() && { password }),
       };
@@ -194,6 +200,10 @@ export class EditProfile implements OnInit {
             duration: 3000,
             panelClass: 'snackbar-success',
           });
+          this.credentialsForm.controls.currentPassword.reset('');
+          this.credentialsForm.controls.newPassword.reset('');
+          this.credentialsForm.controls.confirmPassword.reset('');
+          this.hasClickedCredentialsSubmit.set(false);
         },
         error: (error) => {
           const message = error.error?.message || error.error || 'Credentials update failed. Please try again.';
@@ -203,7 +213,7 @@ export class EditProfile implements OnInit {
           });
         },
       });
-    }
+    });
   }
 
   onProfilePhotoSelected(selection: ImageUploaderSelection) {

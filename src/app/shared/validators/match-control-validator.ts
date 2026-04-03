@@ -1,11 +1,12 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { addControlError, removeControlError } from '../utils/form-error.utils';
+import { addControlError, removeControlError } from '../utils/form-validation';
 
 export interface MatchControlConfig {
   sourceControlName: string;
   targetControlName: string;
   sourceControlLabel?: string;
   errorKey?: string;
+  targetRequiredWhenSourceHasValue?: boolean;
 }
 
 export function matchControlValidator(config: MatchControlConfig): ValidatorFn {
@@ -20,6 +21,22 @@ export function matchControlValidator(config: MatchControlConfig): ValidatorFn {
     const sourceValue = sourceControl.value;
     const targetValue = targetControl.value;
     const errorKey = config.errorKey || 'valueMismatch';
+    const requiredErrorKey = 'required';
+    const hasSourceValue = !!String(sourceValue ?? '').trim();
+    const hasTargetValue = !!String(targetValue ?? '').trim();
+
+    if (config.targetRequiredWhenSourceHasValue) {
+      if (hasSourceValue && !hasTargetValue) {
+        addControlError(
+          targetControl,
+          requiredErrorKey,
+          '{{LABEL}} is required.'
+        );
+        removeControlError(targetControl, errorKey);
+      } else {
+        removeControlError(targetControl, requiredErrorKey);
+      }
+    }
 
     if (!targetValue || sourceValue === targetValue) {
       removeControlError(targetControl, errorKey);
@@ -29,7 +46,7 @@ export function matchControlValidator(config: MatchControlConfig): ValidatorFn {
     addControlError(
       targetControl,
       errorKey,
-      `{{LABEL}} must match the ${config.sourceControlLabel ?? 'the other field'}`
+      `{{LABEL}} must match the ${config.sourceControlLabel ?? 'the other field'}.`
     );
 
     return null;

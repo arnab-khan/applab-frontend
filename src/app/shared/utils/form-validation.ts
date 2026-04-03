@@ -16,11 +16,9 @@ export function removeControlError(
   errorKey: string
 ): void {
   const existingErrors = control.errors;
-
   if (!existingErrors?.[errorKey]) {
     return;
   }
-
   const { [errorKey]: _, ...remainingErrors } = existingErrors;
   control.setErrors(Object.keys(remainingErrors).length ? remainingErrors : null);
 }
