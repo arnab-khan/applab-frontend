@@ -19,7 +19,7 @@ export const appConfig: ApplicationConfig = {
       useValue: {
         duration: 3000,
         horizontalPosition: 'center',
-        verticalPosition: 'top'
+        verticalPosition: 'bottom'
       }
     }
   ]
