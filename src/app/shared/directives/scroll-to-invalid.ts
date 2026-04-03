@@ -13,11 +13,7 @@ export class ScrollToInvalid {
   onFormSubmit() {
     setTimeout(() => {
       const firstInvalidControl: HTMLElement =
-        this.el.nativeElement.querySelector(
-          '.ng-invalid'
-        );
-      console.log(firstInvalidControl);
-
+        this.el.nativeElement.querySelector('.ng-invalid');
       if (firstInvalidControl) {
         firstInvalidControl.scrollIntoView({
           behavior: 'smooth',

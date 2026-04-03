@@ -23,6 +23,6 @@ export class Auth {
   }
 
   private updateContainerClass(): void {
-    this.containerClass.set(this.activatedRoute.firstChild?.snapshot.data['containerClass'] || '');
+    this.containerClass.set(this.activatedRoute.firstChild?.snapshot?.data['containerClass'] || '');
   }
 }

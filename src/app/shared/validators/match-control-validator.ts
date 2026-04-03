@@ -6,6 +6,7 @@ export interface MatchControlConfig {
   targetControlName: string;
   sourceControlLabel?: string;
   errorKey?: string;
+  targetRequiredWhenSourceHasValue?: boolean;
 }
 
 export function matchControlValidator(config: MatchControlConfig): ValidatorFn {
@@ -20,6 +21,22 @@ export function matchControlValidator(config: MatchControlConfig): ValidatorFn {
     const sourceValue = sourceControl.value;
     const targetValue = targetControl.value;
     const errorKey = config.errorKey || 'valueMismatch';
+    const requiredErrorKey = 'required';
+    const hasSourceValue = !!String(sourceValue ?? '').trim();
+    const hasTargetValue = !!String(targetValue ?? '').trim();
+
+    if (config.targetRequiredWhenSourceHasValue) {
+      if (hasSourceValue && !hasTargetValue) {
+        addControlError(
+          targetControl,
+          requiredErrorKey,
+          '{{LABEL}} is required.'
+        );
+        removeControlError(targetControl, errorKey);
+      } else {
+        removeControlError(targetControl, requiredErrorKey);
+      }
+    }
 
     if (!targetValue || sourceValue === targetValue) {
       removeControlError(targetControl, errorKey);

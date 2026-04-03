@@ -4,7 +4,7 @@
     <p class="text-gray-600 text-sm mt-2">Welcome back</p>
   </div>
   @if (loginForm) {
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+  <form appScrollToInvalid [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
 
     @let usernameControl=loginForm.controls.username;
     <app-form-fields [fieldConfig]="{label: 'Username'}" [dynamicFormControl]="usernameControl"

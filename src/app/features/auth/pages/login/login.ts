@@ -11,6 +11,8 @@ import { Router, RouterLink } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { POST_LOGIN_DEFAULT_ROUTE } from '../../../../shared/config/config';
 import { PasswordField } from '../../../../shared/components/forms/password-field/password-field';
+import { FormValidation } from '../../../../shared/services/form-validation';
+import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +25,7 @@ import { PasswordField } from '../../../../shared/components/forms/password-fiel
     MatSnackBarModule,
     RouterLink,
     PasswordField,
+    ScrollToInvalid,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',
@@ -33,6 +36,7 @@ export class Login implements OnInit {
   private formBuilder = inject(NonNullableFormBuilder);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private formValidation = inject(FormValidation);
 
   loginForm!: FormGroup<{
     username: FormControl<string>;
@@ -68,11 +72,10 @@ export class Login implements OnInit {
 
   onSubmit(): void {
     this.hasClickedSubmit = true;
-    console.log('Form Value:', this.loginForm.value);
-    if (this.loginForm.valid) {
+    this.formValidation.validateAndRun(this.loginForm, () => {
       this.isSubmitting.set(true);
       this.loginUser();
-    }
+    });
   }
 
   loginUser() {

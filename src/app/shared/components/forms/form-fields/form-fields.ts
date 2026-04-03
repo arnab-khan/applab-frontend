@@ -61,20 +61,26 @@ export class FormFieldsComponent {
   }
 
   private updateViewState(): void {
-    const control = this.dynamicFormControl();
-    this.showInvalid.set(control.invalid && (control.touched || control.dirty || this.hasClickedSubmit()));
-    this.updateErrorMessages();
-    this.updateIsFieldRequired();
+    setTimeout(() => {
+      const control = this.dynamicFormControl();
+      this.showInvalid.set(control.invalid && (control.touched || control.dirty || this.hasClickedSubmit()));
+      this.updateErrorMessages();
+      this.updateIsFieldRequired();
+    });
   }
 
   private updateIsFieldRequired(): void {
     const control = this.dynamicFormControl();
+    const errors = this.dynamicFormControl().errors;
+    let isRequired = false;
     if (control.validator) {
       const validator = control.validator({} as any);
-      this.isFieldRequired.set(validator && validator['required']);
-    } else {
-      this.isFieldRequired.set(false);
+      isRequired = validator && (validator['required']);
     }
+    if (errors) {
+      isRequired = isRequired || errors['required'];
+    }
+    this.isFieldRequired.set(isRequired);
   }
 
   private updateErrorMessages(): void {
