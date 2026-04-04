@@ -1,4 +1,5 @@
 import { Directive, ElementRef, HostListener } from '@angular/core';
+import { isTouchDevice } from '../utils/device';
 
 @Directive({
   selector: '[appScrollToInvalid]',
@@ -19,7 +20,9 @@ export class ScrollToInvalid {
           behavior: 'smooth',
           block: 'center',
         });
-        firstInvalidControl.focus({ preventScroll: true });
+        if (!isTouchDevice()) {
+          firstInvalidControl.focus({ preventScroll: true });
+        }
       }
     });
   }

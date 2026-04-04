@@ -11,3 +11,7 @@ export function isMobile(): boolean {
 
     return /Android|iPhone|iPod/i.test(ua) || isIpad;
 }
+
+export function isTouchDevice(): boolean {
+    return window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+}
