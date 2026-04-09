@@ -1,0 +1,15 @@
+<section class="flex items-center justify-center grow u-responsive-padding-xy">
+  @if (error(); as message) {
+    <div class="u-container-2">
+      <div class="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center text-rose-700">
+        <h2 class="text-xl font-semibold">Profile unavailable</h2>
+        <p class="mt-2">{{ message }}</p>
+      </div>
+    </div>
+  } @else {
+    <div
+      class="overflow-hidden rounded-3xl md:border border-white/50 md:bg-cyan-50 md:shadow-xl md:u-responsive-padding-xy u-container-2">
+      <app-user-profile [user]="profileUser()" [profileImage]="profileImage()"></app-user-profile>
+    </div>
+  }
+</section>

@@ -4,6 +4,13 @@ export interface Sort {
     unsorted: boolean;
 }
 
+export class PaginationQueryParams {
+    page?: number;
+    size?: number;
+    sort?: string;
+    keyword?: string;
+}
+
 export interface Pageable {
     pageNumber: number;
     pageSize: number;

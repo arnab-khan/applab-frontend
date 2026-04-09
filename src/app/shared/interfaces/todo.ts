@@ -1,4 +1,4 @@
-import { PageResponse } from './pagination';
+import { PageResponse, PaginationQueryParams } from './pagination';
 
 export interface Todo {
     id: number;
@@ -16,11 +16,7 @@ export interface BaseTodo {
     description?: string;
 }
 
-export interface TodoQueryParams {
-    page: number;
-    size: number;
-    sort?: string;
-    keyword?: string;
+export interface TodoQueryParams extends PaginationQueryParams {
     completed?: boolean;
 }
 
