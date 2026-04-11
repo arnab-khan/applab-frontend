@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { UserProfile } from '../../components/user-profile/user-profile';
 import { User, UserProfileImage } from '../../../../shared/interfaces/user';
+import { Url } from '../../../../shared/services/url';
 
 @Component({
   selector: 'app-public-profile',
@@ -11,7 +12,7 @@ import { User, UserProfileImage } from '../../../../shared/interfaces/user';
 })
 export class PublicProfile implements OnInit {
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private url = inject(Url);
 
   profileUser = signal<User | null>(null);
   profileImage = signal<UserProfileImage | null>(null);
@@ -19,20 +20,13 @@ export class PublicProfile implements OnInit {
 
   ngOnInit() {
     const data = this.route.snapshot.data['publicProfile'];
-    const user:User = data?.user;
+    const user: User = data?.user;
     const updatedAt = user?.updatedAt;
 
     if (user) {
       this.profileUser.set(user);
       this.profileImage.set(data.profileImage);
-      if (updatedAt) {
-        this.router.navigate([], {
-          relativeTo: this.route,
-          queryParams: { updated: updatedAt },
-          queryParamsHandling: 'merge',
-          replaceUrl: true,
-        });
-      }
+      this.url.updateQueryParams({ updated: updatedAt });
     } else {
       this.error.set('Public profile not found.');
     }
