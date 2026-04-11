@@ -1,16 +1,15 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
 import { User } from '../../../../core/services/user';
 import { CommonDialog, CommonDialogResult } from '../../../../shared/components/dialogs/common-dialog/common-dialog';
-import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
+import { UserProfile } from '../../components/user-profile/user-profile';
 
 @Component({
   selector: 'app-view-profile',
-  imports: [DatePipe, RouterModule, MatDialogModule, Thumbnail],
+  imports: [RouterModule, MatDialogModule, UserProfile],
   templateUrl: './view-profile.html',
   styleUrl: './view-profile.scss',
 })

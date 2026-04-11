@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { GuestGuard } from './core/guards/guest.guard';
+import { PublicProfileResolver } from './features/profile/pages/public-profile/public-profile.resolver';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'auth', pathMatch: 'full' },
@@ -17,6 +18,11 @@ export const routes: Routes = [
         path: 'profile',
         canActivate: [AuthGuard],
         loadChildren: () => import('./features/profile/profile.routes').then(r => r.profileRoutes),
+    },
+    {
+        path: 'users/:username',
+        loadComponent: () => import('./features/profile/pages/public-profile/public-profile').then(r => r.PublicProfile),
+        resolve: { publicProfile: PublicProfileResolver },
     },
     {
         path: 'todo',

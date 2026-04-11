@@ -1,3 +1,5 @@
+import { PageResponse, PaginationQueryParams } from './pagination';
+
 export interface User {
     id: number;
     name?: string;
@@ -36,3 +38,15 @@ export interface UpdateProfileCredentials {
     password?: string;
     currentPassword: string;
 }
+
+export interface UserListItemResponse {
+    id: number;
+    name?: string;
+    username?: string;
+    bio?: string;
+    profileImage?: UserProfileImage | null;
+}
+
+export interface UserQueryParams extends PaginationQueryParams {}
+
+export type UserPageResponse = PageResponse<UserListItemResponse>;

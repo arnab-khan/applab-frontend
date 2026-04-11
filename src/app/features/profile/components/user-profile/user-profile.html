@@ -1,0 +1,49 @@
+@if (user(); as profileUser) {
+<div class="grid gap-6 md:grid-cols-[220px_1fr]">
+  <div class="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white/80 p-4 py-5">
+    <app-thumbnail [imageData]="profileImage()?.fileData" [fileType]="profileImage()?.fileType"
+      [name]="profileUser.name" [loading]="profileImageLoading()" size="9rem"
+      [alt]="(profileUser.name || profileUser.username || 'User') + ' profile image'">
+    </app-thumbnail>
+    <p class="mt-3 text-sm font-medium text-slate-600">Profile Photo</p>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 py-5 md:p-5">
+    <div class="mb-5">
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">{{ profileUser.name || 'Unnamed User' }}</h1>
+      <ng-content select="[profile-actions]"></ng-content>
+    </div>
+
+    <div class="grid gap-3 sm:grid-cols-2">
+      <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">User ID</p>
+        <p class="mt-1 text-base font-medium text-slate-900">{{ profileUser.id }}</p>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Username</p>
+        <p class="mt-1 text-base font-medium text-slate-900">{{ profileUser.username || 'N/A' }}</p>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Created At</p>
+        <p class="mt-1 text-base font-medium text-slate-900">
+          {{ profileUser.createdAt ? (profileUser.createdAt | date:'d MMM y, h:mm a') : 'N/A' }}
+        </p>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Updated At</p>
+        <p class="mt-1 text-base font-medium text-slate-900">
+          {{ profileUser.updatedAt ? (profileUser.updatedAt | date:'d MMM y, h:mm a') : 'N/A' }}
+        </p>
+      </div>
+    </div>
+
+    <ng-content select="[profile-footer]"></ng-content>
+    <ng-content></ng-content>
+  </div>
+</div>
+} @else {
+<div class="relative z-10 rounded-2xl border border-slate-200 bg-white/90 p-8 text-center">
+  <h2 class="text-xl font-semibold text-slate-900">No Profile Data</h2>
+  <p class="mt-2 text-slate-600">Please login to view your profile details.</p>
+</div>
+}
