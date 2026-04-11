@@ -48,6 +48,9 @@ export class UserProfile {
       return '';
     }
 
-    return this.url.getFullCurrentUrl();
+    return this.url.addQueryParams(
+      this.url.toAbsoluteUrl(`/users/${profileUser.username}`),
+      { updated: profileUser.updatedAt },
+    );
   }
 }
