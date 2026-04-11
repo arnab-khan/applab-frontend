@@ -39,14 +39,6 @@ export interface UpdateProfileCredentials {
     currentPassword: string;
 }
 
-export interface UserListItemResponse {
-    id: number;
-    name?: string;
-    username?: string;
-    bio?: string;
-    profileImage?: UserProfileImage | null;
-}
-
 export interface UserQueryParams extends PaginationQueryParams {}
 
-export type UserPageResponse = PageResponse<UserListItemResponse>;
+export type UserPageResponse = PageResponse<User>;

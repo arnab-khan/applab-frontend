@@ -1,8 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserProfile } from '../../components/user-profile/user-profile';
-import { UserListItemResponse, UserProfileImage } from '../../../../shared/interfaces/user';
-import { Seo } from '../../../../shared/services/seo';
+import { User, UserProfileImage } from '../../../../shared/interfaces/user';
 
 @Component({
   selector: 'app-public-profile',
@@ -12,27 +11,30 @@ import { Seo } from '../../../../shared/services/seo';
 })
 export class PublicProfile implements OnInit {
   private route = inject(ActivatedRoute);
-  private seo = inject(Seo);
+  private router = inject(Router);
 
-  profileUser = signal<UserListItemResponse | null>(null);
+  profileUser = signal<User | null>(null);
   profileImage = signal<UserProfileImage | null>(null);
   error = signal<string | null>(null);
 
   ngOnInit() {
     const data = this.route.snapshot.data['publicProfile'];
-    if (data?.user) {
-      this.profileUser.set(data.user);
+    const user:User = data?.user;
+    const updatedAt = user?.updatedAt;
+
+    if (user) {
+      this.profileUser.set(user);
       this.profileImage.set(data.profileImage);
-      this.seo.update({
-        title: data.user.name?.trim() || 'Public profile',
-        content: data.user.bio?.trim() || 'View this public profile on the app.',
-      });
+      if (updatedAt) {
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { updated: updatedAt },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        });
+      }
     } else {
       this.error.set('Public profile not found.');
-      this.seo.update({
-        title: 'Public profile not found',
-        content: 'The requested public profile could not be found.',
-      });
     }
   }
 }
