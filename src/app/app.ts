@@ -24,7 +24,7 @@ import { Footer } from './core/layout/footer/footer';
 export class App implements OnInit {
 
   private authService = inject(Auth);
-  private platformService = inject(Platform);
+  protected platformService = inject(Platform);
   private router = inject(Router);
 
   authState = this.authService.authState;
@@ -43,8 +43,12 @@ export class App implements OnInit {
     { initialValue: false }
   );
 
-  // Combine auth completion and routing status
-  showLoader = computed(() => !this.authState().completed || this.isRouting());
+  showLoader = computed(() => {
+    // if (!this.platformService.isBrowser()) {
+    //   return false; // Stop loader during SSR
+    // }
+    return !this.authState().completed || this.isRouting();
+  });
 
   ngOnInit(): void {
     this.getUser();
