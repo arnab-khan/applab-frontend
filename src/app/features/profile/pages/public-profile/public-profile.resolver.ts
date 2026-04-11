@@ -3,6 +3,7 @@ import { Resolve, ActivatedRouteSnapshot } from '@angular/router';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { ProfileApiService } from '../../services/profile-api.service';
 import { Seo } from '../../../../shared/services/seo';
+import { Url } from '../../../../shared/services/url';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,7 @@ import { Seo } from '../../../../shared/services/seo';
 export class PublicProfileResolver implements Resolve<any> {
   private profileApiService = inject(ProfileApiService);
   private seo = inject(Seo);
-  private defaultImage = '/images/profile/default-thumbnail.jpg';
+  private url = inject(Url);
 
   resolve(route: ActivatedRouteSnapshot) {
     const username = route.paramMap.get('username');
@@ -30,10 +31,16 @@ export class PublicProfileResolver implements Resolve<any> {
         })
       ),
       map(data => {
+        const profileImageUrl = data.profileImage
+          ? this.profileApiService.getPublicProfileImageUrl(data.user.id)
+          : this.url.toAbsoluteUrl('/images/profile/default-thumbnail.jpg');
         this.seo.update({
           title: data.user.name?.trim() || data.user.username?.trim() || 'Public profile',
           content: data.user.bio?.trim() || 'View this public profile on the app.',
-          image: this.defaultImage,
+          image: profileImageUrl,
+          imageType: data.profileImage?.fileType,
+          imageWidth: 500,
+          imageHeight: 500,
         });
         return data;
       }),
@@ -48,7 +55,6 @@ export class PublicProfileResolver implements Resolve<any> {
     this.seo.update({
       title: 'Public profile not found',
       content: 'The requested public profile could not be found.',
-      image: this.defaultImage,
     });
   }
 }

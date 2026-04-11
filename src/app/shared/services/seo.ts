@@ -6,6 +6,9 @@ export interface SeoConfig {
   title: string;
   content: string;
   image?: string;
+  imageType?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   url?: string;
   siteName?: string;
   type?: string;
@@ -19,7 +22,7 @@ export class Seo {
   private title = inject(Title);
   private meta = inject(Meta);
 
-  update({ title, content, image, url, siteName, type }: SeoConfig) {
+  update({ title, content, image, imageType, imageWidth, imageHeight, url, siteName, type }: SeoConfig) {
     const absoluteImage = image ? this.url.toAbsoluteUrl(image) : undefined;
     const absoluteUrl = this.url.toAbsoluteUrl(url || this.url.getCurrentUrl());
 
@@ -35,6 +38,15 @@ export class Seo {
 
     if (absoluteImage) {
       this.meta.updateTag({ property: 'og:image', content: absoluteImage });
+      if (imageType) {
+        this.meta.updateTag({ property: 'og:image:type', content: imageType });
+      }
+      if (imageWidth) {
+        this.meta.updateTag({ property: 'og:image:width', content: String(imageWidth) });
+      }
+      if (imageHeight) {
+        this.meta.updateTag({ property: 'og:image:height', content: String(imageHeight) });
+      }
     }
 
     this.meta.updateTag({ property: 'og:url', content: absoluteUrl });

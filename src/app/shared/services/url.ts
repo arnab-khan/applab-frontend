@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Data, Params, Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +33,19 @@ export class Url {
 
   getFullCurrentUrl(): string {
     return this.document?.location?.href || '';
+  }
+
+  addQueryParams(url: string, queryParams: Record<string, string | number | boolean | Data | null | undefined>): string {
+    if (!url) {
+      return '';
+    }
+    const nextUrl = new URL(this.toAbsoluteUrl(url));
+    Object.entries(queryParams).forEach(([key, value]) => {
+      if (value) {
+        nextUrl.searchParams.set(key, String(value));
+      }
+    });
+    return nextUrl.toString();
   }
 
   updateQueryParams(queryParams: Params) {

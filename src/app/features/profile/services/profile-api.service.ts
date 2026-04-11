@@ -31,4 +31,8 @@ export class ProfileApiService {
       }),
     });
   }
+
+  getPublicProfileImageUrl(userId: number) {
+    return `${this.baseApiUrl}/public/profile-image/raw/${userId}`;
+  }
 }

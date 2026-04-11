@@ -1,6 +1,6 @@
 @if (user(); as profileUser) {
 <div class="grid gap-6 md:grid-cols-[220px_1fr]">
-  <div class="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white/80 p-4 py-5">
+  <div class="flex flex-col items-center justify-start rounded-2xl border border-slate-200 bg-white/80 p-4 py-5">
     <app-thumbnail [imageData]="profileImage()?.fileData" [fileType]="profileImage()?.fileType"
       [name]="profileUser.name" [loading]="profileImageLoading()" size="9rem"
       [alt]="(profileUser.name || profileUser.username || 'User') + ' profile image'">
