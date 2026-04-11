@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { UserListItemResponse, UserPageResponse, UserProfileImage, UserQueryParams } from '../../../shared/interfaces/user';
+import { User, UserPageResponse, UserProfileImage, UserQueryParams } from '../../../shared/interfaces/user';
 import { toHttpParams } from '../../../shared/utils/http';
 
 @Injectable({
@@ -18,7 +18,7 @@ export class ProfileApiService {
   }
 
   getPublicUserByUsername(params: { username: string }) {
-    return this.httpClient.get<UserListItemResponse>(`${this.baseApiUrl}/public/by-username`, {
+    return this.httpClient.get<User>(`${this.baseApiUrl}/public/by-username`, {
       params: toHttpParams(params),
     });
   }
