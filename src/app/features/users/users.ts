@@ -65,7 +65,7 @@ export class Users implements OnInit {
     this.seo.update({
       title: 'Users',
       content: 'Explore public profiles across the platform.',
-      image: this.url.toAbsoluteUrl('/public/images/profile/users.jpeg'),
+      image: this.url.toAbsoluteUrl('/images/profile/users.jpeg'),
       imageWidth: 500,
       imageHeight: 500,
     });
