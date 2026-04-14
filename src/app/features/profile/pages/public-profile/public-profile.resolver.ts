@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot } from '@angular/router';
-import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { ProfileApiService } from '../../services/profile-api.service';
 import { Seo } from '../../../../shared/services/seo';
 import { Url } from '../../../../shared/services/url';
@@ -18,35 +18,25 @@ export class PublicProfileResolver implements Resolve<any> {
 
     if (!username) {
       this.setNotFoundSeo();
-      return of({ user: null, profileImage: null });
+      return of({ user: null });
     }
 
     return this.profileApiService.getPublicUserByUsername({ username }).pipe(
-      switchMap(user =>
-        forkJoin({
-          user: of(user),
-          profileImage: this.profileApiService
-            .getPublicProfileImagesByUserIds({ userIds: [user.id], fullImage: true })
-            .pipe(map(images => images[0] ?? null)),
-        })
-      ),
-      map(data => {
-        const profileImageUrl = data.profileImage
-          ? this.profileApiService.getPublicProfileImageUrl(data.user.id)
-          : this.url.toAbsoluteUrl('/images/profile/default-thumbnail.jpg');
+      map(user => {
         this.seo.update({
-          title: data.user.name?.trim() || data.user.username?.trim() || 'Public profile',
-          content: data.user.bio?.trim() || 'View this public profile on the app.',
-          image: profileImageUrl,
-          imageType: data.profileImage?.fileType,
+          title: user.name?.trim() || user.username?.trim() || 'Public profile',
+          content: user.bio?.trim() || 'View this public profile on the app.',
+          image: user.profileImageUrl
+            ? this.profileApiService.getPublicImageUrl(user.profileImageUrl)
+            : this.url.toAbsoluteUrl('/images/profile/default-thumbnail.jpg'),
           imageWidth: 500,
           imageHeight: 500,
         });
-        return data;
+        return { user };
       }),
       catchError(() => {
         this.setNotFoundSeo();
-        return of({ user: null, profileImage: null });
+        return of({ user: null });
       })
     );
   }

@@ -7,6 +7,8 @@ export interface User {
     username?: string;
     createdAt?: Date;
     updatedAt?: Date;
+    profileImageUrl?: string;
+    compressedProfileImageUrl?: string
 }
 
 export interface UserProfileImage {

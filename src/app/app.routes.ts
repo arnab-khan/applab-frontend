@@ -5,10 +5,10 @@ import { PublicProfileResolver } from './features/profile/pages/public-profile/p
 
 export const routes: Routes = [
     { path: '', redirectTo: 'auth', pathMatch: 'full' },
-    {
-        path: 'home',
-        loadComponent: () => import('./features/home/home').then(r => r.Home),
-    },
+    // {
+    //     path: 'home',
+    //     loadComponent: () => import('./features/home/home').then(r => r.Home),
+    // },
     {
         path: 'auth',
         canActivateChild: [GuestGuard],
@@ -20,7 +20,11 @@ export const routes: Routes = [
         loadChildren: () => import('./features/profile/profile.routes').then(r => r.profileRoutes),
     },
     {
-        path: 'users/:username',
+        path: 'users',
+        loadComponent: () => import('./features/users/users').then(r => r.Users),
+    },
+    {
+        path: 'user/:username',
         loadComponent: () => import('./features/profile/pages/public-profile/public-profile').then(r => r.PublicProfile),
         resolve: { publicProfile: PublicProfileResolver },
     },

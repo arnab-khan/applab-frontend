@@ -11,12 +11,6 @@ export class ProfileApiService {
   private httpClient = inject(HttpClient);
   private baseApiUrl = `${environment.rootApiUrl}/user`;
 
-  getAll(params: UserQueryParams) {
-    return this.httpClient.get<UserPageResponse>(`${this.baseApiUrl}/public/all`, {
-      params: toHttpParams({ ...params }),
-    });
-  }
-
   getPublicUserByUsername(params: { username: string }) {
     return this.httpClient.get<User>(`${this.baseApiUrl}/public/by-username`, {
       params: toHttpParams(params),
@@ -34,5 +28,9 @@ export class ProfileApiService {
 
   getPublicProfileImageUrl(userId: number) {
     return `${this.baseApiUrl}/public/profile-image/raw/${userId}`;
+  }
+
+  getPublicImageUrl(profileImageUrl: string) {
+    return `${environment.rootApiUrl}${profileImageUrl}`;
   }
 }

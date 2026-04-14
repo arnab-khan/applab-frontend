@@ -1,0 +1,22 @@
+import { DatePipe } from '@angular/common';
+import { Component, inject, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { ProfileApiService } from '../../../profile/services/profile-api.service';
+import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
+import { User } from '../../../../shared/interfaces/user';
+
+@Component({
+  selector: 'app-user-item',
+  imports: [Thumbnail, DatePipe, RouterLink],
+  templateUrl: './user-item.html',
+  styleUrl: './user-item.scss',
+})
+export class UserItem {
+  private profileApiService = inject(ProfileApiService);
+  user = input.required<User>();
+
+  getProfileImageUrl() {
+    const profileImageUrl = this.user().compressedProfileImageUrl;
+    return profileImageUrl ? this.profileApiService.getPublicImageUrl(profileImageUrl) : null;
+  }
+}

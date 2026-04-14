@@ -1,20 +1,23 @@
 <div class="overflow-hidden" [ngStyle]="{ width: size(), height: size(), 'border-radius': radius() }">
-  @if (loading()) {
-  <div class="h-full w-full bg-gray-300 animate-pulse"></div>
-  } @else if (imageData()) {
-  <img [src]="'data:' + (fileType() || 'image/jpeg') + ';base64,' + imageData()" [alt]="alt()"
-    class="h-full w-full object-cover" />
-  } @else {
-  <div class="flex h-full w-full items-center justify-center c-thumbnail-fallback-icon">
-    @if (fallbackInitial()) {
-    <span class="c-thumbnail-fallback-initial"
-      [ngStyle]="{ 'font-size': 'calc(' + size() + ' * .42)', 'background-color': fallbackBackgroundColor() }">
-      {{ fallbackInitial() }}
-    </span>
+  <div [ngClass]="{ hidden: shouldShowLoading() }" class="h-full w-full">
+    @if ((imageData() || imageUrl()) && !imageFailed()) {
+    <img [src]="imageData() ? ('data:' + (fileType() || 'image/jpeg') + ';base64,' + imageData()) : imageUrl()"
+      [alt]="alt()" class="h-full w-full object-cover" (load)="onImageLoad()" (error)="onImageError()" />
     } @else {
-    <fa-icon [icon]="faUser" [ngStyle]="{ 'font-size': 'calc(' + size() + ' * .7)' }"
-      class="text-slate-400"></fa-icon>
+    <div class="flex h-full w-full items-center justify-center c-thumbnail-fallback-icon">
+      @if (fallbackInitial()) {
+      <span class="c-thumbnail-fallback-initial"
+        [ngStyle]="{ 'font-size': 'calc(' + size() + ' * .42)', 'background-color': fallbackBackgroundColor() }">
+        {{ fallbackInitial() }}
+      </span>
+      } @else {
+      <fa-icon [icon]="faUser" [ngStyle]="{ 'font-size': 'calc(' + size() + ' * .7)' }"
+        class="text-slate-400"></fa-icon>
+      }
+    </div>
     }
   </div>
+  @if (shouldShowLoading()) {
+  <div class="h-full w-full bg-gray-300 animate-pulse"></div>
   }
 </div>

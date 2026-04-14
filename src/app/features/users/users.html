@@ -1,0 +1,75 @@
+<section class="u-responsive-padding-xy c-users-section">
+  <div class="u-container-form u-container-2 mx-auto">
+    <div class="text-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 mb-3">
+        Users
+      </h1>
+      <p class="text-lg text-gray-600">
+        Explore public profiles across the platform
+      </p>
+    </div>
+
+    <div class="mb-6 space-y-4">
+      <div class="flex flex-wrap gap-4 justify-between items-end">
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Search Users</label>
+          <input
+            type="text"
+            appSanitizeInput
+            [ngModel]="keyword"
+            (ngModelChange)="onSearch($event)"
+            placeholder="Search by name or username..."
+            class="u-form-field py-2.5 text-sm" />
+        </div>
+
+        <div class="flex gap-3 grow sm:grow-0 justify-between">
+          <app-sort-button
+            label="Created"
+            field="createdAt"
+            [activeField]="sortField"
+            [direction]="sortDirection"
+            (toggle)="toggleSort($event)">
+          </app-sort-button>
+        </div>
+      </div>
+    </div>
+
+    @if (users(); as userItems) {
+    <div class="flex justify-center items-center py-16" [class.hidden]="!isLoadingList()">
+      <div class="u-spinner"></div>
+    </div>
+
+    <div [class.hidden]="isLoadingList()">
+      @if (userItems.length === 0) {
+      <div class="text-center text-gray-500 py-16">
+        <p class="text-xl font-medium my-2">No users found</p>
+      </div>
+      } @else {
+      <ul>
+        @for (user of userItems; track user.id) {
+          <li class="mt-5">
+            <app-user-item [user]="user"></app-user-item>
+          </li>
+        }
+      </ul>
+      @if (hasMore()) {
+      <div class="text-center mt-6">
+        <app-loading-button [loading]="isLoadingMore()" spinnerClass="stroke-gray-700">
+          <button
+            (click)="loadMore()"
+            [disabled]="isLoadingMore()"
+            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50">
+            Show More
+          </button>
+        </app-loading-button>
+      </div>
+      }
+      }
+    </div>
+    } @else if (isLoadingList()) {
+    <div class="flex justify-center items-center py-16">
+      <div class="u-spinner"></div>
+    </div>
+    }
+  </div>
+</section>

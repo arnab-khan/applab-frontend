@@ -1,18 +1,21 @@
-import { NgStyle } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { NgClass, NgStyle } from '@angular/common';
+import { Component, computed, effect, input, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-thumbnail',
-  imports: [FontAwesomeModule, NgStyle],
+  imports: [FontAwesomeModule, NgClass, NgStyle],
   templateUrl: './thumbnail.html',
   styleUrl: './thumbnail.scss',
 })
 export class Thumbnail {
   private readonly fallbackGreenChannel = 205;
+  private readonly imageLoading = signal(false);
+  readonly imageFailed = signal(false);
 
   imageData = input<string | null | undefined>(null);
+  imageUrl = input<string | null | undefined>(null);
   fileType = input<string | null | undefined>(null);
   name = input<string | null | undefined>(null);
   loading = input(false);
@@ -39,6 +42,30 @@ export class Thumbnail {
     const blueChannel = this.getColorChannelFromLetter(initials.charAt(1) || initials.charAt(0));
     return `rgb(${redChannel}, ${this.fallbackGreenChannel}, ${blueChannel})`;
   });
+
+  readonly shouldShowLoading = computed(() => this.loading() || (this.imageUrl() ? this.imageLoading() : false));
+
+  constructor() {
+    effect(() => {
+      if (this.imageUrl()) {
+        this.imageLoading.set(true);
+        this.imageFailed.set(false);
+        return;
+      }
+
+      this.imageLoading.set(false);
+      this.imageFailed.set(false);
+    });
+  }
+
+  onImageLoad() {
+    this.imageLoading.set(false);
+  }
+
+  onImageError() {
+    this.imageLoading.set(false);
+    this.imageFailed.set(true);
+  }
 
   private getColorChannelFromLetter(letter: string): number {
     if (!letter) return 180;
