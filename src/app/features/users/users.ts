@@ -12,6 +12,7 @@ import { UserItem } from './components/user-item/user-item';
 import { Platform } from '../../shared/services/platform';
 import { Seo } from '../../shared/services/seo';
 import { Url } from '../../shared/services/url';
+import { sanitizeText } from '../../shared/utils/text-sanitize';
 
 @Component({
   selector: 'app-users',
@@ -64,7 +65,7 @@ export class Users implements OnInit {
     this.seo.update({
       title: 'Users',
       content: 'Explore public profiles across the platform.',
-      image: this.url.toAbsoluteUrl('/public/images/profile/users.jpeg'),
+      image: this.url.toAbsoluteUrl('/images/profile/users.jpeg'),
       imageWidth: 500,
       imageHeight: 500,
     });
@@ -99,7 +100,9 @@ export class Users implements OnInit {
 
   onSearch(keyword: string) {
     this.keyword = keyword;
-    const trimmedKeyword = this.keyword?.trim();
+    const trimmedKeyword = sanitizeText(this.keyword, {
+      noSpecialCharacterAllow: true,
+    }).trim();
     this.isLoadingList.set(true);
     if (trimmedKeyword === this.lastSearchedKeyword) {
       this.isLoadingList.set(false);

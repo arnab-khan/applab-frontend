@@ -1,5 +1,6 @@
 import { Directive, HostListener, Input } from '@angular/core';
 import { NgControl } from '@angular/forms';
+import { sanitizeText } from '../utils/text-sanitize';
 
 @Directive({
   selector: '[appSanitizeInput]',
@@ -7,6 +8,7 @@ import { NgControl } from '@angular/forms';
 export class SanitizeInput {
 
   @Input() noSpaceAllow = false;
+  @Input() noSpecialCharacterAllow = false;
   @Input() consecutiveSpaceNotAllow = true;
   @Input() preventNewline = true;
 
@@ -16,30 +18,22 @@ export class SanitizeInput {
 
   @HostListener('input', ['$event']) onInput(event: Event) {
     const target = event.target as HTMLInputElement;
-    let value = target?.value;
+    const value = target?.value;
 
     if (!value) {
       return;
     }
 
-    value = value.replace(/\p{Extended_Pictographic}(\u200D\p{Extended_Pictographic})*/gu, ''); // Remove emojis
-
-    if (!this.noSpaceAllow) {
-      value = value.replace(/^\s+/g, ''); // Remove leading spaces
-      if (this.consecutiveSpaceNotAllow) {
-        value = value.replace(/\s{2,}/g, ' '); // Remove consecutive spaces
-      }
-    } else {
-      value = value.replace(/\s/g, ''); // Remove space
-    }
-
-    if (this.preventNewline) {
-      value = value.replace(/[\r\n]+/g, ''); // Remove enter/newline for single-line input
-    }
+    const sanitizedValue = sanitizeText(value, {
+      noSpaceAllow: this.noSpaceAllow,
+      noSpecialCharacterAllow: this.noSpecialCharacterAllow,
+      consecutiveSpaceNotAllow: this.consecutiveSpaceNotAllow,
+      preventNewline: this.preventNewline,
+    });
 
     // Update the form control's value  
-    if (value !== this.ngControl?.control?.value) {
-      this.ngControl?.control?.patchValue(value);
+    if (sanitizedValue !== this.ngControl?.control?.value) {
+      this.ngControl?.control?.patchValue(sanitizedValue);
     }
   }
 

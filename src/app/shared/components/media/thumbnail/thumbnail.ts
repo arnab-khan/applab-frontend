@@ -2,6 +2,7 @@ import { NgClass, NgStyle } from '@angular/common';
 import { Component, computed, effect, input, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { getAvatarColor, getInitials } from '../../../utils/avatar';
 
 @Component({
   selector: 'app-thumbnail',
@@ -10,7 +11,6 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
   styleUrl: './thumbnail.scss',
 })
 export class Thumbnail {
-  private readonly fallbackGreenChannel = 205;
   private readonly imageLoading = signal(false);
   readonly imageFailed = signal(false);
 
@@ -22,25 +22,16 @@ export class Thumbnail {
   alt = input('Profile image');
   size = input('1rem');
   radius = input('10%');
+  showBorder = input(true);
   readonly faUser = faUser;
 
   readonly fallbackInitial = computed(() => {    
-    const trimmedName = this.name()?.trim();
-    if (!trimmedName) return '';
-
-    const words = trimmedName.split(/\s+/).filter(Boolean);
-    return words
-      .slice(0, 2)
-      .map((word) => word.charAt(0).toUpperCase())
-      .join('');
+    return getInitials(this.name() || '');
   });
 
-  readonly fallbackBackgroundColor = computed(() => {
+  readonly fallbackColor = computed(() => {
     const initials = this.fallbackInitial();
-    if (!initials) return '#f1f5f9';
-    const redChannel = this.getColorChannelFromLetter(initials.charAt(0));
-    const blueChannel = this.getColorChannelFromLetter(initials.charAt(1) || initials.charAt(0));
-    return `rgb(${redChannel}, ${this.fallbackGreenChannel}, ${blueChannel})`;
+    return getAvatarColor(initials);
   });
 
   readonly shouldShowLoading = computed(() => this.loading() || (this.imageUrl() ? this.imageLoading() : false));
@@ -67,9 +58,4 @@ export class Thumbnail {
     this.imageFailed.set(true);
   }
 
-  private getColorChannelFromLetter(letter: string): number {
-    if (!letter) return 180;
-    const alphabetIndex = letter.charCodeAt(0) - 64;
-    return 110 + Math.round((alphabetIndex / 26) * 110);
-  }
 }

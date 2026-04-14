@@ -177,7 +177,7 @@
     }
 
     .u-btn-outline-cyan {
-        @apply inline-flex items-center rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-2 text-base font-semibold text-cyan-700 no-underline transition hover:border-cyan-300 hover:bg-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2;
+        @apply rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-2 text-base font-semibold text-cyan-700 no-underline transition hover:border-cyan-300 hover:bg-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2;
     }
 
     .u-form-field {

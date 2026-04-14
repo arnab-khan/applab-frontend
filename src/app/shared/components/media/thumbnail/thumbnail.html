@@ -2,14 +2,21 @@
   <div [ngClass]="{ hidden: shouldShowLoading() }" class="h-full w-full">
     @if ((imageData() || imageUrl()) && !imageFailed()) {
     <img [src]="imageData() ? ('data:' + (fileType() || 'image/jpeg') + ';base64,' + imageData()) : imageUrl()"
-      [alt]="alt()" class="h-full w-full object-cover" (load)="onImageLoad()" (error)="onImageError()" />
+      [alt]="alt()" class="h-full w-full object-cover border-slate-400" [ngClass]="{ 'border-2': showBorder() }"
+      [ngStyle]="{ 'border-radius': radius(), }" (load)="onImageLoad()" (error)="onImageError()" />
     } @else {
     <div class="flex h-full w-full items-center justify-center c-thumbnail-fallback-icon">
       @if (fallbackInitial()) {
-      <span class="c-thumbnail-fallback-initial"
-        [ngStyle]="{ 'font-size': 'calc(' + size() + ' * .42)', 'background-color': fallbackBackgroundColor() }">
-        {{ fallbackInitial() }}
-      </span>
+      <div
+        class="relative inline-flex h-full w-full select-none items-center justify-center border-slate-800 font-bold uppercase leading-none bg-white"
+        [ngClass]="{ 'border-2': showBorder() }"
+        [ngStyle]="{ 'border-radius': radius(),'border-color': fallbackColor() }">
+        <div class="u-fill-parent opacity-20" [ngStyle]="{ 'background-color': fallbackColor() }"></div>
+        <span [ngStyle]="{ 'font-size': 'calc(' + size() + ' * .42)','color': fallbackColor() }"
+          class="relative font-semibold">
+          {{ fallbackInitial() }}
+        </span>
+      </div>
       } @else {
       <fa-icon [icon]="faUser" [ngStyle]="{ 'font-size': 'calc(' + size() + ' * .7)' }"
         class="text-slate-400"></fa-icon>
