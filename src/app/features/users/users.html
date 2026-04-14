@@ -10,24 +10,16 @@
     </div>
 
     <div class="mb-6 space-y-4">
-      <div class="flex flex-wrap gap-4 justify-between items-end">
+      <div class="sm:flex flex-wrap gap-4 justify-between items-end">
         <div class="flex-1">
           <label class="block text-sm font-medium text-gray-700 mb-1">Search Users</label>
-          <input
-            type="text"
-            appSanitizeInput
-            [ngModel]="keyword"
-            (ngModelChange)="onSearch($event)"
-            placeholder="Search by name or username..."
+          <input type="text" appSanitizeInput [noSpecialCharacterAllow]="true" [ngModel]="keyword"
+            (ngModelChange)="onSearch($event)" placeholder="Search by name or username..."
             class="u-form-field py-2.5 text-sm" />
         </div>
 
-        <div class="flex gap-3 grow sm:grow-0 justify-between">
-          <app-sort-button
-            label="Created"
-            field="createdAt"
-            [activeField]="sortField"
-            [direction]="sortDirection"
+        <div class="mt-3 sm:mt-0">
+          <app-sort-button label="Joined date" field="createdAt" [activeField]="sortField" [direction]="sortDirection"
             (toggle)="toggleSort($event)">
           </app-sort-button>
         </div>
@@ -47,17 +39,15 @@
       } @else {
       <ul>
         @for (user of userItems; track user.id) {
-          <li class="mt-5">
-            <app-user-item [user]="user"></app-user-item>
-          </li>
+        <li class="mt-5">
+          <app-user-item [user]="user"></app-user-item>
+        </li>
         }
       </ul>
       @if (hasMore()) {
       <div class="text-center mt-6">
         <app-loading-button [loading]="isLoadingMore()" spinnerClass="stroke-gray-700">
-          <button
-            (click)="loadMore()"
-            [disabled]="isLoadingMore()"
+          <button (click)="loadMore()" [disabled]="isLoadingMore()"
             class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50">
             Show More
           </button>

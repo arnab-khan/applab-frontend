@@ -12,6 +12,7 @@ import { UserItem } from './components/user-item/user-item';
 import { Platform } from '../../shared/services/platform';
 import { Seo } from '../../shared/services/seo';
 import { Url } from '../../shared/services/url';
+import { sanitizeText } from '../../shared/utils/text-sanitize';
 
 @Component({
   selector: 'app-users',
@@ -99,7 +100,9 @@ export class Users implements OnInit {
 
   onSearch(keyword: string) {
     this.keyword = keyword;
-    const trimmedKeyword = this.keyword?.trim();
+    const trimmedKeyword = sanitizeText(this.keyword, {
+      noSpecialCharacterAllow: true,
+    }).trim();
     this.isLoadingList.set(true);
     if (trimmedKeyword === this.lastSearchedKeyword) {
       this.isLoadingList.set(false);
