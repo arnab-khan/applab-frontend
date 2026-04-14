@@ -1,15 +1,18 @@
 <div class="sticky top-0 z-10 shadow px-3 u-gradient-background u-light-gradient c-header">
     <nav class="flex flex-row justify-between items-center py-2 mx-auto u-container-1">
         <ul class="flex gap-x-1 items-center">
+            <ng-container [ngTemplateOutlet]="routeLink"
+                [ngTemplateOutletContext]="{ route: '/users', label: 'Users' }">
+            </ng-container>
             @if (authState().user?.id) {
             <ng-container [ngTemplateOutlet]="routeLink" [ngTemplateOutletContext]="{ route: '/todo', label: 'Todo' }">
             </ng-container>
             }
-            <li>
+            <!-- <li>
                 <a [href]="portfolioUrl()" target="_blank" rel="noopener noreferrer" class="u-nav-link">
                     Portfolio
                 </a>
-            </li>
+            </li> -->
         </ul>
         <ul class="flex gap-x-1 items-center">
             @if (authState().user?.id) {

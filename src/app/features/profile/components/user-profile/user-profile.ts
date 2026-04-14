@@ -18,6 +18,7 @@ export class UserProfile {
   private share = inject(Share);
   user = input<User | null>(null);
   profileImage = input<UserProfileImage | null>(null);
+  profileImageUrl = input<string | null>(null);
   profileImageLoading = input(false);
   readonly faCopy = faCopy;
   readonly faShareNodes = faShareNodes;
@@ -49,7 +50,7 @@ export class UserProfile {
     }
 
     return this.url.addQueryParams(
-      this.url.toAbsoluteUrl(`/users/${profileUser.username}`),
+      this.url.toAbsoluteUrl(`/user/${profileUser.username}`),
       { updated: profileUser.updatedAt },
     );
   }
