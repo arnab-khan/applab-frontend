@@ -1,0 +1,9 @@
+:host {
+  display: block;
+}
+
+.infinite-scroll__sentinel {
+  block-size: 1px;
+  inline-size: 100%;
+  pointer-events: none;
+}

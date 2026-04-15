@@ -3,8 +3,8 @@ import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
-import { LoadingButton } from '../../shared/components/buttons/loading-button/loading-button';
 import { SortButton, SortDirection } from '../../shared/components/buttons/sort-button/sort-button';
+import { InfiniteScroll } from '../../shared/components/data-display/infinite-scroll/infinite-scroll';
 import { SanitizeInput } from '../../shared/directives/sanitize-input';
 import { User, UserPageResponse } from '../../shared/interfaces/user';
 import { UsersApi } from './services/users-api';
@@ -16,7 +16,7 @@ import { sanitizeText } from '../../shared/utils/text-sanitize';
 
 @Component({
   selector: 'app-users',
-  imports: [CommonModule, FormsModule, UserItem, SanitizeInput, LoadingButton, SortButton],
+  imports: [CommonModule, FormsModule, UserItem, SanitizeInput, SortButton, InfiniteScroll],
   templateUrl: './users.html',
   styleUrl: './users.scss',
 })
@@ -30,7 +30,7 @@ export class Users implements OnInit {
 
   users = signal<User[] | undefined>(undefined);
   currentPage = 0;
-  pageSize = 12;
+  pageSize = 10;
   hasMore = signal(true);
   isLoadingMore = signal(false);
   isLoadingList = signal(false);
@@ -90,10 +90,6 @@ export class Users implements OnInit {
         },
         error: (err) => {
           console.error('Error fetching users', err);
-          this.users.set([]);
-          this.hasMore.set(false);
-          this.isLoadingList.set(false);
-          this.isLoadingMore.set(false);
         },
       });
   }
@@ -119,6 +115,10 @@ export class Users implements OnInit {
   }
 
   loadMore() {
+    if (!this.hasMore() || this.isLoadingMore() || this.isLoadingList()) {
+      return;
+    }
+
     this.isLoadingMore.set(true);
     this.currentPage++;
     this.getUsersList();

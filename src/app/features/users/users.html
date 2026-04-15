@@ -37,23 +37,15 @@
         <p class="text-xl font-medium my-2">No users found</p>
       </div>
       } @else {
-      <ul>
-        @for (user of userItems; track user.id) {
-        <li class="mt-5">
-          <app-user-item [user]="user"></app-user-item>
-        </li>
-        }
-      </ul>
-      @if (hasMore()) {
-      <div class="text-center mt-6">
-        <app-loading-button [loading]="isLoadingMore()" spinnerClass="stroke-gray-700">
-          <button (click)="loadMore()" [disabled]="isLoadingMore()"
-            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50">
-            Show More
-          </button>
-        </app-loading-button>
-      </div>
-      }
+      <app-infinite-scroll [loading]="isLoadingMore()" (reachedEnd)="loadMore()">
+        <ul>
+          @for (user of userItems; track user.id) {
+          <li class="mt-5">
+            <app-user-item [user]="user"></app-user-item>
+          </li>
+          }
+        </ul>
+      </app-infinite-scroll>
       }
     </div>
     } @else if (isLoadingList()) {
