@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCopy, faShareNodes } from '@fortawesome/free-solid-svg-icons';
@@ -6,10 +6,11 @@ import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbna
 import { User, UserProfileImage } from '../../../../shared/interfaces/user';
 import { Share } from '../../../../shared/services/share';
 import { Url } from '../../../../shared/services/url';
+import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-pipe';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [DatePipe, FontAwesomeModule, Thumbnail],
+  imports: [DatePipe, FontAwesomeModule, Thumbnail, CommonModule, CapitalizeWordsPipe],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.scss',
 })

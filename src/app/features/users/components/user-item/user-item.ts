@@ -1,13 +1,14 @@
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProfileApiService } from '../../../profile/services/profile-api.service';
 import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
 import { User } from '../../../../shared/interfaces/user';
+import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-pipe';
 
 @Component({
   selector: 'app-user-item',
-  imports: [Thumbnail, DatePipe, RouterLink],
+  imports: [Thumbnail, DatePipe, RouterLink, CommonModule, CapitalizeWordsPipe],
   templateUrl: './user-item.html',
   styleUrl: './user-item.scss',
 })

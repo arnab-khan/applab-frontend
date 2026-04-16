@@ -5,10 +5,11 @@ import { Auth } from '../../services/auth';
 import { PORTFOLIO_URL } from '../../../shared/config/config';
 import { Thumbnail } from '../../../shared/components/media/thumbnail/thumbnail';
 import { FormattedText } from '../../../shared/components/text/formatted-text/formatted-text';
+import { CapitalizeWordsPipe } from '../../../shared/pipes/capitalize-words-pipe';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterModule, NgTemplateOutlet, Thumbnail, FormattedText],
+  imports: [RouterModule, NgTemplateOutlet, Thumbnail, FormattedText, CapitalizeWordsPipe],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })

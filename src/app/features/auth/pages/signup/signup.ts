@@ -25,6 +25,7 @@ import { ImageUploader, ImageUploaderSelection } from '../../../../shared/compon
 import { CommonDialog } from '../../../../shared/components/dialogs/common-dialog/common-dialog';
 import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
 import { FormValidation } from '../../../../shared/services/form-validation';
+import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-pipe';
 
 @Component({
   selector: 'app-signup',
@@ -54,6 +55,7 @@ export class Signup implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private formValidation = inject(FormValidation);
+  private capitalizeWordsPipe = new CapitalizeWordsPipe();
 
   signupForm!: FormGroup<{
     name: FormControl<string>;
@@ -151,8 +153,8 @@ export class Signup implements OnInit {
     if (this.signupForm.valid) {
       const controls = this.signupForm.controls;
       const userData: CreateUser = {
-        name: controls.name.value,
-        username: controls.username.value,
+        name: this.capitalizeWordsPipe.transform(controls.name.value),
+        username: controls.username.value.toLowerCase(),
         password: controls.password.value,
       };
 
