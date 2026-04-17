@@ -41,7 +41,7 @@
         <ul>
           @for (user of userItems; track user.id) {
           <li class="mt-5">
-            <app-user-item [user]="user"></app-user-item>
+            <app-user-item [user]="user" [searchTerm]="keyword"></app-user-item>
           </li>
           }
         </ul>

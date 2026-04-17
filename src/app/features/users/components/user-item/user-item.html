@@ -5,10 +5,10 @@
     </app-thumbnail>
     <div class="min-w-0 flex-1">
       <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <h3 class="truncate text-base font-semibold text-gray-900">
+        <h3 class="truncate text-base font-semibold text-gray-900" [appHighlightText]="searchTerm()">
           {{ (user().name | capitalizeWords) || 'Unnamed user' }}
         </h3>
-        <span class="truncate text-sm text-gray-500">
+        <span class="truncate text-sm text-gray-500" [appHighlightText]="searchTerm()">
           @{{ (user().username|lowercase) || 'unknown' }}
         </span>
       </div>
