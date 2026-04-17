@@ -3,10 +3,11 @@ import { Component, computed, effect, input, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { getAvatarColor, getInitials } from '../../../utils/avatar';
+import { ImageViewer } from '../image-viewer/image-viewer';
 
 @Component({
   selector: 'app-thumbnail',
-  imports: [FontAwesomeModule, NgClass, NgStyle],
+  imports: [FontAwesomeModule, NgClass, NgStyle, ImageViewer],
   templateUrl: './thumbnail.html',
   styleUrl: './thumbnail.scss',
 })
@@ -16,6 +17,7 @@ export class Thumbnail {
 
   imageData = input<string | null | undefined>(null);
   imageUrl = input<string | null | undefined>(null);
+  viewerImageUrl = input<string | null | undefined>(null);
   fileType = input<string | null | undefined>(null);
   name = input<string | null | undefined>(null);
   loading = input(false);

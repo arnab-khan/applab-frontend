@@ -1,4 +1,4 @@
-<div class="overflow-hidden" [ngStyle]="{ width: size(), height: size(), 'border-radius': radius() }">
+<div class="overflow-hidden relative" [ngStyle]="{ width: size(), height: size(), 'border-radius': radius() }">
   <div [ngClass]="{ hidden: shouldShowLoading() }" class="h-full w-full">
     @if ((imageData() || imageUrl()) && !imageFailed()) {
     <img [src]="imageData() ? ('data:' + (fileType() || 'image/jpeg') + ';base64,' + imageData()) : imageUrl()"
@@ -26,5 +26,9 @@
   </div>
   @if (shouldShowLoading()) {
   <div class="h-full w-full bg-gray-300 animate-pulse"></div>
+  }
+  @if (viewerImageUrl()) {
+  <app-image-viewer class="u-fill-parent" [imageUrl]="viewerImageUrl()" [initialBorderRadius]="radius()" [alt]="alt()">
+  </app-image-viewer>
   }
 </div>

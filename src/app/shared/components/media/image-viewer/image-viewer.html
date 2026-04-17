@@ -1,0 +1,25 @@
+<button #triggerButton type="button" (click)="openViewer()" class="u-fill-parent c-trigger">
+  <ng-content></ng-content>
+</button>
+
+<ng-template #viewerTemplate>
+  <div class="fixed max-w-[90vw] max-h-[90vh] overflow-hidden rounded-2xl bg-white transition-all duration-200 ease-in-out"
+    [ngStyle]="boxStyle()">
+    @if (viewerState() === 'open') {
+    <button type="button"
+      class="absolute right-2 top-2 z-10 h-7 w-7 flex items-center justify-center rounded-md bg-black/60 text-white"
+      (click)="closeViewer()">
+      <fa-icon [icon]="faXmark"></fa-icon>
+    </button>
+    }
+    <div class="h-full w-full">
+      @if (imageLoading()) {
+      <div class="flex h-full w-full items-center justify-center">
+        <div class="u-spinner"></div>
+      </div>
+      }
+      <img [ngClass]="{ hidden: imageLoading() || imageFailed() || !imageUrl() }" [src]="imageUrl()" [alt]="alt()"
+        class="w-full h-full object-cover" (load)="onImageLoad()" (error)="onImageError()" />
+    </div>
+  </div>
+</ng-template>

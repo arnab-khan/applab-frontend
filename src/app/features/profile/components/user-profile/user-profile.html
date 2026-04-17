@@ -3,6 +3,7 @@
   <div class="flex flex-col items-center justify-start rounded-2xl border border-slate-200 bg-white/80 p-4 py-5">
     <app-thumbnail [imageData]="profileImage()?.fileData" [fileType]="profileImage()?.fileType"
       [imageUrl]="profileImageUrl()"
+      [viewerImageUrl]="profileImageUrl()||(profileImage()?.fileData? 'data:' + (profileImage()?.fileType || 'image/jpeg') + ';base64,' + profileImage()?.fileData : null)"
       [name]="profileUser.name" [loading]="profileImageLoading()" size="9rem"
       [alt]="(profileUser.name || profileUser.username || 'User') + ' profile image'">
     </app-thumbnail>
@@ -11,7 +12,9 @@
 
   <div class="rounded-2xl border border-slate-200 bg-white/80 p-4 py-5 md:p-5">
     <div class="mb-5">
-      <h1 class="text-2xl font-bold tracking-tight text-slate-900">{{ (profileUser.name | capitalizeWords) || 'Unnamed User' }}</h1>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+        {{ (profileUser.name | capitalizeWords) || 'Unnamed User' }}
+      </h1>
       @if (profileUser.bio) {
       <p class="mt-2 text-sm leading-6 text-slate-600">{{ profileUser.bio }}</p>
       }

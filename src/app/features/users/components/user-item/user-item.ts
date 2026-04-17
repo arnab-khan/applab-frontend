@@ -16,8 +16,13 @@ export class UserItem {
   private profileApiService = inject(ProfileApiService);
   user = input.required<User>();
 
-  getProfileImageUrl() {
+  getCompressedProfileImageUrl() {
     const profileImageUrl = this.user().compressedProfileImageUrl;
+    return profileImageUrl ? this.profileApiService.getPublicImageUrl(profileImageUrl) : null;
+  }
+
+  getProfileImageUrl() {
+    const profileImageUrl = this.user().profileImageUrl;
     return profileImageUrl ? this.profileApiService.getPublicImageUrl(profileImageUrl) : null;
   }
 }
