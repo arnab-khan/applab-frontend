@@ -18,6 +18,7 @@ import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
 import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { UpdateProfileCredentials } from '../../../../shared/interfaces/user';
+import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-pipe';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
 import { existsValidator } from '../../../../shared/validators/exists-validator';
 import { matchControlValidator } from '../../../../shared/validators/match-control-validator';
@@ -50,6 +51,7 @@ export class EditProfile implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private formValidation = inject(FormValidation);
+  private capitalizeWordsPipe = new CapitalizeWordsPipe();
 
   authState = this.authService.authState;
   profileState = this.authService.profileState;
@@ -157,7 +159,12 @@ export class EditProfile implements OnInit {
     this.hasClickedBasicSubmit.set(true);
     this.formValidation.validateAndRun(this.basicForm, () => {
       this.basicSaveLoading.set(true);
-      this.userService.updateProfileBasics(this.basicForm.getRawValue()).pipe(
+      const payload = {
+        ...this.basicForm.getRawValue(),
+        name: this.capitalizeWordsPipe.transform(this.basicForm.getRawValue().name),
+      };
+
+      this.userService.updateProfileBasics(payload).pipe(
         finalize(() => this.basicSaveLoading.set(false))
       ).subscribe({
         next: () => {
@@ -186,7 +193,7 @@ export class EditProfile implements OnInit {
     this.formValidation.validateAndRun(this.credentialsForm, () => {
       const { username, newPassword: password, currentPassword } = this.credentialsForm.getRawValue();
       const body: UpdateProfileCredentials = {
-        ...(username && { username }),
+        ...(username && { username: username.toLowerCase() }),
         currentPassword,
         ...(password?.trim() && { password }),
       };

@@ -3,6 +3,7 @@
   <div class="flex flex-col items-center justify-start rounded-2xl border border-slate-200 bg-white/80 p-4 py-5">
     <app-thumbnail [imageData]="profileImage()?.fileData" [fileType]="profileImage()?.fileType"
       [imageUrl]="profileImageUrl()"
+      [viewerImageUrl]="profileImageUrl()||(profileImage()?.fileData? 'data:' + (profileImage()?.fileType || 'image/jpeg') + ';base64,' + profileImage()?.fileData : null)"
       [name]="profileUser.name" [loading]="profileImageLoading()" size="9rem"
       [alt]="(profileUser.name || profileUser.username || 'User') + ' profile image'">
     </app-thumbnail>
@@ -11,43 +12,44 @@
 
   <div class="rounded-2xl border border-slate-200 bg-white/80 p-4 py-5 md:p-5">
     <div class="mb-5">
-      <h1 class="text-2xl font-bold tracking-tight text-slate-900">{{ profileUser.name || 'Unnamed User' }}</h1>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+        {{ (profileUser.name | capitalizeWords) || 'Unnamed User' }}
+      </h1>
       @if (profileUser.bio) {
       <p class="mt-2 text-sm leading-6 text-slate-600">{{ profileUser.bio }}</p>
       }
       <ng-content select="[profile-actions]"></ng-content>
     </div>
 
-    <div class="grid gap-3 sm:grid-cols-2">
+    <dl class="grid gap-3 sm:grid-cols-2">
       <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">User ID</p>
-        <p class="mt-1 text-base font-medium text-slate-900">{{ profileUser.id }}</p>
+        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">User ID</dt>
+        <dd class="mt-1 text-base font-medium text-slate-900">{{ profileUser.id }}</dd>
       </div>
       <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Username</p>
-        <p class="mt-1 text-base font-medium text-slate-900">{{ profileUser.username || 'N/A' }}</p>
+        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Username</dt>
+        <dd class="mt-1 text-base font-medium text-slate-900">{{ (profileUser.username|lowercase) || 'N/A' }}</dd>
       </div>
       <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Created At</p>
-        <p class="mt-1 text-base font-medium text-slate-900">
+        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Created At</dt>
+        <dd class="mt-1 text-base font-medium text-slate-900">
           {{ profileUser.createdAt ? (profileUser.createdAt | date:'d MMM y, h:mm a') : 'N/A' }}
-        </p>
+        </dd>
       </div>
       <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Updated At</p>
-        <p class="mt-1 text-base font-medium text-slate-900">
+        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Updated At</dt>
+        <dd class="mt-1 text-base font-medium text-slate-900">
           {{ profileUser.updatedAt ? (profileUser.updatedAt | date:'d MMM y, h:mm a') : 'N/A' }}
-        </p>
+        </dd>
       </div>
-    </div>
+    </dl>
 
     <ng-content select="[profile-footer]"></ng-content>
-    <ng-content></ng-content>
 
-    <div class="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-3">
-      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Share Link</p>
+    <dl class="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Share Link</dt>
       <div class="mt-2 flex items-center justify-between flex-wrap sm:flex-nowrap gap-3">
-        <p class="min-w-0 text-sm font-medium text-slate-900 sm:w-0 grow">{{ profileUrl }}</p>
+        <dd class="min-w-0 text-sm font-medium text-slate-900 sm:w-0 grow">{{ profileUrl }}</dd>
         <div class="shrink-0">
           <div class="flex items-center gap-4 sm:gap-2">
             <button type="button" (click)="copyProfileLink()"
@@ -63,7 +65,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </dl>
   </div>
 </div>
 } @else {

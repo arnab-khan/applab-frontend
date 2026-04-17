@@ -22,9 +22,8 @@
                     <app-thumbnail [imageData]="profileState().profileImage?.compressedFileData"
                         [fileType]="profileState().profileImage?.fileType" [name]="authState().user?.name"
                         [loading]="profileState().loading" size="1.5rem" radius="50%"></app-thumbnail>
-                    <app-formatted-text [text]="authState().user?.name || authState().user?.username || 'Profile'"
-                        [maxLength]="11">
-                    </app-formatted-text>
+                    <app-formatted-text [text]="(authState().user?.name | capitalizeWords) || authState().user?.username || 'Profile'"
+                        [maxLength]="11"></app-formatted-text>
                 </a>
             </li>
             } @else {

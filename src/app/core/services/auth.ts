@@ -31,9 +31,11 @@ export class Auth {
   profileState = signal<{
     profileImage: UserProfileImage | null;
     loading: boolean;
+    loaded: boolean;
   }>({
     profileImage: null,
-    loading: true
+    loading: true,
+    loaded: false
   });
 
   private updateUser(user: User | null, options?: {
@@ -50,7 +52,7 @@ export class Auth {
     });
 
     if (!user) {
-      this.profileState.set({ profileImage: null, loading: false });
+      this.profileState.set({ profileImage: null, loading: false, loaded: false });
     }
 
     if (options?.fetchProfileImage && user?.id) {

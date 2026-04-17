@@ -10,15 +10,17 @@ import { Todo } from '../../../../shared/interfaces/todo';
 import { TodoApi } from '../../services/todo-api';
 import { TodoFormDialog } from '../todo-form-dialog/todo-form-dialog';
 import { CommonDialog } from '../../../../shared/components/dialogs/common-dialog/common-dialog';
+import { HighlightText } from '../../../../shared/directives/highlight-text';
 
 @Component({
   selector: 'app-todo-list-item',
-  imports: [CommonModule, DatePipe, MatMenuModule, MatCheckboxModule, FontAwesomeModule],
+  imports: [CommonModule, DatePipe, MatMenuModule, MatCheckboxModule, FontAwesomeModule, HighlightText],
   templateUrl: './todo-list-item.html',
   styleUrl: './todo-list-item.scss',
 })
 export class TodoListItem {
   todo = input.required<Todo>();
+  searchTerm = input('');
   loaderState = output<boolean>();
   resetTodo = output<void>();
   completed = signal(false);

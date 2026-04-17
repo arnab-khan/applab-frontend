@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Auth } from '../../../../core/services/auth';
 import { UserProfile } from '../../components/user-profile/user-profile';
 import { User } from '../../../../shared/interfaces/user';
 import { ProfileApiService } from '../../services/profile-api.service';
@@ -13,6 +14,8 @@ import { Url } from '../../../../shared/services/url';
 })
 export class PublicProfile implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private authService = inject(Auth);
   private profileApiService = inject(ProfileApiService);
   private url = inject(Url);
 
@@ -27,6 +30,12 @@ export class PublicProfile implements OnInit {
     const data = this.route.snapshot.data['publicProfile'];
     const user: User = data?.user;
     const updatedAt = user?.updatedAt;
+    const currentUser = this.authService.authState().user;
+
+    if (user && currentUser?.id && user.id === currentUser.id) {
+      void this.router.navigateByUrl('/profile/view-profile', { replaceUrl: true });
+      return;
+    }
 
     if (user) {
       this.profileUser.set(user);

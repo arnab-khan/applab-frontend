@@ -1,0 +1,9 @@
+<div class="infinite-scroll">
+  <ng-content></ng-content>
+  @if (loading()) {
+  <div class="flex justify-center items-center py-6">
+    <div class="u-spinner"></div>
+  </div>
+  }
+  <div #sentinel class="infinite-scroll__sentinel" aria-hidden="true"></div>
+</div>

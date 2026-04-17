@@ -4,7 +4,7 @@ import { environment } from '../../../environments/environment';
 import { IsUsernameExist } from '../../shared/interfaces/is-username-exist';
 import { UpdateProfileBasics, UpdateProfileCredentials, User as AuthUser, UserProfileImage } from '../../shared/interfaces/user';
 import { toHttpParams } from '../../shared/utils/http';
-import { finalize, Observable, of, tap } from 'rxjs';
+import { catchError, finalize, Observable, of, tap, throwError } from 'rxjs';
 import { Auth } from './auth';
 
 @Injectable({
@@ -39,7 +39,20 @@ export class User {
               Object.entries(profileImage).filter(([, value]) => value != null)
             ),
           } : profileImage,
+          loaded: true,
         }));
+      }),
+      catchError((error) => {
+        if (error?.status === 404) {
+          this.authService.profileState.update(state => ({
+            ...state,
+            profileImage: null,
+            loaded: true,
+          }));
+          return of(null);
+        }
+
+        return throwError(() => error);
       }),
       finalize(() => {
         if (showLoader) {
@@ -63,7 +76,11 @@ export class User {
   }
 
   getFullProfileImage() {
-    const profileImage = this.authService.profileState().profileImage;
+    const profileState = this.authService.profileState();
+    const profileImage = profileState.profileImage;
+    if (profileState.loaded && !profileImage) {
+      return of(null);
+    }
     if (profileImage?.fileData) {
       return of(profileImage);
     }
@@ -104,6 +121,7 @@ export class User {
         this.authService.profileState.update(state => ({
           ...state,
           profileImage: null,
+          loaded: true,
         }));
       })
     );
