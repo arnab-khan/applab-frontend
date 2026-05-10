@@ -11,6 +11,11 @@ export class PaginationQueryParams {
     keyword?: string;
 }
 
+export interface CursorQueryParams {
+    cursor?: number;
+    limit: number;
+}
+
 export interface Pageable {
     pageNumber: number;
     pageSize: number;
@@ -32,4 +37,10 @@ export interface PageResponse<T> {
     sort: Sort;
     numberOfElements: number;
     empty: boolean;
+}
+
+export interface CursorResponse<T> {
+    items: T[];
+    nextCursor: number | null;
+    hasNext: boolean;
 }

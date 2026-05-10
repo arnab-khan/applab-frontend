@@ -34,6 +34,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/todo/todo').then(r => r.Todo),
     },
     {
+        path: 'chat',
+        loadChildren: () => import('./features/chat/chat.routes').then(r => r.chatRoutes),
+    },
+    {
         path: '**',
         loadComponent: () =>
             import('./core/pages/not-found/not-found').then(r => r.NotFound),

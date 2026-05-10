@@ -2,6 +2,9 @@
     <nav class="flex flex-row justify-between items-center py-2 mx-auto u-container-1">
         <ul class="flex gap-x-1 items-center">
             <ng-container [ngTemplateOutlet]="routeLink"
+                [ngTemplateOutletContext]="{ route: '/chat', label: 'Chat' }">
+            </ng-container>
+            <ng-container [ngTemplateOutlet]="routeLink"
                 [ngTemplateOutletContext]="{ route: '/users', label: 'Users' }">
             </ng-container>
             @if (authState().user?.id) {

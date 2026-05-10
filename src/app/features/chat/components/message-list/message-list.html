@@ -1,0 +1,38 @@
+@if (!isPageLoaded()) {
+<div class="flex justify-center items-center p-5 grow">
+    <div class="u-spinner border-white"></div>
+</div>
+} @else {
+<section>
+    @if (messages().length) {
+    <ul class="space-y-3">
+        @for (message of messages(); track message.message.id) {
+        <li>
+            <app-message-item [messageResponse]="message"></app-message-item>
+        </li>
+        }
+    </ul>
+    } @else {
+    <div class="rounded-xl border border-white/15 bg-white/10 px-4 py-10 text-center text-white/80 backdrop-blur-sm">
+        <p class="text-lg font-semibold text-white">No messages yet</p>
+        <p class="mt-1 text-sm">Start the first global conversation.</p>
+    </div>
+    }
+</section>
+
+<form [formGroup]="messageForm" (ngSubmit)="onSubmit()"
+    class="mt-3 flex items-center gap-2 rounded-xl border border-white/15 bg-white/15 p-3 shadow-sm backdrop-blur-md">
+    @let contentControl=messageForm.controls.content;
+    <textarea [formControl]="contentControl"
+        class="min-h-11 flex-1 resize-none bg-transparent px-1 py-2 text-sm text-white outline-none placeholder:text-white/55"
+        [placeholder]="'Write a message'" name="content" rows="1" appSanitizeInput appAutoResizeTextarea>
+        </textarea>
+
+    <app-loading-button [loading]="isSubmitting()">
+        <button type="submit"
+            class="flex h-11 w-11 items-center justify-center rounded-lg border border-white/15 bg-white/15 text-white shadow-sm transition hover:bg-white/25 disabled:opacity-60">
+            <fa-icon [icon]="faPaperPlane" class="leading-0"></fa-icon>
+        </button>
+    </app-loading-button>
+</form>
+}
