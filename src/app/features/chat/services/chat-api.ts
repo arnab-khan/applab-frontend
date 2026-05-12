@@ -4,6 +4,10 @@ import { environment } from '../../../../environments/environment';
 import { ChatRoomMessageCursorResponse, ChatRoomRequest, Message, MessageQueryParams } from '../../../shared/interfaces/chat';
 import { toHttpParams } from '../../../shared/utils/http';
 
+interface GlobalChatRoomResponse {
+  chatRoomId: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -11,11 +15,15 @@ export class ChatApi {
   private httpClient = inject(HttpClient);
   private baseApiUrl = `${environment.rootApiUrl}/chatroom`;
 
-  getGlobalMessages(params: MessageQueryParams) {
-    return this.httpClient.get<ChatRoomMessageCursorResponse>(`${this.baseApiUrl}/global/message/all`, { params: toHttpParams(params) });
+  getGlobalChatRoom() {
+    return this.httpClient.get<GlobalChatRoomResponse>(`${this.baseApiUrl}/global`);
   }
 
-  addGlobalMessage(body: ChatRoomRequest) {
-    return this.httpClient.post<Message>(`${this.baseApiUrl}/global/message/add`, body);
+  getChatRoomMessages(chatRoomId: number, params: MessageQueryParams) {
+    return this.httpClient.get<ChatRoomMessageCursorResponse>(`${this.baseApiUrl}/${chatRoomId}/message/all`, { params: toHttpParams(params) });
+  }
+
+  addChatRoomMessage(chatRoomId: number, body: ChatRoomRequest) {
+    return this.httpClient.post<Message>(`${this.baseApiUrl}/${chatRoomId}/message/add`, body);
   }
 }

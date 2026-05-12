@@ -33,6 +33,7 @@ export class MessageList {
   faPaperPlane = faPaperPlane;
   getMessagesRequest = input.required<() => Observable<ChatRoomMessageCursorResponse>>();
   addMessageRequest = input.required<(body: ChatRoomRequest) => Observable<Message>>();
+  isLiveMessageAllowed = input<(message: ChatRoomMessageResponse) => boolean>(() => true);
   messageForm!: FormGroup<{
     content: FormControl<string>;
   }>;
@@ -49,6 +50,22 @@ export class MessageList {
       if (state.completed) {
         this.getMessages();
       }
+    });
+
+    effect(() => {
+      const message = this.chatState.liveMessage();
+
+      if (!message) {
+        return;
+      }
+
+      this.messages.update((messages) => {
+        if (!this.isLiveMessageAllowed()(message) || messages.some((item) => item.message.id === message.message.id)) {
+          return messages;
+        }
+
+        return [...messages, message];
+      });
     });
   }
 
@@ -94,7 +111,6 @@ export class MessageList {
       next: () => {
         this.messageForm.reset();
         this.isSubmitting.set(false);
-        this.getMessages();
       },
       error: (error) => {
         console.error(error);

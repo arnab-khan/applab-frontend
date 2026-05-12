@@ -45,8 +45,11 @@ export interface ChatRoomRequest {
     parentId?: number | null;
 }
 
-export interface ChatRoomMessageResponse extends MessageResponse {
+export interface ChatRoomMessageResponse {
     chatRoomId: number;
+    message: Message;
+    author?: MessageAuthor;
+    permission?: MessagePermission;
 }
 
 export type ChatRoomMessageCursorResponse = CursorResponse<ChatRoomMessageResponse>;
