@@ -19,12 +19,10 @@ export class UserItem {
   searchTerm = input('');
 
   getCompressedProfileImageUrl() {
-    const profileImageUrl = this.user().compressedProfileImageUrl;
-    return profileImageUrl ? this.profileApiService.getPublicImageUrl(profileImageUrl) : null;
+    return this.profileApiService.getPublicImageUrl(this.user().compressedProfileImageUrl);
   }
 
   getProfileImageUrl() {
-    const profileImageUrl = this.user().profileImageUrl;
-    return profileImageUrl ? this.profileApiService.getPublicImageUrl(profileImageUrl) : null;
+    return this.profileApiService.getPublicImageUrl(this.user().profileImageUrl);
   }
 }

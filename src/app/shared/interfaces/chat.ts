@@ -1,27 +1,25 @@
 import { CursorQueryParams, CursorResponse } from './pagination';
+import { ReactionCount } from './reaction';
+import { Author } from './author';
+
+export interface GlobalChatRoomResponse {
+    chatRoomId: number;
+}
 
 export interface Message {
     id: number;
-    parentId: number | null;
+    parentId?: number;
+    quotedMessageId?: number;
     contextId: number;
     contextType: string;
-    userId: number | null;
-    guestSessionId: number | null;
+    userId?: number;
+    guestSessionId?: number;
     content?: string;
     deleted: boolean;
     edited: boolean;
-    author?: MessageAuthor;
+    author?: Author;
     createdAt?: string;
     updatedAt?: string;
-}
-
-export interface MessageAuthor {
-    type: string;
-    id: number;
-    name?: string;
-    username?: string;
-    profileImageUrl?: string | null;
-    compressedProfileImageUrl?: string | null;
 }
 
 export interface MessagePermission {
@@ -31,7 +29,7 @@ export interface MessagePermission {
 
 export interface MessageResponse {
     message: Message;
-    author: MessageAuthor;
+    author: Author;
     permission: MessagePermission;
 }
 
@@ -42,14 +40,15 @@ export interface MessageQueryParams extends CursorQueryParams {
 
 export interface ChatRoomRequest {
     content: string;
-    parentId?: number | null;
+    parentId?: number;
 }
 
 export interface ChatRoomMessageResponse {
     chatRoomId: number;
     message: Message;
-    author?: MessageAuthor;
+    author?: Author;
     permission?: MessagePermission;
+    reactions?: ReactionCount[];
 }
 
 export type ChatRoomMessageCursorResponse = CursorResponse<ChatRoomMessageResponse>;

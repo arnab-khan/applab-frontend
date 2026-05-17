@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
@@ -34,6 +34,7 @@ export class MessageList {
   getMessagesRequest = input.required<() => Observable<ChatRoomMessageCursorResponse>>();
   addMessageRequest = input.required<(body: ChatRoomRequest) => Observable<Message>>();
   isLiveMessageAllowed = input<(message: ChatRoomMessageResponse) => boolean>(() => true);
+  addReactionRequest = output<{ messageId: number; emoji: string }>();
   messageForm!: FormGroup<{
     content: FormControl<string>;
   }>;
@@ -117,5 +118,9 @@ export class MessageList {
         this.isSubmitting.set(false);
       },
     });
+  }
+
+  addReaction(request: { messageId: number; emoji: string }) {
+    this.addReactionRequest.emit(request);
   }
 }

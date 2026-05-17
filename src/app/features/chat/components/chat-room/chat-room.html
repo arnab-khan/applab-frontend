@@ -1,0 +1,6 @@
+<app-message-list
+  [getMessagesRequest]="getMessagesRequest"
+  [addMessageRequest]="addMessageRequest"
+  [isLiveMessageAllowed]="isLiveMessageAllowed"
+  (addReactionRequest)="addReaction($event)"
+></app-message-list>

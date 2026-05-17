@@ -96,11 +96,17 @@
   // ========== Start mat menu ==========
 
   @include mat.menu-overrides((container-shape: 0.5rem,
-      container-color: theme('colors.white'),
+      container-color: transparent,
     ));
 
-  .mat-mdc-menu-item:hover {
-    background-color: theme('colors.gray.100') !important;
+  .mat-mdc-menu-panel {
+    min-width: unset;
+    max-width: 100%;
+    @apply backdrop-blur-3xl;
+
+    .mat-mdc-menu-content {
+      padding: 0;
+    }
   }
 
   // ========== End mat menu ==========

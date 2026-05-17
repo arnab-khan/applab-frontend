@@ -27,14 +27,16 @@
   </div>
 
   <mat-menu #menu="matMenu">
-    <button mat-menu-item (click)="onEdit()">
-      <fa-icon [icon]="faPenToSquare" class="text-blue-600 mr-2"></fa-icon>
-      <span class="text-blue-600">Edit</span>
-    </button>
-    <button mat-menu-item (click)="onDelete()">
-      <fa-icon [icon]="faTrash" class="text-red-600 mr-2"></fa-icon>
-      <span class="text-red-600">Delete</span>
-    </button>
+    <div class="bg-white/10 py-2">
+      <button mat-menu-item class="hover:!bg-gray-100" (click)="onEdit()">
+        <fa-icon [icon]="faPenToSquare" class="text-blue-600 mr-2"></fa-icon>
+        <span class="text-blue-600">Edit</span>
+      </button>
+      <button mat-menu-item class="hover:!bg-gray-100" (click)="onDelete()">
+        <fa-icon [icon]="faTrash" class="text-red-600 mr-2"></fa-icon>
+        <span class="text-red-600">Delete</span>
+      </button>
+    </div>
   </mat-menu>
 </div>
 

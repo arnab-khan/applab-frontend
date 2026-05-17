@@ -1,40 +1,21 @@
-import { Component, inject } from '@angular/core';
-import { switchMap, tap } from 'rxjs';
-import { ChatRoomMessageResponse } from '../../../../shared/interfaces/chat';
-import { MessageList } from '../../components/message-list/message-list';
+import { Component, inject, signal } from '@angular/core';
+import { ChatRoom } from '../../components/chat-room/chat-room';
 import { ChatApi } from '../../services/chat-api';
 
 @Component({
   selector: 'app-global-chat',
-  imports: [MessageList],
+  imports: [ChatRoom],
   templateUrl: './global-chat.html',
   styleUrl: './global-chat.scss',
 })
 export class GlobalChat {
   private chatApi = inject(ChatApi);
-  private chatRoomId?: number;
+  chatRoomId = signal<number | undefined>(undefined);
 
-  getMessagesRequest = () =>
-    this.chatApi.getGlobalChatRoom().pipe(
-      tap(({ chatRoomId }) => (this.chatRoomId = chatRoomId)),
-      switchMap(({ chatRoomId }) =>
-        this.chatApi.getChatRoomMessages(chatRoomId, {
-          limit: 20,
-          deleted: false,
-        }),
-      ),
-    );
-
-  addMessageRequest = (body: Parameters<ChatApi['addChatRoomMessage']>[1]) => {
-    if (this.chatRoomId) {
-      return this.chatApi.addChatRoomMessage(this.chatRoomId, body);
-    }
-
-    return this.chatApi.getGlobalChatRoom().pipe(
-      tap(({ chatRoomId }) => (this.chatRoomId = chatRoomId)),
-      switchMap(({ chatRoomId }) => this.chatApi.addChatRoomMessage(chatRoomId, body)),
-    );
-  };
-
-  isLiveMessageAllowed = (message: ChatRoomMessageResponse) => this.chatRoomId === message.chatRoomId;
+  constructor() {
+    this.chatApi.getGlobalChatRoom().subscribe({
+      next: ({ chatRoomId }) => this.chatRoomId.set(chatRoomId),
+      error: (error) => console.error('Error loading global chat room', error),
+    });
+  }
 }

@@ -19,7 +19,7 @@ export class UserProfile {
   private share = inject(Share);
   user = input<User | null>(null);
   profileImage = input<UserProfileImage | null>(null);
-  profileImageUrl = input<string | null>(null);
+  profileImageUrl = input<string | null |undefined>(null);
   profileImageLoading = input(false);
   readonly faCopy = faCopy;
   readonly faShareNodes = faShareNodes;
