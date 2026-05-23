@@ -33,6 +33,11 @@ export interface MessageResponse {
     permission: MessagePermission;
 }
 
+export interface QuotedMessageResponse {
+    message: Message;
+    author: Author;
+}
+
 export interface MessageQueryParams extends CursorQueryParams {
     parentId?: number;
     deleted?: boolean;
@@ -41,11 +46,13 @@ export interface MessageQueryParams extends CursorQueryParams {
 export interface ChatRoomRequest {
     content: string;
     parentId?: number;
+    quotedMessageId?: number;
 }
 
 export interface ChatRoomMessageResponse {
     chatRoomId: number;
     message: Message;
+    quotedMessage?: QuotedMessageResponse;
     author?: Author;
     permission?: MessagePermission;
     reactions?: ReactionCount[];

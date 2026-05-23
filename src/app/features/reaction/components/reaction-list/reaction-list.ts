@@ -1,5 +1,6 @@
 import { NgClass } from '@angular/common';
 import { Component, computed, inject, input, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ReactionCount, ReactionWithAuthorResponse } from '../../../../shared/interfaces/reaction';
 import { CHAT_REACTION_OPTIONS } from '../../../../shared/options/chat-reaction-options';
 import { orderReactionCounts } from '../../../../shared/utils/reaction';
@@ -17,6 +18,7 @@ export class ReactionList {
   messageId = input.required<number>();
 
   private readonly chatApi = inject(ChatApi);
+  private reactionsSubscription?: Subscription;
 
   reactions = signal<ReactionWithAuthorResponse[]>([]);
   reactionSummary = signal<ReactionCount[]>([]);
@@ -39,6 +41,10 @@ export class ReactionList {
     this.loadReactions();
   }
 
+  ngOnDestroy() {
+    this.reactionsSubscription?.unsubscribe();
+  }
+
   getReactionEmoji(code: string) {
     return this.reactionOptions.find((reaction) => reaction.code === code)?.emoji || code;
   }
@@ -49,8 +55,9 @@ export class ReactionList {
   }
 
   private loadReactions(emoji?: string) {
+    this.reactionsSubscription?.unsubscribe();
     this.isLoading.set(true);
-    this.chatApi.getChatRoomMessageReactions(this.chatRoomId(), this.messageId(), { limit: 20, emoji }).subscribe({
+    this.reactionsSubscription = this.chatApi.getChatRoomMessageReactions(this.chatRoomId(), this.messageId(), { limit: 20, emoji }).subscribe({
       next: (response) => {
         this.reactions.set(response.items);
         this.reactionSummary.set(response.reactions);

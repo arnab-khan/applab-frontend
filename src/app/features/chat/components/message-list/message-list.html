@@ -8,7 +8,8 @@
     <ul class="space-y-3">
         @for (message of messages(); track message.message.id) {
         <li>
-            <app-message-item [messageResponse]="message" (addReactionRequest)="addReaction($event)"></app-message-item>
+            <app-message-item [messageResponse]="message" (addReactionRequest)="addReaction($event)"
+                (quoteReplyRequest)="quoteReply($event)"></app-message-item>
         </li>
         }
     </ul>
@@ -21,10 +22,24 @@
 </section>
 
 <div class="backdrop-blur-3xl sticky bottom-0 rounded-t-xl mt-3 overflow-hidden border border-white/25 bg-white/30">
+    @if (quotedMessage(); as quote) {
+    <div class="border-b border-white/20 p-3">
+        <div class="flex items-start gap-2">
+            <div class="min-w-0 flex-1 rounded-xl bg-black/40">
+                <app-message-item [messageResponse]="quote" [isPreview]="true"></app-message-item>
+            </div>
+            <button type="button"
+                class="mt-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
+                aria-label="Cancel quote reply" (click)="clearQuotedMessage()">
+                <span class="text-lg leading-none">&times;</span>
+            </button>
+        </div>
+    </div>
+    }
     <form [formGroup]="messageForm" (ngSubmit)="onSubmit()"
         class="flex items-center gap-2 p-3 shadow-sm">
         @let contentControl=messageForm.controls.content;
-        <textarea [formControl]="contentControl"
+        <textarea #messageInput [formControl]="contentControl"
             class="min-h-11 flex-1 resize-none rounded-lg bg-black/35 px-3 py-2 text-sm text-white outline-none placeholder:text-white/65"
             [placeholder]="'Write a message'" name="content" rows="1" appSanitizeInput appAutoResizeTextarea>
         </textarea>

@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output, signal } from '@angular/core';
+import { Component, effect, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
@@ -24,10 +24,12 @@ export class MessageList {
   private auth = inject(Auth);
   private platformService = inject(Platform);
   private formBuilder = inject(NonNullableFormBuilder);
+  private messageInput = viewChild<ElementRef<HTMLTextAreaElement>>('messageInput');
 
   authState = this.auth.authState;
   messagesPage = signal<ChatRoomMessageCursorResponse | undefined>(undefined);
   messages = signal<ChatRoomMessageResponse[]>([]);
+  quotedMessage = signal<ChatRoomMessageResponse | undefined>(undefined);
   isPageLoaded = signal(false);
   isSubmitting = signal(false);
   faPaperPlane = faPaperPlane;
@@ -108,9 +110,11 @@ export class MessageList {
     this.isSubmitting.set(true);
     this.addMessageRequest()({
       content: this.messageForm.controls.content.value,
+      quotedMessageId: this.quotedMessage()?.message.id,
     }).subscribe({
       next: () => {
         this.messageForm.reset();
+        this.quotedMessage.set(undefined);
         this.isSubmitting.set(false);
       },
       error: (error) => {
@@ -122,5 +126,18 @@ export class MessageList {
 
   addReaction(request: { messageId: number; emoji: string; onComplete: () => void }) {
     this.addReactionRequest.emit(request);
+  }
+
+  quoteReply(message: ChatRoomMessageResponse) {
+    this.quotedMessage.set(message);
+    this.focusMessageInput();
+  }
+
+  focusMessageInput() {
+    this.messageInput()?.nativeElement.focus();
+  }
+
+  clearQuotedMessage() {
+    this.quotedMessage.set(undefined);
   }
 }

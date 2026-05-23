@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faFaceSmile, faPenToSquare, faTrash, faUser } from '@fortawesome/free-solid-svg-icons';
-import { ChatRoomMessageResponse } from '../../../../shared/interfaces/chat';
+import { ChatRoomMessageResponse, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
 import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
 import { ProfileApiService } from '../../../profile/services/profile-api.service';
 import { CHAT_REACTION_OPTIONS } from '../../../../shared/options/chat-reaction-options';
@@ -20,14 +20,20 @@ import { orderReactionCounts } from '../../../../shared/utils/reaction';
   styleUrl: './message-item.scss',
 })
 export class MessageItem {
-  messageResponse = input.required<ChatRoomMessageResponse>();
+  messageResponse = input.required<ChatRoomMessageResponse | QuotedMessageResponse>();
+  isPreview = input(false);
   addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void }>();
-  currentMessageResponse = signal<ChatRoomMessageResponse | null>(null);
+  quoteReplyRequest = output<ChatRoomMessageResponse>();
+  currentMessageResponse = signal<ChatRoomMessageResponse | QuotedMessageResponse | null>(null);
   selectedReactionCode = signal('');
   isReactionSubmitting = signal(false);
   messageId = computed(() => this.currentMessageResponse()?.message.id || this.messageResponse().message.id);
+  quotedMessageResponse = computed(() => {
+    const currentMessageResponse = this.currentMessageResponse();
+    return currentMessageResponse && 'quotedMessage' in currentMessageResponse ? currentMessageResponse.quotedMessage : undefined;
+  });
   selectedReactionEmoji = computed(() => this.getReactionEmoji(this.selectedReactionCode()));
-  orderedReactions = computed(() => orderReactionCounts(this.currentMessageResponse()?.reactions || []));
+  orderedReactions = computed(() => orderReactionCounts(this.getCurrentChatRoomMessageResponse()?.reactions || []));
   profileApiService = inject(ProfileApiService);
   private chatState = inject(ChatState);
   private dialog = inject(MatDialog);
@@ -44,7 +50,7 @@ export class MessageItem {
       const messageResponse = this.messageResponse();
 
       this.currentMessageResponse.set(messageResponse);
-      this.selectedReactionCode.set(messageResponse.myReaction?.emoji || '');
+      this.selectedReactionCode.set(this.getMessageReactionCode(messageResponse));
     });
 
     effect(() => {
@@ -98,9 +104,27 @@ export class MessageItem {
       width: '50rem',
       height: '90dvh',
       data: {
-        chatRoomId: this.currentMessageResponse()?.chatRoomId,
+        chatRoomId: this.getCurrentChatRoomMessageResponse()?.chatRoomId,
         messageId: this.messageId(),
       },
     });
+  }
+
+  quoteReply() {
+    const messageResponse = this.getCurrentChatRoomMessageResponse();
+
+    if (messageResponse) {
+      this.quoteReplyRequest.emit(messageResponse);
+    }
+  }
+
+  private getCurrentChatRoomMessageResponse() {
+    const messageResponse = this.currentMessageResponse();
+
+    return messageResponse && 'chatRoomId' in messageResponse ? messageResponse : undefined;
+  }
+
+  private getMessageReactionCode(messageResponse: ChatRoomMessageResponse | QuotedMessageResponse) {
+    return 'myReaction' in messageResponse ? messageResponse.myReaction?.emoji || '' : '';
   }
 }
