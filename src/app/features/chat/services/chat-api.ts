@@ -2,7 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { ChatRoomMessageCursorResponse, ChatRoomRequest, GlobalChatRoomResponse, Message, MessageQueryParams } from '../../../shared/interfaces/chat';
-import { ReactionEmojiRequest, ReactionModel } from '../../../shared/interfaces/reaction';
+import { CursorQueryParams } from '../../../shared/interfaces/pagination';
+import { ReactionEmojiRequest, Reaction, ReactionWithAuthorCursorResponse } from '../../../shared/interfaces/reaction';
 import { toHttpParams } from '../../../shared/utils/http';
 
 @Injectable({
@@ -25,6 +26,12 @@ export class ChatApi {
   }
 
   addChatRoomMessageReaction(messageId: number, body: ReactionEmojiRequest) {
-    return this.httpClient.post<ReactionModel>(`${this.baseApiUrl}/message/${messageId}/reaction/add`, body);
+    return this.httpClient.post<Reaction>(`${this.baseApiUrl}/message/${messageId}/reaction/add`, body);
+  }
+
+  getChatRoomMessageReactions(chatRoomId: number, messageId: number, params: CursorQueryParams & { emoji?: string }) {
+    return this.httpClient.get<ReactionWithAuthorCursorResponse>(`${this.baseApiUrl}/${chatRoomId}/message/${messageId}/reaction/all`, {
+      params: toHttpParams(params),
+    });
   }
 }

@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { EMPTY } from 'rxjs';
+import { EMPTY, finalize } from 'rxjs';
 import { ChatRoomMessageResponse } from '../../../../shared/interfaces/chat';
 import { ChatApi } from '../../services/chat-api';
 import { MessageList } from '../message-list/message-list';
@@ -33,10 +33,10 @@ export class ChatRoom {
   addMessageRequest = (body: Parameters<ChatApi['addChatRoomMessage']>[1]) =>
     this.chatApi.addChatRoomMessage(this.chatRoomId() as number, body);
 
-  addReaction(request: { messageId: number; emoji: string }) {
+  addReaction(request: { messageId: number; emoji: string; onComplete: () => void }) {
     this.chatApi.addChatRoomMessageReaction(request.messageId, {
       emoji: request.emoji,
-    }).subscribe({
+    }).pipe(finalize(request.onComplete)).subscribe({
       error: (error) => {
         console.error('Error adding message reaction', error);
         this.snackBar.open('Failed to add reaction', '✖', {

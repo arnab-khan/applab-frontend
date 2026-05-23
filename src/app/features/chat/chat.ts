@@ -40,6 +40,7 @@ export class Chat implements OnInit {
     this.websocketSubscription = this.websocketService.subscribe<ChatRoomMessageResponse>(
       '/topic/chatroom-message',
       (response) => {
+        console.log('liveMessage', response);
         this.chatState.liveMessage.set(response);
       }
     );

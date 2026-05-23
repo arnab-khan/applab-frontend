@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -8,18 +9,28 @@ import { ChatRoomMessageResponse } from '../../../../shared/interfaces/chat';
 import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
 import { ProfileApiService } from '../../../profile/services/profile-api.service';
 import { CHAT_REACTION_OPTIONS } from '../../../../shared/options/chat-reaction-options';
+import { MessageReactionsDialog } from '../../../reaction/components/message-reactions-dialog/message-reactions-dialog';
+import { ChatState } from '../../services/chat-state';
+import { orderReactionCounts } from '../../../../shared/utils/reaction';
 
 @Component({
   selector: 'app-message-item',
-  imports: [DatePipe, FontAwesomeModule, MatIconModule, MatMenuModule, Thumbnail],
+  imports: [DatePipe, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, Thumbnail],
   templateUrl: './message-item.html',
   styleUrl: './message-item.scss',
 })
 export class MessageItem {
   messageResponse = input.required<ChatRoomMessageResponse>();
-  addReactionRequest = output<{ messageId: number; emoji: string }>();
-  messageId = computed(() => this.messageResponse().message.id);
+  addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void }>();
+  currentMessageResponse = signal<ChatRoomMessageResponse | null>(null);
+  selectedReactionCode = signal('');
+  isReactionSubmitting = signal(false);
+  messageId = computed(() => this.currentMessageResponse()?.message.id || this.messageResponse().message.id);
+  selectedReactionEmoji = computed(() => this.getReactionEmoji(this.selectedReactionCode()));
+  orderedReactions = computed(() => orderReactionCounts(this.currentMessageResponse()?.reactions || []));
   profileApiService = inject(ProfileApiService);
+  private chatState = inject(ChatState);
+  private dialog = inject(MatDialog);
 
   faPenToSquare = faPenToSquare;
   faTrash = faTrash;
@@ -28,16 +39,68 @@ export class MessageItem {
 
   reactionOptions = CHAT_REACTION_OPTIONS;
 
+  constructor() {
+    effect(() => {
+      const messageResponse = this.messageResponse();
+
+      this.currentMessageResponse.set(messageResponse);
+      this.selectedReactionCode.set(messageResponse.myReaction?.emoji || '');
+    });
+
+    effect(() => {
+      const liveMessage = this.chatState.liveMessage();
+
+      if (liveMessage?.message.id === this.messageId()) {
+        this.currentMessageResponse.set(liveMessage);
+        this.selectedReactionCode.set(liveMessage.myReaction?.emoji || '');
+      }
+    });
+  }
+
   getReactionEmoji(code: string) {
     return this.reactionOptions.find((reaction) => reaction.code === code)?.emoji || code;
   }
 
+  toggleLikeReaction() {
+    if (this.isReactionSubmitting()) {
+      return;
+    }
+
+    const reactionCode = this.selectedReactionCode() ? '' : 'LIKE';
+
+    this.selectedReactionCode.set(reactionCode);
+    this.emitReaction(reactionCode);
+  }
+
   addReaction(reaction: (typeof CHAT_REACTION_OPTIONS)[number]) {
-    console.log(this.messageId(), this.messageResponse());
-    
+    if (this.isReactionSubmitting()) {
+      return;
+    }
+
+    console.log(this.messageId(), this.currentMessageResponse());
+
+    this.selectedReactionCode.set(reaction.code);
+    this.emitReaction(reaction.code);
+  }
+
+  private emitReaction(emoji: string) {
+    this.isReactionSubmitting.set(true);
+
     this.addReactionRequest.emit({
       messageId: this.messageId(),
-      emoji: reaction.code,
+      emoji,
+      onComplete: () => this.isReactionSubmitting.set(false),
+    });
+  }
+
+  openReactionsDialog() {
+    this.dialog.open(MessageReactionsDialog, {
+      width: '50rem',
+      height: '90dvh',
+      data: {
+        chatRoomId: this.currentMessageResponse()?.chatRoomId,
+        messageId: this.messageId(),
+      },
     });
   }
 }

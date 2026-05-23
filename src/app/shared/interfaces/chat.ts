@@ -1,5 +1,5 @@
 import { CursorQueryParams, CursorResponse } from './pagination';
-import { ReactionCount } from './reaction';
+import { Reaction, ReactionCount } from './reaction';
 import { Author } from './author';
 
 export interface GlobalChatRoomResponse {
@@ -49,6 +49,7 @@ export interface ChatRoomMessageResponse {
     author?: Author;
     permission?: MessagePermission;
     reactions?: ReactionCount[];
+    myReaction?: Reaction | null;
 }
 
 export type ChatRoomMessageCursorResponse = CursorResponse<ChatRoomMessageResponse>;

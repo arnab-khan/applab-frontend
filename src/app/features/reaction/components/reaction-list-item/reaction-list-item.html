@@ -1,0 +1,20 @@
+<div class="flex items-center gap-3 rounded-lg px-2 py-2 transition hover:bg-slate-50">
+  <div class="relative shrink-0">
+    <app-thumbnail size="2.5rem" radius="9999px"
+      [imageUrl]="profileApiService.getPublicImageUrl(reaction().author.compressedProfileImageUrl)"
+      [name]="reaction().author.name || reaction().author.username" [showBorder]="false">
+    </app-thumbnail>
+    <span
+      class="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-white text-base leading-none text-slate-950 shadow ring-1 ring-slate-200">
+      <span class="u-absolute-center-xy">{{ getReactionEmoji(reaction().reaction.emoji) }}</span>
+    </span>
+  </div>
+  <div class="min-w-0 flex-1">
+    <p class="truncate text-sm font-semibold text-slate-900">
+      {{ reaction().author.name || reaction().author.username || 'User #' + reaction().author.id }}
+    </p>
+    <p class="text-xs text-slate-500">
+      {{ reaction().reaction.createdAt | date:'MMM d, y, h:mm a' }}
+    </p>
+  </div>
+</div>

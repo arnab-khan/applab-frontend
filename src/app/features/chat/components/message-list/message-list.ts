@@ -34,7 +34,7 @@ export class MessageList {
   getMessagesRequest = input.required<() => Observable<ChatRoomMessageCursorResponse>>();
   addMessageRequest = input.required<(body: ChatRoomRequest) => Observable<Message>>();
   isLiveMessageAllowed = input<(message: ChatRoomMessageResponse) => boolean>(() => true);
-  addReactionRequest = output<{ messageId: number; emoji: string }>();
+  addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void }>();
   messageForm!: FormGroup<{
     content: FormControl<string>;
   }>;
@@ -120,7 +120,7 @@ export class MessageList {
     });
   }
 
-  addReaction(request: { messageId: number; emoji: string }) {
+  addReaction(request: { messageId: number; emoji: string; onComplete: () => void }) {
     this.addReactionRequest.emit(request);
   }
 }
