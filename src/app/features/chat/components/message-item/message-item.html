@@ -3,7 +3,8 @@
         @if (currentMessageResponse()?.message?.userId) {
         <app-thumbnail class="shrink-0" size="2.5rem" radius="9999px"
             [imageUrl]="profileApiService.getPublicImageUrl(currentMessageResponse()?.author?.compressedProfileImageUrl)"
-            [name]="currentMessageResponse()?.author?.name || currentMessageResponse()?.author?.username" [showBorder]="false">
+            [name]="currentMessageResponse()?.author?.name || currentMessageResponse()?.author?.username"
+            [showBorder]="false">
         </app-thumbnail>
         } @else {
         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-500 text-white">
@@ -16,7 +17,8 @@
                 <div class="min-w-0">
                     <p class="truncate text-sm font-semibold text-white">
                         {{ currentMessageResponse()?.message?.userId ? (currentMessageResponse()?.author?.name ||
-                        currentMessageResponse()?.author?.username || 'User #' + currentMessageResponse()?.message?.userId) : 'Guest #' +
+                        currentMessageResponse()?.author?.username || 'User #' +
+                        currentMessageResponse()?.message?.userId) : 'Guest #' +
                         currentMessageResponse()?.message?.guestSessionId }}
                     </p>
                     <p class="text-xs text-white/60">
@@ -28,12 +30,15 @@
                 </div>
 
                 @if (!isPreview()) {
-                <div class="flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-black/10 p-1 shadow-sm">
-                    <button type="button"
-                        class="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
-                        aria-label="Quote reply" (click)="quoteReply()">
-                        <span class="text-base leading-none">↩</span>
-                    </button>
+                <div
+                    class="flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-black/10 p-1 shadow-sm">
+                    <app-auth-action>
+                        <button type="button"
+                            class="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
+                            aria-label="Quote reply" (click)="quoteReply()">
+                            <span class="text-base leading-none">↩</span>
+                        </button>
+                    </app-auth-action>
                     <button type="button"
                         class="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
                         aria-label="More options">
@@ -68,7 +73,8 @@
                     </button>
                     <button type="button"
                         class="inline-flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white disabled:pointer-events-none disabled:opacity-50"
-                        aria-label="Add reaction" [disabled]="isReactionSubmitting()" [matMenuTriggerFor]="reactionMenu">
+                        aria-label="Add reaction" [disabled]="isReactionSubmitting()"
+                        [matMenuTriggerFor]="reactionMenu">
                         <mat-icon fontSet="material-symbols-outlined">add_reaction</mat-icon>
                     </button>
                 </div>

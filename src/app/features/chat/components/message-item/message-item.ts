@@ -12,10 +12,11 @@ import { CHAT_REACTION_OPTIONS } from '../../../../shared/options/chat-reaction-
 import { MessageReactionsDialog } from '../../../reaction/components/message-reactions-dialog/message-reactions-dialog';
 import { ChatState } from '../../services/chat-state';
 import { orderReactionCounts } from '../../../../shared/utils/reaction';
+import { AuthAction } from '../../../auth/components/auth-action/auth-action';
 
 @Component({
   selector: 'app-message-item',
-  imports: [DatePipe, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, Thumbnail],
+  imports: [DatePipe, AuthAction, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, Thumbnail],
   templateUrl: './message-item.html',
   styleUrl: './message-item.scss',
 })

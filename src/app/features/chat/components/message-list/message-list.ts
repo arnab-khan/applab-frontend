@@ -4,6 +4,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
+import { AuthAction } from '../../../auth/components/auth-action/auth-action';
 import { ChatRoomMessageCursorResponse, ChatRoomMessageResponse, ChatRoomRequest, Message } from '../../../../shared/interfaces/chat';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
 import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
@@ -15,7 +16,7 @@ import { MessageItem } from '../message-item/message-item';
 
 @Component({
   selector: 'app-message-list',
-  imports: [ReactiveFormsModule, FontAwesomeModule, SanitizeInput, LoadingButton, AutoResizeTextarea, MessageItem],
+  imports: [ReactiveFormsModule, AuthAction, FontAwesomeModule, SanitizeInput, LoadingButton, AutoResizeTextarea, MessageItem],
   templateUrl: './message-list.html',
   styleUrl: './message-list.scss',
 })
