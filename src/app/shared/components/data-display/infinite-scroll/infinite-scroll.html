@@ -1,9 +1,15 @@
-<div class="infinite-scroll">
-  <ng-content></ng-content>
-  @if (loading()) {
+<div class="c-infinite-scroll">
+  <div #topSentinel class="c-infinite-scroll__sentinel" aria-hidden="true"></div>
+  @if (isLoadingStart()) {
   <div class="flex justify-center items-center py-6">
     <div class="u-spinner"></div>
   </div>
   }
-  <div #sentinel class="infinite-scroll__sentinel" aria-hidden="true"></div>
+  <ng-content></ng-content>
+  @if (isLoadingEnd()) {
+  <div class="flex justify-center items-center py-6">
+    <div class="u-spinner"></div>
+  </div>
+  }
+  <div #bottomSentinel class="c-infinite-scroll__sentinel" aria-hidden="true"></div>
 </div>

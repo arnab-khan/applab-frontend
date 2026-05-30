@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Header } from './core/layout/header/header';
 import { Auth } from './core/services/auth';
@@ -19,7 +19,8 @@ import { Footer } from './core/layout/footer/footer';
     MatProgressSpinnerModule,
   ],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App implements OnInit {
 
@@ -64,5 +65,9 @@ export class App implements OnInit {
       },
       error: () => { }
     })
+  }
+
+  pageReload(){
+    console.log('Page reload');
   }
 }

@@ -1,12 +1,13 @@
-import { Component, effect, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, effect, ElementRef, inject, Injector, input, output, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
 import { AuthAction } from '../../../auth/components/auth-action/auth-action';
-import { ChatRoomMessageCursorResponse, ChatRoomMessageResponse, ChatRoomRequest, Message } from '../../../../shared/interfaces/chat';
+import { ChatRoomMessageCursorResponse, ChatRoomMessageResponse, ChatRoomRequest, Message, MessageQueryParams } from '../../../../shared/interfaces/chat';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
+import { InfiniteScroll } from '../../../../shared/components/data-display/infinite-scroll/infinite-scroll';
 import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { Platform } from '../../../../shared/services/platform';
@@ -16,28 +17,34 @@ import { MessageItem } from '../message-item/message-item';
 
 @Component({
   selector: 'app-message-list',
-  imports: [ReactiveFormsModule, AuthAction, FontAwesomeModule, SanitizeInput, LoadingButton, AutoResizeTextarea, MessageItem],
+  imports: [ReactiveFormsModule, AuthAction, FontAwesomeModule, SanitizeInput, LoadingButton, AutoResizeTextarea, MessageItem, InfiniteScroll],
   templateUrl: './message-list.html',
   styleUrl: './message-list.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessageList {
   private chatState = inject(ChatState);
   private auth = inject(Auth);
   private platformService = inject(Platform);
   private formBuilder = inject(NonNullableFormBuilder);
+  private elementRef = inject(ElementRef<HTMLElement>);
+  private injector = inject(Injector);
   private messageInput = viewChild<ElementRef<HTMLTextAreaElement>>('messageInput');
+  private hasRequestedInitialMessages = false;
+  private messageCursor?: number;
+  private messageLimit = 10;
 
   authState = this.auth.authState;
-  messagesPage = signal<ChatRoomMessageCursorResponse | undefined>(undefined);
   messages = signal<ChatRoomMessageResponse[]>([]);
   quotedMessage = signal<ChatRoomMessageResponse | undefined>(undefined);
   isPageLoaded = signal(false);
+  isLoadingMoreMessages = signal(false);
   isSubmitting = signal(false);
   faPaperPlane = faPaperPlane;
-  getMessagesRequest = input.required<() => Observable<ChatRoomMessageCursorResponse>>();
+  getMessagesRequest = input<(params: MessageQueryParams) => Observable<ChatRoomMessageCursorResponse>>();
   addMessageRequest = input.required<(body: ChatRoomRequest) => Observable<Message>>();
   isLiveMessageAllowed = input<(message: ChatRoomMessageResponse) => boolean>(() => true);
-  addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void }>();
+  addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void; onError: () => void }>();
   messageForm!: FormGroup<{
     content: FormControl<string>;
   }>;
@@ -51,7 +58,8 @@ export class MessageList {
       }
 
       const state = this.authState();
-      if (state.completed) {
+      if (state.completed && this.getMessagesRequest() && !this.hasRequestedInitialMessages) {
+        this.hasRequestedInitialMessages = true;
         this.getMessages();
       }
     });
@@ -71,22 +79,59 @@ export class MessageList {
         return [...messages, message];
       });
     });
+
   }
 
   getMessages() {
-    this.getMessagesRequest()().subscribe({
+    const getMessagesRequest = this.getMessagesRequest();
+
+    if (!getMessagesRequest) {
+      return;
+    }
+
+    const request = getMessagesRequest({
+      cursor: this.messageCursor,
+      limit: this.messageLimit,
+    });
+
+    if (!request) {
+      return;
+    }
+
+    const isInitialLoad = !this.isPageLoaded();
+    this.isLoadingMoreMessages.set(true);
+
+    request.subscribe({
       next: (messagesPage) => {
         console.log('messagesPage', messagesPage);
-        this.messagesPage.set(messagesPage);
-        this.messages.set([...messagesPage.items].reverse());
-        this.chatState.messageCount.set(messagesPage.items.length);
+        this.messageCursor = messagesPage.nextCursor ?? undefined;
+        const messages = [...messagesPage.items].reverse();
+        const distanceFromBottom = isInitialLoad ? undefined : this.getDistanceFromBottom();
+        this.messages.update((currentMessages) => messages.concat(currentMessages));
         this.isPageLoaded.set(true);
+
+        this.isLoadingMoreMessages.set(false);
+
+        if (isInitialLoad) {
+          this.scrollToBottom();
+        } else {
+          this.restoreDistanceFromBottom(distanceFromBottom);
+        }
       },
       error: (error) => {
         console.error(error);
         this.isPageLoaded.set(true);
+        this.isLoadingMoreMessages.set(false);
       },
     });
+  }
+
+  loadMoreMessages() {
+    if (!this.messageCursor) {
+      return;
+    }
+
+    this.getMessages();
   }
 
   createForm() {
@@ -125,7 +170,7 @@ export class MessageList {
     });
   }
 
-  addReaction(request: { messageId: number; emoji: string; onComplete: () => void }) {
+  addReaction(request: { messageId: number; emoji: string; onComplete: () => void; onError: () => void }) {
     this.addReactionRequest.emit(request);
   }
 
@@ -141,4 +186,31 @@ export class MessageList {
   clearQuotedMessage() {
     this.quotedMessage.set(undefined);
   }
+
+  private scrollToBottom() {
+    afterNextRender(() => {
+      this.elementRef.nativeElement.scrollIntoView({ block: 'end' });
+    }, {
+      injector: this.injector,
+    });
+  }
+
+  private getDistanceFromBottom() {
+    return document.documentElement.scrollHeight - window.scrollY;
+  }
+
+  private restoreDistanceFromBottom(distanceFromBottom?: number) {
+    if (distanceFromBottom === undefined) {
+      return;
+    }
+
+    afterNextRender(() => {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight - distanceFromBottom,
+      });
+    }, {
+      injector: this.injector,
+    });
+  }
+
 }

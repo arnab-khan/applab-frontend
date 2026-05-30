@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -19,11 +19,12 @@ import { AuthAction } from '../../../auth/components/auth-action/auth-action';
   imports: [DatePipe, AuthAction, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, Thumbnail],
   templateUrl: './message-item.html',
   styleUrl: './message-item.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessageItem {
   messageResponse = input.required<ChatRoomMessageResponse | QuotedMessageResponse>();
   isPreview = input(false);
-  addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void }>();
+  addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void; onError: () => void }>();
   quoteReplyRequest = output<ChatRoomMessageResponse>();
   currentMessageResponse = signal<ChatRoomMessageResponse | QuotedMessageResponse | null>(null);
   selectedReactionCode = signal('');
@@ -75,7 +76,6 @@ export class MessageItem {
 
     const reactionCode = this.selectedReactionCode() ? '' : 'LIKE';
 
-    this.selectedReactionCode.set(reactionCode);
     this.emitReaction(reactionCode);
   }
 
@@ -84,19 +84,20 @@ export class MessageItem {
       return;
     }
 
-    console.log(this.messageId(), this.currentMessageResponse());
-
-    this.selectedReactionCode.set(reaction.code);
     this.emitReaction(reaction.code);
   }
 
   private emitReaction(emoji: string) {
+    const previousReactionCode = this.selectedReactionCode();
+
     this.isReactionSubmitting.set(true);
+    this.selectedReactionCode.set(emoji);
 
     this.addReactionRequest.emit({
       messageId: this.messageId(),
       emoji,
       onComplete: () => this.isReactionSubmitting.set(false),
+      onError: () => this.selectedReactionCode.set(previousReactionCode),
     });
   }
 

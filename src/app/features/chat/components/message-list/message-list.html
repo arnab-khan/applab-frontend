@@ -3,8 +3,8 @@
     <div class="u-spinner border-white"></div>
 </div>
 } @else {
-<section>
-    @if (messages().length) {
+@if (messages().length) {
+<app-infinite-scroll [loading]="isLoadingMoreMessages()" (reachedStart)="loadMoreMessages()">
     <ul class="space-y-3">
         @for (message of messages(); track message.message.id) {
         <li>
@@ -13,13 +13,13 @@
         </li>
         }
     </ul>
-    } @else {
-    <div class="rounded-xl border border-white/15 bg-white/10 px-4 py-10 text-center text-white/80 backdrop-blur-sm">
-        <p class="text-lg font-semibold text-white">No messages yet</p>
-        <p class="mt-1 text-sm">Start the first global conversation.</p>
-    </div>
-    }
-</section>
+</app-infinite-scroll>
+} @else {
+<div class="rounded-xl border border-white/15 bg-white/10 px-4 py-10 text-center text-white/80 backdrop-blur-sm">
+    <p class="text-lg font-semibold text-white">No messages yet</p>
+    <p class="mt-1 text-sm">Start the first global conversation.</p>
+</div>
+}
 
 <div class="backdrop-blur-3xl sticky bottom-0 rounded-t-xl mt-3 overflow-hidden border border-white/25 bg-white/30">
     @if (quotedMessage(); as quote) {

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ChatRoom } from '../../components/chat-room/chat-room';
 import { ChatApi } from '../../services/chat-api';
 
@@ -7,6 +7,7 @@ import { ChatApi } from '../../services/chat-api';
   imports: [ChatRoom],
   templateUrl: './global-chat.html',
   styleUrl: './global-chat.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GlobalChat {
   private chatApi = inject(ChatApi);

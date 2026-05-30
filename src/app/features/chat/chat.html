@@ -3,7 +3,7 @@
         <nav
             class="mx-auto flex items-center gap-1 rounded-md border-2 border-white/20 bg-white/20 px-1.5 py-0.5 shadow-lg sm:gap-2">
             <ng-container [ngTemplateOutlet]="chatMenuLink"
-                [ngTemplateOutletContext]="{ route: 'global', icon: faGlobe, label: 'Global', count: messageCount() }">
+                [ngTemplateOutletContext]="{ route: 'global', icon: faGlobe, label: 'Global' }">
             </ng-container>
             <ng-container [ngTemplateOutlet]="chatMenuLink"
                 [ngTemplateOutletContext]="{ route: 'direct', icon: faUser, label: 'Direct' }">
@@ -18,7 +18,7 @@
     <router-outlet></router-outlet>
 </main>
 
-<ng-template #chatMenuLink let-route="route" let-icon="icon" let-label="label" let-count="count" let-active="active">
+<ng-template #chatMenuLink let-route="route" let-icon="icon" let-label="label" let-active="active">
     <a [routerLink]="route" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }"
         class="flex min-w-0 flex-1 items-center justify-center gap-1 rounded px-2 py-1 text-center text-sm font-semibold no-underline transition sm:gap-2 sm:px-4 whitespace-nowrap"
         [ngClass]="{
@@ -26,8 +26,10 @@
             'bg-white/20 text-white shadow-sm hover:bg-white/30': link.isActive
         }" #link="routerLinkActive">
         <fa-icon [icon]="icon"></fa-icon>
-        <span class="max-[319px]:hidden truncate whitespace-nowrap">{{ label }}<span class="hidden sm:inline">
-                chat</span></span>
-        <!-- <span class="shrink-0 rounded bg-white/15 px-1 text-xs font-medium text-white/80">{{ count||0 }}</span> -->
+        <span class="max-[319px]:hidden truncate whitespace-nowrap">{{ label }}
+            <span class="hidden sm:inline">
+                chat
+            </span>
+        </span>
     </a>
 </ng-template>

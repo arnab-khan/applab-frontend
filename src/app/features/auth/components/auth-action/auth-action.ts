@@ -1,5 +1,6 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterLink } from '@angular/router';
 import { Auth } from '../../../../core/services/auth';
 import { Guest } from '../../../../core/services/guest';
@@ -14,6 +15,7 @@ import { LoadingButton } from '../../../../shared/components/buttons/loading-but
 export class AuthAction {
   private auth = inject(Auth);
   private guest = inject(Guest);
+  private snackBar = inject(MatSnackBar);
 
   authState = this.auth.authState;
   guestState = this.guest.guestState;
@@ -33,6 +35,10 @@ export class AuthAction {
     this.guest.createGuest().subscribe({
       next: () => {
         this.isGuestSubmitting.set(false);
+        this.snackBar.open('You can now interact on this page', '✖', {
+          duration: 3000,
+          panelClass: 'snackbar-success',
+        });
       },
       error: (error) => {
         console.error(error);

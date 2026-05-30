@@ -27,7 +27,6 @@ export class Chat implements OnInit {
   faGlobe = faGlobe;
   faUser = faUser;
   faUsers = faUsers;
-  messageCount = this.chatState.messageCount;
   headerHeight = this.layoutState.headerHeight;
 
   ngOnInit() {

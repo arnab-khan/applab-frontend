@@ -5,6 +5,5 @@ import { ChatRoomMessageResponse } from '../../../shared/interfaces/chat';
   providedIn: 'root',
 })
 export class ChatState {
-  messageCount = signal<number | undefined>(undefined);
   liveMessage = signal<ChatRoomMessageResponse | null>(null);
 }

@@ -1,7 +1,7 @@
-import { Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { EMPTY, finalize } from 'rxjs';
-import { ChatRoomMessageResponse } from '../../../../shared/interfaces/chat';
+import { finalize, throwError } from 'rxjs';
+import { ChatRoomMessageResponse, MessageQueryParams } from '../../../../shared/interfaces/chat';
 import { ChatApi } from '../../services/chat-api';
 import { MessageList } from '../message-list/message-list';
 
@@ -10,6 +10,7 @@ import { MessageList } from '../message-list/message-list';
   imports: [MessageList],
   templateUrl: './chat-room.html',
   styleUrl: './chat-room.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatRoom {
   chatRoomId = input<number>();
@@ -17,29 +18,27 @@ export class ChatRoom {
   private chatApi = inject(ChatApi);
   private snackBar = inject(MatSnackBar);
 
-  getMessagesRequest = () => {
+  getMessagesRequest = (params: MessageQueryParams) => {
     const chatRoomId = this.chatRoomId();
 
     if (!chatRoomId) {
-      return EMPTY;
+      return throwError(() => new Error('Chat room id is required to get messages'));
     }
 
-    return this.chatApi.getChatRoomMessages(chatRoomId, {
-      limit: 20,
-      deleted: false,
-    });
+    return this.chatApi.getChatRoomMessages(chatRoomId, params);
   };
 
   addMessageRequest = (body: Parameters<ChatApi['addChatRoomMessage']>[1]) =>
     this.chatApi.addChatRoomMessage(this.chatRoomId() as number, body);
 
-  addReaction(request: { messageId: number; emoji: string; onComplete: () => void }) {
+  addReaction(request: { messageId: number; emoji: string; onComplete: () => void; onError: () => void }) {
     this.chatApi.addChatRoomMessageReaction(request.messageId, {
       emoji: request.emoji,
     }).pipe(finalize(request.onComplete)).subscribe({
       error: (error) => {
         console.error('Error adding message reaction', error);
-        this.snackBar.open('Failed to add reaction', '✖', {
+        request.onError();
+        this.snackBar.open(request.emoji ? 'Failed to add reaction' : 'Failed to remove reaction', '✖', {
           duration: 3000,
           panelClass: 'snackbar-error',
         });
