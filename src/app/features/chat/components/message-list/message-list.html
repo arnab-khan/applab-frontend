@@ -1,32 +1,37 @@
-@if (!isPageLoaded()) {
+@if (isMainLoading()) {
 <div class="flex justify-center items-center p-5 grow">
     <div class="u-spinner border-white"></div>
 </div>
 } @else {
-@if (messages().length) {
-<app-infinite-scroll [loading]="isLoadingMoreMessages()" (reachedStart)="loadMoreMessages()">
-    <ul class="space-y-3">
-        @for (message of messages(); track message.message.id) {
-        <li>
-            <app-message-item [messageResponse]="message" (addReactionRequest)="addReaction($event)"
-                (quoteReplyRequest)="quoteReply($event)"></app-message-item>
-        </li>
-        }
-    </ul>
-</app-infinite-scroll>
-} @else {
-<div class="rounded-xl border border-white/15 bg-white/10 px-4 py-10 text-center text-white/80 backdrop-blur-sm">
-    <p class="text-lg font-semibold text-white">No messages yet</p>
-    <p class="mt-1 text-sm">Start the first global conversation.</p>
+<div class="grow">
+    @if (messages().length) {
+    <app-infinite-scroll [loading]="isLoadingMoreMessages()" (reachedStart)="loadMoreMessages('OLDER')"
+        (reachedEnd)="loadMoreMessages('NEWER')">
+        <ul class="space-y-3">
+            @for (message of messages(); track message.message.id) {
+            <li [attr.data-message-id]="message.message.id">
+                <app-message-item [messageResponse]="message" (addReactionRequest)="addReaction($event)"
+                    (quoteReplyRequest)="quoteReply($event)"
+                    (quoteMessageClickRequest)="goToMessage($event)"></app-message-item>
+            </li>
+            }
+        </ul>
+    </app-infinite-scroll>
+    } @else {
+    <div class="rounded-xl border border-white/15 bg-white/10 px-4 py-10 text-center text-white/80 backdrop-blur-sm">
+        <p class="text-lg font-semibold text-white">No messages yet</p>
+        <p class="mt-1 text-sm">Start the first global conversation.</p>
+    </div>
+    }
 </div>
-}
 
 <div class="backdrop-blur-3xl sticky bottom-0 rounded-t-xl mt-3 overflow-hidden border border-white/25 bg-white/30">
     @if (quotedMessage(); as quote) {
     <div class="border-b border-white/20 p-3">
         <div class="flex items-start gap-2">
             <div class="min-w-0 flex-1 rounded-xl bg-black/40">
-                <app-message-item [messageResponse]="quote" [isPreview]="true"></app-message-item>
+                <app-message-item [messageResponse]="quote" [isPreview]="true"
+                    (quoteMessageClickRequest)="goToMessage(quote.message.id)"></app-message-item>
             </div>
             <button type="button"
                 class="mt-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
@@ -37,8 +42,7 @@
     </div>
     }
     <app-auth-action [matchTriggerWidth]="true">
-        <form [formGroup]="messageForm" (ngSubmit)="onSubmit()"
-            class="flex items-center gap-2 p-3 shadow-sm">
+        <form [formGroup]="messageForm" (ngSubmit)="onSubmit()" class="flex items-center gap-2 p-3 shadow-sm">
             @let contentControl=messageForm.controls.content;
             <textarea #messageInput [formControl]="contentControl"
                 class="min-h-11 flex-1 resize-none rounded-lg bg-black/35 px-3 py-2 text-sm text-white outline-none placeholder:text-white/65"

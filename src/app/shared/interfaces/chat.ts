@@ -38,9 +38,12 @@ export interface QuotedMessageResponse {
     author: Author;
 }
 
+export type MessageDirection = 'OLDER' | 'NEWER';
+
 export interface MessageQueryParams extends CursorQueryParams {
     parentId?: number;
     deleted?: boolean;
+    direction?: MessageDirection;
 }
 
 export interface ChatRoomRequest {

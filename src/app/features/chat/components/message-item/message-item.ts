@@ -26,6 +26,7 @@ export class MessageItem {
   isPreview = input(false);
   addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void; onError: () => void }>();
   quoteReplyRequest = output<ChatRoomMessageResponse>();
+  quoteMessageClickRequest = output<number>();
   currentMessageResponse = signal<ChatRoomMessageResponse | QuotedMessageResponse | null>(null);
   selectedReactionCode = signal('');
   isReactionSubmitting = signal(false);
@@ -118,6 +119,10 @@ export class MessageItem {
     if (messageResponse) {
       this.quoteReplyRequest.emit(messageResponse);
     }
+  }
+
+  quoteMessageClick(messageId: number) {
+    this.quoteMessageClickRequest.emit(messageId);
   }
 
   private getCurrentChatRoomMessageResponse() {
