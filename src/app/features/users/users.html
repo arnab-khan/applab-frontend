@@ -37,7 +37,7 @@
         <p class="text-xl font-medium my-2">No users found</p>
       </div>
       } @else {
-      <app-infinite-scroll [loading]="isLoadingMore()" (reachedEnd)="loadMore()">
+      <app-infinite-scroll [loadingEnd]="isLoadingMore()" (reachedEnd)="loadMore()">
         <ul>
           @for (user of userItems; track user.id) {
           <li class="mt-5">

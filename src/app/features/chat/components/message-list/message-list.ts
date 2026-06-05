@@ -1,7 +1,7 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, effect, ElementRef, inject, Injector, input, output, signal, viewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Injector, input, output, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { forkJoin, Observable, tap } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
 import { AuthAction } from '../../../auth/components/auth-action/auth-action';
@@ -33,16 +33,22 @@ export class MessageList {
   private hasRequestedInitialMessages = false;
   private olderMessageCursor?: number;
   private newerMessageCursor?: number;
-  private messageLimit = 10;
-  private isGoingToMessage = false;
+  private messageLimit = 20;
+  private readonly olderDirection: MessageDirection = 'OLDER';
+  private readonly newerDirection: MessageDirection = 'NEWER';
 
   authState = this.auth.authState;
   messages = signal<ChatRoomMessageResponse[]>([]);
   quotedMessage = signal<ChatRoomMessageResponse | undefined>(undefined);
+  focusedMessageId = signal<number | undefined>(undefined);
+  isGoingToMessage = signal(false);
   isPageLoaded = signal(false);
-  isLoadingMoreMessages = signal(false);
+  isLoadingOlderMessages = signal(false);
+  isLoadingNewerMessages = signal(false);
   isMainLoading = signal(false);
   isSubmitting = signal(false);
+  distanceFromEnd = signal(0);
+  faArrowDown = faArrowDown;
   faPaperPlane = faPaperPlane;
   getMessagesRequest = input<(params: MessageQueryParams) => Observable<ChatRoomMessageCursorResponse>>();
   addMessageRequest = input.required<(body: ChatRoomRequest) => Observable<Message>>();
@@ -85,8 +91,12 @@ export class MessageList {
 
   }
 
-  loadInitialMessages() {
-    const request = this.messagesRequest();
+  loadInitialMessages(params?: { scrollOptions?: ScrollIntoViewOptions }) {
+    this.olderMessageCursor = undefined;
+    this.newerMessageCursor = undefined;
+    this.messages.set([]);
+
+    const request = this.messagesRequest({ direction: this.olderDirection });
 
     if (!request) {
       return;
@@ -101,7 +111,10 @@ export class MessageList {
         this.messages.update((currentMessages) => messages.concat(currentMessages));
         this.isPageLoaded.set(true);
         this.isMainLoading.set(false);
-        this.scrollToBottom();
+        this.isGoingToMessage.set(true);
+        this.scrollToBottom(params?.scrollOptions, () => {
+          this.isGoingToMessage.set(false);
+        });
       },
       error: (error) => {
         console.error(error);
@@ -111,18 +124,14 @@ export class MessageList {
     });
   }
 
-  loadMoreMessages(direction: MessageDirection) {
-    if (this.isGoingToMessage) {
-      return;
-    }
-
+  loadMoreMessages(direction: MessageDirection) {    
     switch (direction) {
-      case 'OLDER':
+      case this.olderDirection:
         if (!this.olderMessageCursor) {
           return;
         }
         break;
-      case 'NEWER':
+      case this.newerDirection:
         if (!this.newerMessageCursor) {
           return;
         }
@@ -135,19 +144,19 @@ export class MessageList {
       return;
     }
 
-    this.isLoadingMoreMessages.set(true);
+    this.setLoadingMoreMessages(direction, true);
 
     request.subscribe({
       next: (messagesPage) => {
         console.log('messagesPage', messagesPage);
-        this.isLoadingMoreMessages.set(false);
+        this.setLoadingMoreMessages(direction, false);
         switch (direction) {
-          case 'OLDER':
+          case this.olderDirection:
             const distanceFromBottom = this.getDistanceFromBottom();
             this.messages.update((currentMessages) => [...messagesPage.items].reverse().concat(currentMessages));
             this.restoreDistanceFromBottom(distanceFromBottom);
             break;
-          case 'NEWER':
+          case this.newerDirection:
             this.messages.update((currentMessages) => currentMessages.concat(messagesPage.items));
             break;
         }
@@ -155,23 +164,36 @@ export class MessageList {
       error: (error) => {
         console.error(error);
         this.isPageLoaded.set(true);
-        this.isLoadingMoreMessages.set(false);
+        this.setLoadingMoreMessages(direction, false);
       },
     });
   }
 
+  private setLoadingMoreMessages(direction: MessageDirection, loading: boolean) {
+    switch (direction) {
+      case this.olderDirection:
+        this.isLoadingOlderMessages.set(loading);
+        break;
+      case this.newerDirection:
+        this.isLoadingNewerMessages.set(loading);
+        break;
+    }
+  }
+
   private messagesRequest(paramsOverride?: Partial<MessageQueryParams>) {
+    console.log(this.olderMessageCursor);
+    
     const getMessagesRequest = this.getMessagesRequest();
     if (!getMessagesRequest) {
       return undefined;
     }
-    const direction = paramsOverride?.direction ?? 'OLDER';
+    const direction = paramsOverride?.direction ?? this.olderDirection;
     let cursor: number | undefined;
     switch (direction) {
-      case 'OLDER':
+      case this.olderDirection:
         cursor = this.olderMessageCursor;
         break;
-      case 'NEWER':
+      case this.newerDirection:
         cursor = this.newerMessageCursor;
         break;
     }
@@ -192,10 +214,10 @@ export class MessageList {
     return request.pipe(
       tap((messagesPage) => {
         switch (params.direction) {
-          case 'OLDER':
+          case this.olderDirection:
             this.olderMessageCursor = messagesPage.nextCursor ?? undefined;
             break;
-          case 'NEWER':
+          case this.newerDirection:
             this.newerMessageCursor = messagesPage.nextCursor ?? undefined;
             break;
         }
@@ -249,22 +271,22 @@ export class MessageList {
   }
 
   goToMessage(messageId: number) {
-    if (this.scrollToMessage(messageId)) {
+    if (this.scrollToMessage(messageId, () => {
+      this.focusMessage(messageId);
+    })) {
       return;
     }
 
-    const olderDirection: MessageDirection = 'OLDER';
-    const newerDirection: MessageDirection = 'NEWER';
     const messageDirectinLimit = this.messageLimit / 2;
     const olderRequest = this.messagesRequest({
-      cursor: messageId + 1,
-      limit: messageDirectinLimit,
-      direction: olderDirection,
-    });
-    const newerRequest = this.messagesRequest({
       cursor: messageId,
       limit: messageDirectinLimit,
-      direction: newerDirection,
+      direction: this.olderDirection,
+    });
+    const newerRequest = this.messagesRequest({
+      cursor: messageId + 1,
+      limit: messageDirectinLimit,
+      direction: this.newerDirection,
     });
 
     if (!olderRequest || !newerRequest) {
@@ -272,7 +294,7 @@ export class MessageList {
     }
 
     this.isMainLoading.set(true);
-    this.isGoingToMessage = true;
+    this.isGoingToMessage.set(true);
 
     forkJoin([olderRequest, newerRequest]).subscribe({
       next: ([olderMessagesPage, newerMessagesPage]) => {
@@ -285,11 +307,12 @@ export class MessageList {
           this.scrollToBottom();
           setTimeout(() => {
             const isScrollingToMessage = this.scrollToMessage(messageId, () => {
-              this.isGoingToMessage = false;
+              this.focusMessage(messageId);
+              this.isGoingToMessage.set(false);
             });
 
             if (!isScrollingToMessage) {
-              this.isGoingToMessage = false;
+              this.isGoingToMessage.set(false);
             }
           });
         }, {
@@ -299,7 +322,7 @@ export class MessageList {
       error: (error) => {
         console.error(error);
         this.isMainLoading.set(false);
-        this.isGoingToMessage = false;
+        this.isGoingToMessage.set(false);
       },
     });
   }
@@ -312,9 +335,58 @@ export class MessageList {
     this.quotedMessage.set(undefined);
   }
 
-  private scrollToBottom() {
+  jumpToBottom() {
+    if (this.newerMessageCursor) {
+      this.loadInitialMessages({
+        scrollOptions: { behavior: 'smooth' },
+      });
+    } else {
+      this.isGoingToMessage.set(true);
+      this.scrollToBottom({ behavior: 'smooth' }, () => {
+        this.isGoingToMessage.set(false);
+      });
+    }
+  }
+
+  private focusMessage(messageId: number) {
+    this.focusedMessageId.set(messageId);
+  }
+
+  @HostListener('document:click')
+  clearFocusedMessage() {
+    this.focusedMessageId.set(undefined);
+  }
+
+  @HostListener('window:scroll')
+  @HostListener('window:resize')
+  updateEndReachedState() {
+    if (!this.platformService.isBrowser()) {
+      return;
+    }
+
+    const { bottom } = this.elementRef.nativeElement.getBoundingClientRect();
+    this.distanceFromEnd.set(bottom - window.innerHeight);
+  }
+
+  private scrollToBottom(scrollOptions?: ScrollIntoViewOptions, onComplete?: () => void) {
     afterNextRender(() => {
-      this.elementRef.nativeElement.scrollIntoView({ block: 'end' });
+      if (onComplete) {
+        let completed = false;
+        const complete = () => {
+          if (completed) {
+            return;
+          }
+
+          completed = true;
+          window.removeEventListener('scrollend', complete);
+          onComplete();
+        };
+
+        window.addEventListener('scrollend', complete, { once: true });
+        setTimeout(complete, 600);
+      }
+
+      this.elementRef.nativeElement.scrollIntoView({ block: 'end', ...scrollOptions });
     }, {
       injector: this.injector,
     });

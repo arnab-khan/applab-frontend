@@ -24,6 +24,7 @@ import { AuthAction } from '../../../auth/components/auth-action/auth-action';
 export class MessageItem {
   messageResponse = input.required<ChatRoomMessageResponse | QuotedMessageResponse>();
   isPreview = input(false);
+  isFocused = input(false);
   addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void; onError: () => void }>();
   quoteReplyRequest = output<ChatRoomMessageResponse>();
   quoteMessageClickRequest = output<number>();

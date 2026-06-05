@@ -2,13 +2,13 @@
   <div #topSentinel class="c-infinite-scroll__sentinel" aria-hidden="true"></div>
   @if (isLoadingStart()) {
   <div class="flex justify-center items-center py-6">
-    <div class="u-spinner"></div>
+    <div class="u-spinner" [ngClass]="spinnerClass()"></div>
   </div>
   }
   <ng-content></ng-content>
   @if (isLoadingEnd()) {
   <div class="flex justify-center items-center py-6">
-    <div class="u-spinner"></div>
+    <div class="u-spinner" [ngClass]="spinnerClass()"></div>
   </div>
   }
   <div #bottomSentinel class="c-infinite-scroll__sentinel" aria-hidden="true"></div>

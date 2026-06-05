@@ -1,8 +1,10 @@
+import { NgClass } from '@angular/common';
 import { Component, effect, ElementRef, inject, input, output, viewChild } from '@angular/core';
 import { Platform } from '../../../services/platform';
 
 @Component({
   selector: 'app-infinite-scroll',
+  imports: [NgClass],
   templateUrl: './infinite-scroll.html',
   styleUrl: './infinite-scroll.scss',
 })
@@ -12,25 +14,33 @@ export class InfiniteScroll {
   readonly topSentinel = viewChild<ElementRef<HTMLElement>>('topSentinel');
   readonly bottomSentinel = viewChild<ElementRef<HTMLElement>>('bottomSentinel');
 
-  readonly loading = input(false);
+  readonly loadingStart = input(false);
+  readonly loadingEnd = input(false);
+  readonly disabled = input(false);
+  readonly spinnerClass = input('');
   readonly reachedStart = output<void>();
   readonly reachedEnd = output<void>();
 
   private hasTriggeredStartSinceExit = false;
   private hasTriggeredEndSinceExit = false;
-  private lastTriggeredDirection: 'start' | 'end' | null = null;
 
   isLoadingStart() {
-    return this.loading() && this.lastTriggeredDirection === 'start';
+    return this.loadingStart();
   }
 
   isLoadingEnd() {
-    return this.loading() && this.lastTriggeredDirection !== 'start';
+    return this.loadingEnd();
   }
 
   constructor() {
     effect((onCleanup) => {
       if (!this.platform.isBrowser()) {
+        return;
+      }
+
+      if (this.disabled()) {
+        this.hasTriggeredStartSinceExit = false;
+        this.hasTriggeredEndSinceExit = false;
         return;
       }
 
@@ -69,12 +79,11 @@ export class InfiniteScroll {
           return;
         }
 
-        if (this.getHasTriggeredSinceExit(direction) || this.loading()) {
+        if (this.getHasTriggeredSinceExit(direction) || this.isLoadingDirection(direction)) {
           return;
         }
 
         this.setHasTriggeredSinceExit(direction, true);
-        this.lastTriggeredDirection = direction;
         this.emitReached(direction);
       },
       {
@@ -100,6 +109,12 @@ export class InfiniteScroll {
     }
 
     this.hasTriggeredEndSinceExit = value;
+  }
+
+  private isLoadingDirection(direction: 'start' | 'end') {
+    return direction === 'start'
+      ? this.loadingStart()
+      : this.loadingEnd();
   }
 
   private emitReached(direction: 'start' | 'end') {
