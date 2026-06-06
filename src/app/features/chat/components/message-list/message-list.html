@@ -12,7 +12,9 @@
             @for (message of messages(); track message.message.id) {
             <li [attr.data-message-id]="message.message.id">
                 <app-message-item [messageResponse]="message" (addReactionRequest)="addReaction($event)"
-                    [isFocused]="focusedMessageId() === message.message.id" (quoteReplyRequest)="quoteReply($event)"
+                    [isFocused]="focusedMessageId() === message.message.id"
+                    [applyCurrentUserStyle]="applyCurrentUserStyle()"
+                    (quoteReplyRequest)="quoteReply($event)"
                     (quoteMessageClickRequest)="goToMessage($event)"></app-message-item>
             </li>
             }
@@ -27,7 +29,7 @@
 </div>
 
 <div class="sticky bottom-0 mt-3 overflow-visible">
-    @if (distanceFromEnd() > 100) {
+    @if (isAwayFromEnd()) {
     <button type="button"
         class="backdrop-blur-3xl u-absolute-center-x -top-12 z-10 flex items-center gap-2 rounded-full border border-white/25 bg-white/30 px-3 py-1 text-white shadow-lg shadow-black/20 transition hover:bg-white/40"
         aria-label="Jump to bottom" (click)="jumpToBottom()">

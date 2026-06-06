@@ -1,4 +1,4 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Injector, input, output, signal, viewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Injector, input, output, signal, untracked, viewChild } from '@angular/core';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowDown, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
@@ -11,7 +11,9 @@ import { InfiniteScroll } from '../../../../shared/components/data-display/infin
 import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { Platform } from '../../../../shared/services/platform';
+import { scrollIntoView } from '../../../../shared/utils/scroll';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
+import { ChatMessage } from '../../services/chat-message';
 import { ChatState } from '../../services/chat-state';
 import { MessageItem } from '../message-item/message-item';
 
@@ -24,6 +26,7 @@ import { MessageItem } from '../message-item/message-item';
 })
 export class MessageList {
   private chatState = inject(ChatState);
+  private chatMessage = inject(ChatMessage);
   private auth = inject(Auth);
   private platformService = inject(Platform);
   private formBuilder = inject(NonNullableFormBuilder);
@@ -48,11 +51,13 @@ export class MessageList {
   isMainLoading = signal(false);
   isSubmitting = signal(false);
   distanceFromEnd = signal(0);
+  isAwayFromEnd = signal(false);
   faArrowDown = faArrowDown;
   faPaperPlane = faPaperPlane;
   getMessagesRequest = input<(params: MessageQueryParams) => Observable<ChatRoomMessageCursorResponse>>();
   addMessageRequest = input.required<(body: ChatRoomRequest) => Observable<Message>>();
   isLiveMessageAllowed = input<(message: ChatRoomMessageResponse) => boolean>(() => true);
+  applyCurrentUserStyle = input(false);
   addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void; onError: () => void }>();
   messageForm!: FormGroup<{
     content: FormControl<string>;
@@ -80,13 +85,37 @@ export class MessageList {
         return;
       }
 
+      const shouldScrollToBottom = untracked(() => !this.isAwayFromEnd() || this.chatMessage.isCurrentUserMessage(message.message));
+
       this.messages.update((messages) => {
-        if (!this.isLiveMessageAllowed()(message) || messages.some((item) => item.message.id === message.message.id)) {
+        // Ignore live messages that do not belong in this list.
+        if (!this.isLiveMessageAllowed()(message)) {
           return messages;
         }
 
+        const isMessageUpdate = message.message.edited || message.message.deleted;
+
+        // Apply edit/delete updates only to messages that are already loaded.
+        if (isMessageUpdate) {
+          if (messages.some((item) => item.message.id === message.message.id)) {
+            return messages.map((item) => item.message.id === message.message.id ? message : item);
+          }
+
+          return messages;
+        }
+
+        // Do not append new messages if there are newer unloaded messages.
+        if (this.newerMessageCursor) {
+          return messages;
+        }
+
+        // Append new live messages only when this list is already at the newest end.
         return [...messages, message];
       });
+
+      if (shouldScrollToBottom) {
+        this.jumpToBottom();
+      }
     });
 
   }
@@ -112,8 +141,11 @@ export class MessageList {
         this.isPageLoaded.set(true);
         this.isMainLoading.set(false);
         this.isGoingToMessage.set(true);
-        this.scrollToBottom(params?.scrollOptions, () => {
-          this.isGoingToMessage.set(false);
+        this.scrollToBottom({
+          scrollOptions: params?.scrollOptions,
+          onComplete: () => {
+            this.isGoingToMessage.set(false);
+          },
         });
       },
       error: (error) => {
@@ -124,7 +156,7 @@ export class MessageList {
     });
   }
 
-  loadMoreMessages(direction: MessageDirection) {    
+  loadMoreMessages(direction: MessageDirection) {
     switch (direction) {
       case this.olderDirection:
         if (!this.olderMessageCursor) {
@@ -181,8 +213,6 @@ export class MessageList {
   }
 
   private messagesRequest(paramsOverride?: Partial<MessageQueryParams>) {
-    console.log(this.olderMessageCursor);
-    
     const getMessagesRequest = this.getMessagesRequest();
     if (!getMessagesRequest) {
       return undefined;
@@ -342,8 +372,11 @@ export class MessageList {
       });
     } else {
       this.isGoingToMessage.set(true);
-      this.scrollToBottom({ behavior: 'smooth' }, () => {
-        this.isGoingToMessage.set(false);
+      this.scrollToBottom({
+        scrollOptions: { behavior: 'smooth' },
+        onComplete: () => {
+          this.isGoingToMessage.set(false);
+        },
       });
     }
   }
@@ -365,28 +398,18 @@ export class MessageList {
     }
 
     const { bottom } = this.elementRef.nativeElement.getBoundingClientRect();
-    this.distanceFromEnd.set(bottom - window.innerHeight);
+    const distanceFromEnd = bottom - window.innerHeight;
+    this.distanceFromEnd.set(distanceFromEnd);
+    this.isAwayFromEnd.set(distanceFromEnd > 100);
   }
 
-  private scrollToBottom(scrollOptions?: ScrollIntoViewOptions, onComplete?: () => void) {
+  private scrollToBottom(params?: { scrollOptions?: ScrollIntoViewOptions; onComplete?: () => void }) {
     afterNextRender(() => {
-      if (onComplete) {
-        let completed = false;
-        const complete = () => {
-          if (completed) {
-            return;
-          }
-
-          completed = true;
-          window.removeEventListener('scrollend', complete);
-          onComplete();
-        };
-
-        window.addEventListener('scrollend', complete, { once: true });
-        setTimeout(complete, 600);
-      }
-
-      this.elementRef.nativeElement.scrollIntoView({ block: 'end', ...scrollOptions });
+      scrollIntoView({
+        element: this.elementRef.nativeElement,
+        scrollOptions: { block: 'end', ...params?.scrollOptions },
+        onComplete: params?.onComplete,
+      });
     }, {
       injector: this.injector,
     });
@@ -401,25 +424,13 @@ export class MessageList {
       return false;
     }
 
-    if (onComplete) {
-      let completed = false;
-      const complete = () => {
-        if (completed) {
-          return;
-        }
-
-        completed = true;
-        window.removeEventListener('scrollend', complete);
-        onComplete();
-      };
-
-      window.addEventListener('scrollend', complete, { once: true });
-      setTimeout(complete, 600);
-    }
-
-    messageElement.scrollIntoView({
-      block: 'center',
-      behavior: 'smooth',
+    scrollIntoView({
+      element: messageElement,
+      scrollOptions: {
+        block: 'center',
+        behavior: 'smooth',
+      },
+      onComplete,
     });
 
     return true;

@@ -1,5 +1,6 @@
-<article class="rounded-xl border border-white/15 bg-white/15 p-4 text-white shadow-sm backdrop-blur-md transition"
-    [class.message-focus]="isFocused()">
+<div>
+<article class="rounded-xl border text-white shadow-sm backdrop-blur-md transition"
+    [ngClass]="messageItemClasses()">
     <div class="flex items-start gap-3">
         @if (currentMessageResponse()?.message?.userId) {
         <app-thumbnail class="shrink-0" size="2.5rem" radius="9999px"
@@ -112,3 +113,4 @@
         </div>
     </div>
 </article>
+</div>

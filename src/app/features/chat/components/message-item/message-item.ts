@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,10 +13,11 @@ import { MessageReactionsDialog } from '../../../reaction/components/message-rea
 import { ChatState } from '../../services/chat-state';
 import { orderReactionCounts } from '../../../../shared/utils/reaction';
 import { AuthAction } from '../../../auth/components/auth-action/auth-action';
+import { ChatMessage } from '../../services/chat-message';
 
 @Component({
   selector: 'app-message-item',
-  imports: [DatePipe, AuthAction, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, Thumbnail],
+  imports: [DatePipe, NgClass, AuthAction, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, Thumbnail],
   templateUrl: './message-item.html',
   styleUrl: './message-item.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,6 +26,7 @@ export class MessageItem {
   messageResponse = input.required<ChatRoomMessageResponse | QuotedMessageResponse>();
   isPreview = input(false);
   isFocused = input(false);
+  applyCurrentUserStyle = input(false);
   addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void; onError: () => void }>();
   quoteReplyRequest = output<ChatRoomMessageResponse>();
   quoteMessageClickRequest = output<number>();
@@ -38,7 +40,19 @@ export class MessageItem {
   });
   selectedReactionEmoji = computed(() => this.getReactionEmoji(this.selectedReactionCode()));
   orderedReactions = computed(() => orderReactionCounts(this.getCurrentChatRoomMessageResponse()?.reactions || []));
+  isCurrentUserMessage = computed(() => this.chatMessage.isCurrentUserMessage(this.currentMessageResponse()?.message));
+  messageItemClasses = computed(() => ({
+    'message-focus': this.isFocused(),
+    'p-2': this.isPreview(),
+    'p-4': !this.isPreview(),
+    ...((this.applyCurrentUserStyle() && this.isCurrentUserMessage() && !this.isPreview()) ? {
+      'ms-auto max-w-[90%] border-cyan-200/20 bg-cyan-300/15': true,
+    } : {
+      'border-white/15 bg-white/15': true,
+    }),
+  }));
   profileApiService = inject(ProfileApiService);
+  private chatMessage = inject(ChatMessage);
   private chatState = inject(ChatState);
   private dialog = inject(MatDialog);
 

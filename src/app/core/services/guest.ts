@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { catchError, finalize, of, tap } from 'rxjs';
+import { catchError, finalize, map, of, tap } from 'rxjs';
+import { GuestCreateResponse, GuestExistsResponse } from '../../shared/interfaces/guest';
 import { Platform } from '../../shared/services/platform';
 
 type GuestStatus = 'idle' | 'loading' | 'guest' | 'anonymous';
@@ -16,15 +17,18 @@ export class Guest {
 
   guestState = signal<{
     isGuest: boolean;
+    guestSessionId?: number;
     status: GuestStatus;
     completed: boolean;
   }>({
     isGuest: false,
+    guestSessionId: undefined,
     status: 'idle',
     completed: false,
   });
 
   private updateGuest(isGuest: boolean, options?: {
+    guestSessionId?: number;
     updateStatus?: boolean;
     completed?: boolean;
   }) {
@@ -32,14 +36,15 @@ export class Guest {
 
     this.guestState.set({
       isGuest,
+      guestSessionId: options?.guestSessionId ?? this.guestState().guestSessionId,
       status: updateStatus ? (isGuest ? 'guest' : 'anonymous') : this.guestState().status,
       completed: options?.completed ?? this.guestState().completed,
     });
   }
 
   createGuest() {
-    return this.httpClient.post(`${this.baseApiUrl}/create`, {}).pipe(
-      tap(() => this.updateGuest(true, { completed: true }))
+    return this.httpClient.post<GuestCreateResponse>(`${this.baseApiUrl}/create`, {}).pipe(
+      tap(response => this.updateGuest(true, { guestSessionId: response.guestSessionId, completed: true }))
     );
   }
 
@@ -49,8 +54,9 @@ export class Guest {
     }
 
     this.guestState.update(state => ({ ...state, status: 'loading', completed: false }));
-    return this.httpClient.get<boolean>(`${this.baseApiUrl}/exists`).pipe(
-      tap(isGuest => this.updateGuest(isGuest, { updateStatus: false })),
+    return this.httpClient.get<GuestExistsResponse>(`${this.baseApiUrl}/exists`).pipe(
+      tap(response => this.updateGuest(response.exists, { guestSessionId: response.guestSessionId, updateStatus: false })),
+      map(response => response.exists),
       catchError(() => {
         this.updateGuest(false, { updateStatus: false });
         return of(false);
