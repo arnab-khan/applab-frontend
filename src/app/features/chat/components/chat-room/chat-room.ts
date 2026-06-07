@@ -28,9 +28,6 @@ export class ChatRoom {
     return this.chatApi.getChatRoomMessages(chatRoomId, params);
   };
 
-  addMessageRequest = (body: Parameters<ChatApi['addChatRoomMessage']>[1]) =>
-    this.chatApi.addChatRoomMessage(this.chatRoomId() as number, body);
-
   addReaction(request: { messageId: number; emoji: string; onComplete: () => void; onError: () => void }) {
     this.chatApi.addChatRoomMessageReaction(request.messageId, {
       emoji: request.emoji,

@@ -14,10 +14,11 @@ import { ChatState } from '../../services/chat-state';
 import { orderReactionCounts } from '../../../../shared/utils/reaction';
 import { AuthAction } from '../../../auth/components/auth-action/auth-action';
 import { ChatMessage } from '../../services/chat-message';
+import { MessageInput } from '../message-input/message-input';
 
 @Component({
   selector: 'app-message-item',
-  imports: [DatePipe, NgClass, AuthAction, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, Thumbnail],
+  imports: [DatePipe, NgClass, AuthAction, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, MessageInput, Thumbnail],
   templateUrl: './message-item.html',
   styleUrl: './message-item.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,12 +28,15 @@ export class MessageItem {
   isPreview = input(false);
   isFocused = input(false);
   applyCurrentUserStyle = input(false);
+  chatRoomId = input<number>();
   addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void; onError: () => void }>();
   quoteReplyRequest = output<ChatRoomMessageResponse>();
   quoteMessageClickRequest = output<number>();
   currentMessageResponse = signal<ChatRoomMessageResponse | QuotedMessageResponse | null>(null);
+  editingQuotedMessage = signal<QuotedMessageResponse | undefined>(undefined);
   selectedReactionCode = signal('');
   isReactionSubmitting = signal(false);
+  isEditing = signal(false);
   messageId = computed(() => this.currentMessageResponse()?.message.id || this.messageResponse().message.id);
   quotedMessageResponse = computed(() => {
     const currentMessageResponse = this.currentMessageResponse();
@@ -41,6 +45,9 @@ export class MessageItem {
   selectedReactionEmoji = computed(() => this.getReactionEmoji(this.selectedReactionCode()));
   orderedReactions = computed(() => orderReactionCounts(this.getCurrentChatRoomMessageResponse()?.reactions || []));
   isCurrentUserMessage = computed(() => this.chatMessage.isCurrentUserMessage(this.currentMessageResponse()?.message));
+  canEditMessage = computed(() => !!this.getCurrentChatRoomMessageResponse()?.permission?.canEdit);
+  canDeleteMessage = computed(() => !!this.getCurrentChatRoomMessageResponse()?.permission?.canDelete);
+  canShowMessageActionMenu = computed(() => this.canEditMessage() || this.canDeleteMessage());
   messageItemClasses = computed(() => ({
     'message-focus': this.isFocused(),
     'p-2': this.isPreview(),
@@ -140,7 +147,16 @@ export class MessageItem {
     this.quoteMessageClickRequest.emit(messageId);
   }
 
-  private getCurrentChatRoomMessageResponse() {
+  startEdit() {
+    this.editingQuotedMessage.set(this.getCurrentChatRoomMessageResponse()?.quotedMessage);
+    this.isEditing.set(true);
+  }
+
+  cancelEdit() {
+    this.isEditing.set(false);
+  }
+
+  getCurrentChatRoomMessageResponse() {
     const messageResponse = this.currentMessageResponse();
 
     return messageResponse && 'chatRoomId' in messageResponse ? messageResponse : undefined;

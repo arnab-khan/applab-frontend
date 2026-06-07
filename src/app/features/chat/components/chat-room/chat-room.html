@@ -1,4 +1,4 @@
 <app-message-list [getMessagesRequest]="chatRoomId()?getMessagesRequest:undefined"
-  [addMessageRequest]="addMessageRequest" [isLiveMessageAllowed]="isLiveMessageAllowed"
-  [applyCurrentUserStyle]="true" (addReactionRequest)="addReaction($event)">
+  [chatRoomId]="chatRoomId()!" [isLiveMessageAllowed]="isLiveMessageAllowed" [applyCurrentUserStyle]="true"
+  (addReactionRequest)="addReaction($event)">
 </app-message-list>

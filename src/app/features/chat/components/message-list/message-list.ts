@@ -1,25 +1,20 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Injector, input, output, signal, untracked, viewChild } from '@angular/core';
-import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faArrowDown, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { forkJoin, Observable, tap } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
-import { AuthAction } from '../../../auth/components/auth-action/auth-action';
-import { ChatRoomMessageCursorResponse, ChatRoomMessageResponse, ChatRoomRequest, Message, MessageDirection, MessageQueryParams } from '../../../../shared/interfaces/chat';
-import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
+import { ChatRoomMessageCursorResponse, ChatRoomMessageResponse, MessageDirection, MessageQueryParams, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
 import { InfiniteScroll } from '../../../../shared/components/data-display/infinite-scroll/infinite-scroll';
-import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
-import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { Platform } from '../../../../shared/services/platform';
 import { scrollIntoView } from '../../../../shared/utils/scroll';
-import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
 import { ChatMessage } from '../../services/chat-message';
 import { ChatState } from '../../services/chat-state';
+import { MessageInput } from '../message-input/message-input';
 import { MessageItem } from '../message-item/message-item';
 
 @Component({
   selector: 'app-message-list',
-  imports: [ReactiveFormsModule, AuthAction, FontAwesomeModule, SanitizeInput, LoadingButton, AutoResizeTextarea, MessageItem, InfiniteScroll],
+  imports: [FontAwesomeModule, MessageInput, MessageItem, InfiniteScroll],
   templateUrl: './message-list.html',
   styleUrl: './message-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,10 +24,9 @@ export class MessageList {
   private chatMessage = inject(ChatMessage);
   private auth = inject(Auth);
   private platformService = inject(Platform);
-  private formBuilder = inject(NonNullableFormBuilder);
   private elementRef = inject(ElementRef<HTMLElement>);
   private injector = inject(Injector);
-  private messageInput = viewChild<ElementRef<HTMLTextAreaElement>>('messageInput');
+  private messageInput = viewChild(MessageInput);
   private hasRequestedInitialMessages = false;
   private olderMessageCursor?: number;
   private newerMessageCursor?: number;
@@ -42,30 +36,23 @@ export class MessageList {
 
   authState = this.auth.authState;
   messages = signal<ChatRoomMessageResponse[]>([]);
-  quotedMessage = signal<ChatRoomMessageResponse | undefined>(undefined);
+  quotedMessage = signal<QuotedMessageResponse | undefined>(undefined);
   focusedMessageId = signal<number | undefined>(undefined);
   isGoingToMessage = signal(false);
   isPageLoaded = signal(false);
   isLoadingOlderMessages = signal(false);
   isLoadingNewerMessages = signal(false);
   isMainLoading = signal(false);
-  isSubmitting = signal(false);
   distanceFromEnd = signal(0);
   isAwayFromEnd = signal(false);
   faArrowDown = faArrowDown;
-  faPaperPlane = faPaperPlane;
+  chatRoomId = input.required<number>();
   getMessagesRequest = input<(params: MessageQueryParams) => Observable<ChatRoomMessageCursorResponse>>();
-  addMessageRequest = input.required<(body: ChatRoomRequest) => Observable<Message>>();
   isLiveMessageAllowed = input<(message: ChatRoomMessageResponse) => boolean>(() => true);
   applyCurrentUserStyle = input(false);
   addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void; onError: () => void }>();
-  messageForm!: FormGroup<{
-    content: FormControl<string>;
-  }>;
 
   constructor() {
-    this.createForm();
-
     effect(() => {
       if (!this.platformService.isBrowser()) {
         return;
@@ -85,15 +72,14 @@ export class MessageList {
         return;
       }
 
-      const shouldScrollToBottom = untracked(() => !this.isAwayFromEnd() || this.chatMessage.isCurrentUserMessage(message.message));
+      const isMessageUpdate = message.message.edited || message.message.deleted;
+      const shouldScrollToBottom = untracked(() => !isMessageUpdate && (!this.isAwayFromEnd() || this.chatMessage.isCurrentUserMessage(message.message)));
 
       this.messages.update((messages) => {
         // Ignore live messages that do not belong in this list.
         if (!this.isLiveMessageAllowed()(message)) {
           return messages;
         }
-
-        const isMessageUpdate = message.message.edited || message.message.deleted;
 
         // Apply edit/delete updates only to messages that are already loaded.
         if (isMessageUpdate) {
@@ -255,48 +241,15 @@ export class MessageList {
     );
   }
 
-  createForm() {
-    this.messageForm = this.formBuilder.group({
-      content: [
-        '',
-        [
-          commonFormValidator({
-            required: true,
-            maxLength: 500,
-          }),
-        ],
-      ],
-    });
-  }
-
-  onSubmit() {
-    if (this.messageForm.invalid) {
-      return;
-    }
-
-    this.isSubmitting.set(true);
-    this.addMessageRequest()({
-      content: this.messageForm.controls.content.value,
-      quotedMessageId: this.quotedMessage()?.message.id,
-    }).subscribe({
-      next: () => {
-        this.messageForm.reset();
-        this.quotedMessage.set(undefined);
-        this.isSubmitting.set(false);
-      },
-      error: (error) => {
-        console.error(error);
-        this.isSubmitting.set(false);
-      },
-    });
-  }
-
   addReaction(request: { messageId: number; emoji: string; onComplete: () => void; onError: () => void }) {
     this.addReactionRequest.emit(request);
   }
 
   quoteReply(message: ChatRoomMessageResponse) {
-    this.quotedMessage.set(message);
+    this.quotedMessage.set({
+      message: message.message,
+      author: message.author,
+    });
     this.focusMessageInput();
   }
 
@@ -358,11 +311,7 @@ export class MessageList {
   }
 
   focusMessageInput() {
-    this.messageInput()?.nativeElement.focus();
-  }
-
-  clearQuotedMessage() {
-    this.quotedMessage.set(undefined);
+    this.messageInput()?.focusMessageInput();
   }
 
   jumpToBottom() {

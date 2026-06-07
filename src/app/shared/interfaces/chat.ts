@@ -35,7 +35,7 @@ export interface MessageResponse {
 
 export interface QuotedMessageResponse {
     message: Message;
-    author: Author;
+    author?: Author;
 }
 
 export type MessageDirection = 'OLDER' | 'NEWER';
@@ -47,7 +47,8 @@ export interface MessageQueryParams extends CursorQueryParams {
 }
 
 export interface ChatRoomRequest {
-    content: string;
+    messageId?: number;
+    content?: string;
     parentId?: number;
     quotedMessageId?: number;
 }

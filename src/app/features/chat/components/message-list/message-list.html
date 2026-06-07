@@ -13,7 +13,7 @@
             <li [attr.data-message-id]="message.message.id">
                 <app-message-item [messageResponse]="message" (addReactionRequest)="addReaction($event)"
                     [isFocused]="focusedMessageId() === message.message.id"
-                    [applyCurrentUserStyle]="applyCurrentUserStyle()"
+                    [applyCurrentUserStyle]="applyCurrentUserStyle()" [chatRoomId]="chatRoomId()"
                     (quoteReplyRequest)="quoteReply($event)"
                     (quoteMessageClickRequest)="goToMessage($event)"></app-message-item>
             </li>
@@ -37,38 +37,8 @@
         <span class="text-nowrap text-base font-semibold">Jump to bottom</span>
     </button>
     }
-    <div #messageComposer class="backdrop-blur-3xl rounded-t-xl overflow-visible border border-white/25 bg-white/30">
-        @if (quotedMessage(); as quote) {
-        <div class="border-b border-white/20 p-3">
-            <div class="flex items-start gap-2">
-                <div class="min-w-0 flex-1 rounded-xl bg-black/40">
-                    <app-message-item [messageResponse]="quote" [isPreview]="true"
-                        (quoteMessageClickRequest)="goToMessage(quote.message.id)"></app-message-item>
-                </div>
-                <button type="button"
-                    class="mt-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
-                    aria-label="Cancel quote reply" (click)="clearQuotedMessage()">
-                    <span class="text-lg leading-none">&times;</span>
-                </button>
-            </div>
-        </div>
-        }
-        <app-auth-action [matchTriggerWidth]="true">
-            <form [formGroup]="messageForm" (ngSubmit)="onSubmit()" class="flex items-center gap-2 p-3 shadow-sm">
-                @let contentControl=messageForm.controls.content;
-                <textarea #messageInput [formControl]="contentControl"
-                    class="min-h-11 flex-1 resize-none rounded-lg bg-black/35 px-3 py-2 text-sm text-white outline-none placeholder:text-white/65"
-                    [placeholder]="'Write a message'" name="content" rows="1" appSanitizeInput appAutoResizeTextarea>
-            </textarea>
-
-                <app-loading-button [loading]="isSubmitting()">
-                    <button type="submit"
-                        class="flex h-11 w-11 items-center justify-center rounded-lg border border-white/25 bg-white/30 text-white shadow-sm transition hover:bg-white/40 disabled:opacity-60">
-                        <fa-icon [icon]="faPaperPlane" class="leading-0"></fa-icon>
-                    </button>
-                </app-loading-button>
-            </form>
-        </app-auth-action>
-    </div>
+    <app-message-input roundedClass="rounded-t-xl" [chatRoomId]="chatRoomId()" [quotedMessage]="quotedMessage()"
+        (goToMessageRequest)="goToMessage($event)">
+    </app-message-input>
 </div>
 }

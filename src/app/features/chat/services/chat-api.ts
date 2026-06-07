@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { ChatRoomMessageCursorResponse, ChatRoomRequest, GlobalChatRoomResponse, Message, MessageQueryParams } from '../../../shared/interfaces/chat';
+import { ChatRoomMessageCursorResponse, ChatRoomMessageResponse, ChatRoomRequest, GlobalChatRoomResponse, Message, MessageQueryParams } from '../../../shared/interfaces/chat';
 import { CursorQueryParams } from '../../../shared/interfaces/pagination';
 import { ReactionEmojiRequest, Reaction, ReactionWithAuthorCursorResponse } from '../../../shared/interfaces/reaction';
 import { toHttpParams } from '../../../shared/utils/http';
@@ -25,13 +25,19 @@ export class ChatApi {
     return this.httpClient.post<Message>(`${this.baseApiUrl}/${chatRoomId}/message/add`, body);
   }
 
+  editChatRoomMessage(chatRoomId: number, body: ChatRoomRequest) {
+    return this.httpClient.patch<Message>(`${this.baseApiUrl}/${chatRoomId}/message/edit`, body);
+  }
+
+  deleteChatRoomMessage(chatRoomId: number, messageId: number) {
+    return this.httpClient.delete<void>(`${this.baseApiUrl}/${chatRoomId}/message/${messageId}/delete`);
+  }
+
   addChatRoomMessageReaction(messageId: number, body: ReactionEmojiRequest) {
     return this.httpClient.post<Reaction>(`${this.baseApiUrl}/message/${messageId}/reaction/add`, body);
   }
 
   getChatRoomMessageReactions(chatRoomId: number, messageId: number, params: CursorQueryParams & { emoji?: string }) {
-    return this.httpClient.get<ReactionWithAuthorCursorResponse>(`${this.baseApiUrl}/${chatRoomId}/message/${messageId}/reaction/all`, {
-      params: toHttpParams(params),
-    });
+    return this.httpClient.get<ReactionWithAuthorCursorResponse>(`${this.baseApiUrl}/${chatRoomId}/message/${messageId}/reaction/all`, { params: toHttpParams(params) });
   }
 }
