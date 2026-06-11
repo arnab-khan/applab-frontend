@@ -1,30 +1,35 @@
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, ElementRef, forwardRef, inject, input, output, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { AuthAction } from '../../../auth/components/auth-action/auth-action';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
 import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
-import { Message, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
+import { ChatRoomAddRequest, ChatRoomEditRequest, Message, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
-import { ChatApi } from '../../services/chat-api';
+import { MessageItem } from '../message-item/message-item';
+
+const MESSAGE_MAX_LENGTH = 255;
 
 @Component({
   selector: 'app-message-input',
-  imports: [NgClass, ReactiveFormsModule, AuthAction, FontAwesomeModule, SanitizeInput, LoadingButton, AutoResizeTextarea],
+  imports: [NgClass, ReactiveFormsModule, AuthAction, FontAwesomeModule, SanitizeInput, LoadingButton, AutoResizeTextarea, forwardRef(() => MessageItem)],
   templateUrl: './message-input.html',
   styleUrl: './message-input.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessageInput {
   private formBuilder = inject(NonNullableFormBuilder);
+  private destroyRef = inject(DestroyRef);
   private messageInput = viewChild<ElementRef<HTMLTextAreaElement>>('messageInput');
-  private chatApi = inject(ChatApi);
 
   chatRoomId = input.required<number>();
+  addMessageRequest = input.required<(body: ChatRoomAddRequest) => Observable<Message>>();
+  editMessageRequest = input.required<(body: ChatRoomEditRequest) => Observable<Message>>();
   quotedMessage = input<QuotedMessageResponse | undefined>(undefined);
   message = input<Message | undefined>(undefined);
   roundedClass = input('rounded-xl');
@@ -34,12 +39,16 @@ export class MessageInput {
 
   isSubmitting = signal(false);
   currentQuotedMessage = signal<QuotedMessageResponse | undefined>(undefined);
+  currentContent = signal('');
 
   messageId = computed(() => this.message()?.id);
   activeQuotedMessage = computed(() => this.currentQuotedMessage());
   quotedMessageId = computed(() => this.currentQuotedMessage()?.message.id);
+  isEditUnchanged = computed(() => !!this.message() && this.currentContent() === (this.message()?.content || ''));
 
   faPaperPlane = faPaperPlane;
+  faXmark = faXmark;
+  messageMaxLength = MESSAGE_MAX_LENGTH;
 
   messageForm: FormGroup<{
     content: FormControl<string>;
@@ -49,15 +58,23 @@ export class MessageInput {
       [
         commonFormValidator({
           required: true,
-          maxLength: 500,
+          maxLength: MESSAGE_MAX_LENGTH,
         }),
       ],
     ],
   });
 
   constructor() {
+    this.messageForm.controls.content.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe((content) => {
+      this.currentContent.set(content);
+    });
+
     effect(() => {
-      this.messageForm.controls.content.setValue(this.message()?.content || '');
+      const content = this.message()?.content || '';
+      this.messageForm.controls.content.setValue(content);
+      this.currentContent.set(content);
     });
 
     effect(() => {
@@ -66,22 +83,32 @@ export class MessageInput {
   }
 
   onSubmit() {
-    if (this.messageForm.invalid) {
+    if (this.messageForm.invalid || this.isEditUnchanged()) {
       return;
     }
 
     const message = this.message();
     const messageId = this.messageId();
     const quotedMessageId = this.quotedMessageId();
-    const body = {
+    const removeQuotedMessage = !!message?.quotedMessageId && !quotedMessageId;
+    const commonBody: Pick<ChatRoomAddRequest & ChatRoomEditRequest, 'content'> = {
       content: this.messageForm.controls.content.value,
-      ...(messageId && { id:messageId }),
-      ...(quotedMessageId && { quotedMessageId }),
     };
-
-    const request: Observable<Message> = message
-      ? this.chatApi.editChatRoomMessage(this.chatRoomId(), body)
-      : this.chatApi.addChatRoomMessage(this.chatRoomId(), body);
+    let request: Observable<Message>;
+    if (message && messageId) {
+      const body: ChatRoomEditRequest = {
+        ...commonBody,
+        id: messageId,
+        ...(removeQuotedMessage && { removeQuotedMessage }),
+      };
+      request = this.editMessageRequest()(body);
+    } else {
+      const body: ChatRoomAddRequest = {
+        ...commonBody,
+        ...(quotedMessageId && { quotedMessageId }),
+      };
+      request = this.addMessageRequest()(body);
+    }
 
     this.isSubmitting.set(true);
     request.subscribe({
@@ -96,6 +123,16 @@ export class MessageInput {
         this.isSubmitting.set(false);
       },
     });
+  }
+
+  onMessageInputEnter(event: Event) {
+    const keyboardEvent = event as KeyboardEvent;
+    if (keyboardEvent.shiftKey) {
+      return;
+    }
+
+    keyboardEvent.preventDefault();
+    this.onSubmit();
   }
 
   focusMessageInput() {

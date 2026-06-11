@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, throwError } from 'rxjs';
-import { ChatRoomMessageResponse, MessageQueryParams } from '../../../../shared/interfaces/chat';
+import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageResponse, MessageQueryParams } from '../../../../shared/interfaces/chat';
 import { ChatApi } from '../../services/chat-api';
 import { MessageList } from '../message-list/message-list';
 
@@ -26,6 +26,36 @@ export class ChatRoom {
     }
 
     return this.chatApi.getChatRoomMessages(chatRoomId, params);
+  };
+
+  addMessageRequest = (body: ChatRoomAddRequest) => {
+    const chatRoomId = this.chatRoomId();
+
+    if (!chatRoomId) {
+      return throwError(() => new Error('Chat room id is required to add message'));
+    }
+
+    return this.chatApi.addChatRoomMessage(chatRoomId, body);
+  };
+
+  editMessageRequest = (body: ChatRoomEditRequest) => {
+    const chatRoomId = this.chatRoomId();
+
+    if (!chatRoomId) {
+      return throwError(() => new Error('Chat room id is required to edit message'));
+    }
+
+    return this.chatApi.editChatRoomMessage(chatRoomId, body);
+  };
+
+  deleteMessageRequest = (messageId: number) => {
+    const chatRoomId = this.chatRoomId();
+
+    if (!chatRoomId) {
+      return throwError(() => new Error('Chat room id is required to delete message'));
+    }
+
+    return this.chatApi.deleteChatRoomMessage(chatRoomId, messageId);
   };
 
   addReaction(request: { messageId: number; emoji: string; onComplete: () => void; onError: () => void }) {

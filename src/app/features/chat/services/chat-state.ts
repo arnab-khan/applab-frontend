@@ -1,9 +1,9 @@
 import { Injectable, signal } from '@angular/core';
-import { ChatRoomMessageResponse } from '../../../shared/interfaces/chat';
+import { ChatRoomMessageLiveResponse } from '../../../shared/interfaces/chat';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChatState {
-  liveMessage = signal<ChatRoomMessageResponse | null>(null);
+  liveMessage = signal<ChatRoomMessageLiveResponse | null>(null);
 }

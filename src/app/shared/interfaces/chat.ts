@@ -46,11 +46,16 @@ export interface MessageQueryParams extends CursorQueryParams {
     direction?: MessageDirection;
 }
 
-export interface ChatRoomRequest {
-    messageId?: number;
-    content?: string;
+export interface ChatRoomAddRequest {
+    content: string;
     parentId?: number;
     quotedMessageId?: number;
+}
+
+export interface ChatRoomEditRequest {
+    id: number;
+    content: string;
+    removeQuotedMessage?: boolean;
 }
 
 export interface ChatRoomMessageResponse {
@@ -61,6 +66,11 @@ export interface ChatRoomMessageResponse {
     permission?: MessagePermission;
     reactions?: ReactionCount[];
     myReaction?: Reaction | null;
+}
+
+export interface ChatRoomMessageLiveResponse {
+    action: string;
+    message: ChatRoomMessageResponse;
 }
 
 export type ChatRoomMessageCursorResponse = CursorResponse<ChatRoomMessageResponse>;

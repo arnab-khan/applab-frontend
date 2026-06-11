@@ -4,7 +4,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faGlobe, faUser, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { StompSubscription } from '@stomp/stompjs';
-import { ChatRoomMessageResponse } from '../../shared/interfaces/chat';
+import { ChatRoomMessageLiveResponse } from '../../shared/interfaces/chat';
 import { ChatState } from './services/chat-state';
 import { LayoutState } from '../../core/services/layout-state';
 import { WebsocketService } from '../../core/services/websocket';
@@ -36,7 +36,7 @@ export class Chat implements OnInit {
 
     this.websocketService.connect();
 
-    this.websocketSubscription = this.websocketService.subscribe<ChatRoomMessageResponse>(
+    this.websocketSubscription = this.websocketService.subscribe<ChatRoomMessageLiveResponse>(
       '/topic/chatroom-message',
       (response) => {
         console.log('liveMessage', response);

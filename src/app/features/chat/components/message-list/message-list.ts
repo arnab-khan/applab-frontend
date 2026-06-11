@@ -3,7 +3,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { forkJoin, Observable, tap } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
-import { ChatRoomMessageCursorResponse, ChatRoomMessageResponse, MessageDirection, MessageQueryParams, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
+import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageCursorResponse, ChatRoomMessageResponse, Message, MessageDirection, MessageQueryParams, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
 import { InfiniteScroll } from '../../../../shared/components/data-display/infinite-scroll/infinite-scroll';
 import { Platform } from '../../../../shared/services/platform';
 import { scrollIntoView } from '../../../../shared/utils/scroll';
@@ -42,12 +42,15 @@ export class MessageList {
   isPageLoaded = signal(false);
   isLoadingOlderMessages = signal(false);
   isLoadingNewerMessages = signal(false);
-  isMainLoading = signal(false);
+  isMainLoading = signal(true);
   distanceFromEnd = signal(0);
   isAwayFromEnd = signal(false);
   faArrowDown = faArrowDown;
   chatRoomId = input.required<number>();
   getMessagesRequest = input<(params: MessageQueryParams) => Observable<ChatRoomMessageCursorResponse>>();
+  addMessageRequest = input.required<(body: ChatRoomAddRequest) => Observable<Message>>();
+  editMessageRequest = input.required<(body: ChatRoomEditRequest) => Observable<Message>>();
+  deleteMessageRequest = input.required<(messageId: number) => Observable<void>>();
   isLiveMessageAllowed = input<(message: ChatRoomMessageResponse) => boolean>(() => true);
   applyCurrentUserStyle = input(false);
   addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void; onError: () => void }>();
@@ -66,14 +69,15 @@ export class MessageList {
     });
 
     effect(() => {
-      const message = this.chatState.liveMessage();
+      const liveMessage = this.chatState.liveMessage();
 
-      if (!message) {
+      if (!liveMessage) {
         return;
       }
 
-      const isMessageUpdate = message.message.edited || message.message.deleted;
-      const shouldScrollToBottom = untracked(() => !isMessageUpdate && (!this.isAwayFromEnd() || this.chatMessage.isCurrentUserMessage(message.message)));
+      const message = liveMessage.message;
+      const isMessageAdd = liveMessage.action === 'ADD';
+      const shouldScrollToBottom = untracked(() => isMessageAdd && (!this.isAwayFromEnd() || this.chatMessage.isCurrentUserMessage(message.message)));
 
       this.messages.update((messages) => {
         // Ignore live messages that do not belong in this list.
@@ -81,22 +85,22 @@ export class MessageList {
           return messages;
         }
 
-        // Apply edit/delete updates only to messages that are already loaded.
-        if (isMessageUpdate) {
+        if (isMessageAdd) {
+          // Do not append new messages if there are newer unloaded messages.
+          if (this.newerMessageCursor) {
+            return messages;
+          }
+
+          // Append new live messages only when this list is already at the newest end.
+          return [...messages, message];
+        } else {
+          // Apply updates only to messages that are already loaded.
           if (messages.some((item) => item.message.id === message.message.id)) {
             return messages.map((item) => item.message.id === message.message.id ? message : item);
           }
 
           return messages;
         }
-
-        // Do not append new messages if there are newer unloaded messages.
-        if (this.newerMessageCursor) {
-          return messages;
-        }
-
-        // Append new live messages only when this list is already at the newest end.
-        return [...messages, message];
       });
 
       if (shouldScrollToBottom) {

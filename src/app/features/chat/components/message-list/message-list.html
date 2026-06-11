@@ -14,8 +14,10 @@
                 <app-message-item [messageResponse]="message" (addReactionRequest)="addReaction($event)"
                     [isFocused]="focusedMessageId() === message.message.id"
                     [applyCurrentUserStyle]="applyCurrentUserStyle()" [chatRoomId]="chatRoomId()"
-                    (quoteReplyRequest)="quoteReply($event)"
-                    (quoteMessageClickRequest)="goToMessage($event)"></app-message-item>
+                    [addMessageRequest]="addMessageRequest()" [editMessageRequest]="editMessageRequest()"
+                    [deleteMessageRequest]="deleteMessageRequest()" (quoteReplyRequest)="quoteReply($event)"
+                    (quoteMessageClickRequest)="goToMessage($event)">
+                </app-message-item>
             </li>
             }
         </ul>
@@ -37,7 +39,8 @@
         <span class="text-nowrap text-base font-semibold">Jump to bottom</span>
     </button>
     }
-    <app-message-input roundedClass="rounded-t-xl" [chatRoomId]="chatRoomId()" [quotedMessage]="quotedMessage()"
+    <app-message-input roundedClass="rounded-t-xl" [chatRoomId]="chatRoomId()" [addMessageRequest]="addMessageRequest()"
+        [editMessageRequest]="editMessageRequest()" [quotedMessage]="quotedMessage()"
         (goToMessageRequest)="goToMessage($event)">
     </app-message-input>
 </div>

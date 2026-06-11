@@ -1,21 +1,18 @@
-<div class="backdrop-blur-3xl overflow-visible border border-white/25 bg-white/30" [ngClass]="roundedClass()">
+<div class="backdrop-blur-3xl overflow-visible border border-white/25 bg-white/30" [ngClass]="roundedClass()"
+    [class.pointer-events-none]="isSubmitting()">
     @if (activeQuotedMessage(); as quote) {
     <div class="border-b border-white/20 p-3">
         <div class="flex items-start gap-2">
-            <button type="button" class="min-w-0 flex-1 rounded-xl bg-black/20 p-2 text-left"
+            <button type="button" class="min-w-0 flex-1 rounded-xl bg-black/30 text-left"
                 (click)="goToMessage(quote.message.id)">
-                <p class="truncate text-sm font-semibold text-white">
-                    {{ quote.message.userId ? (quote.author?.name || quote.author?.username || 'User #' +
-                    quote.message.userId) : 'Guest #' + quote.message.guestSessionId }}
-                </p>
-                <p class="mt-1 line-clamp-2 whitespace-pre-line text-sm text-white/80">
-                    {{ quote.message.deleted ? 'This message was deleted.' : quote.message.content }}
-                </p>
+                <app-message-item [messageResponse]="quote" [isPreview]="true" [addMessageRequest]="addMessageRequest()"
+                    [editMessageRequest]="editMessageRequest()">
+                </app-message-item>
             </button>
             <button type="button"
                 class="mt-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
                 aria-label="Cancel quote reply" (click)="clearQuotedMessage()">
-                <span class="text-lg leading-none">&times;</span>
+                <fa-icon [icon]="faXmark" class="leading-0"></fa-icon>
             </button>
         </div>
     </div>
@@ -25,12 +22,13 @@
             @let contentControl=messageForm.controls.content;
             <textarea #messageInput [formControl]="contentControl"
                 class="min-h-11 flex-1 resize-none rounded-lg bg-black/35 px-3 py-2 text-sm text-white outline-none placeholder:text-white/65"
-                [placeholder]="'Write a message'" name="content" rows="1" appSanitizeInput appAutoResizeTextarea>
+                [placeholder]="'Write a message'" name="content" rows="1" [maxLength]="messageMaxLength"
+                appSanitizeInput appAutoResizeTextarea (keydown.enter)="onMessageInputEnter($event)">
             </textarea>
 
             <app-loading-button [loading]="isSubmitting()">
-                <button type="submit"
-                    class="flex h-11 w-11 items-center justify-center rounded-lg border border-white/25 bg-white/30 text-white shadow-sm transition hover:bg-white/40 disabled:opacity-60">
+                <button type="submit" [disabled]="messageForm.invalid || isSubmitting() || isEditUnchanged()"
+                    class="flex h-11 w-11 items-center justify-center rounded-lg border border-white/25 bg-white/30 text-white shadow-sm transition enabled:hover:bg-white/40 disabled:opacity-60">
                     <fa-icon [icon]="faPaperPlane" class="leading-0"></fa-icon>
                 </button>
             </app-loading-button>

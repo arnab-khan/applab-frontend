@@ -1,15 +1,17 @@
 import { DatePipe, NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ChangeDetectionStrategy, Component, computed, effect, forwardRef, inject, input, output, signal } from '@angular/core';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faFaceSmile, faPenToSquare, faTrash, faUser } from '@fortawesome/free-solid-svg-icons';
-import { ChatRoomMessageResponse, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
+import { faFaceSmile, faPenToSquare, faTrash, faUser, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { finalize, Observable } from 'rxjs';
+import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageResponse, Message, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
 import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
 import { ProfileApiService } from '../../../profile/services/profile-api.service';
 import { CHAT_REACTION_OPTIONS } from '../../../../shared/options/chat-reaction-options';
 import { MessageReactionsDialog } from '../../../reaction/components/message-reactions-dialog/message-reactions-dialog';
+import { CommonDialog, CommonDialogResult } from '../../../../shared/components/dialogs/common-dialog/common-dialog';
 import { ChatState } from '../../services/chat-state';
 import { orderReactionCounts } from '../../../../shared/utils/reaction';
 import { AuthAction } from '../../../auth/components/auth-action/auth-action';
@@ -18,7 +20,7 @@ import { MessageInput } from '../message-input/message-input';
 
 @Component({
   selector: 'app-message-item',
-  imports: [DatePipe, NgClass, AuthAction, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, MessageInput, Thumbnail],
+  imports: [DatePipe, NgClass, AuthAction, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, forwardRef(() => MessageInput), Thumbnail],
   templateUrl: './message-item.html',
   styleUrl: './message-item.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,6 +31,9 @@ export class MessageItem {
   isFocused = input(false);
   applyCurrentUserStyle = input(false);
   chatRoomId = input<number>();
+  addMessageRequest = input.required<(body: ChatRoomAddRequest) => Observable<Message>>();
+  editMessageRequest = input.required<(body: ChatRoomEditRequest) => Observable<Message>>();
+  deleteMessageRequest = input<(messageId: number) => Observable<void>>();
   addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void; onError: () => void }>();
   quoteReplyRequest = output<ChatRoomMessageResponse>();
   quoteMessageClickRequest = output<number>();
@@ -53,7 +58,7 @@ export class MessageItem {
     'p-2': this.isPreview(),
     'p-4': !this.isPreview(),
     ...((this.applyCurrentUserStyle() && this.isCurrentUserMessage() && !this.isPreview()) ? {
-      'ms-auto max-w-[90%] border-cyan-200/20 bg-cyan-300/15': true,
+      'border-cyan-200/20 bg-cyan-300/15': true,
     } : {
       'border-white/15 bg-white/15': true,
     }),
@@ -67,6 +72,7 @@ export class MessageItem {
   faTrash = faTrash;
   faUser = faUser;
   faFaceSmile = faFaceSmile;
+  faXmark = faXmark;
 
   reactionOptions = CHAT_REACTION_OPTIONS;
 
@@ -80,10 +86,11 @@ export class MessageItem {
 
     effect(() => {
       const liveMessage = this.chatState.liveMessage();
+      const messageResponse = liveMessage?.message;
 
-      if (liveMessage?.message.id === this.messageId()) {
-        this.currentMessageResponse.set(liveMessage);
-        this.selectedReactionCode.set(liveMessage.myReaction?.emoji || '');
+      if (messageResponse?.message.id === this.messageId()) {
+        this.currentMessageResponse.set(messageResponse);
+        this.selectedReactionCode.set(messageResponse.myReaction?.emoji || '');
       }
     });
   }
@@ -154,6 +161,34 @@ export class MessageItem {
 
   cancelEdit() {
     this.isEditing.set(false);
+  }
+
+  deleteMessage() {
+    const deleteMessageRequest = this.deleteMessageRequest();
+
+    if (!deleteMessageRequest) {
+      throw new Error('deleteMessageRequest is required to delete message');
+    }
+
+    this.dialog.open(CommonDialog, {
+      width: '30rem',
+      data: {
+        type: 'warning',
+        message: 'Are you sure you want to delete this message?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        onConfirm: (dialogRef: MatDialogRef<CommonDialog, CommonDialogResult>, dialog: CommonDialog) => {
+          deleteMessageRequest(this.messageId()).pipe(
+            finalize(() => dialog.isConfirming.set(false)),
+          ).subscribe({
+            next: () => dialogRef.close({ confirmed: true }),
+            error: (error) => {
+              console.error('Error deleting message', error);
+            },
+          });
+        },
+      },
+    });
   }
 
   getCurrentChatRoomMessageResponse() {
