@@ -1,5 +1,5 @@
 import { DatePipe, NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, forwardRef, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, forwardRef, inject, input, output, signal, untracked } from '@angular/core';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -48,10 +48,14 @@ export class MessageItem {
     return currentMessageResponse && 'quotedMessage' in currentMessageResponse ? currentMessageResponse.quotedMessage : undefined;
   });
   selectedReactionEmoji = computed(() => this.getReactionEmoji(this.selectedReactionCode()));
-  orderedReactions = computed(() => orderReactionCounts(this.getCurrentChatRoomMessageResponse()?.reactions || []));
+  currentChatRoomMessageResponse = computed(() => {
+    const messageResponse = this.currentMessageResponse();
+    return messageResponse && 'chatRoomId' in messageResponse ? messageResponse : undefined;
+  });
+  orderedReactions = computed(() => orderReactionCounts(this.currentChatRoomMessageResponse()?.reactions || []));
   isCurrentUserMessage = computed(() => this.chatMessage.isCurrentUserMessage(this.currentMessageResponse()?.message));
-  canEditMessage = computed(() => !!this.getCurrentChatRoomMessageResponse()?.permission?.canEdit);
-  canDeleteMessage = computed(() => !!this.getCurrentChatRoomMessageResponse()?.permission?.canDelete);
+  canEditMessage = computed(() => !!this.currentChatRoomMessageResponse()?.permission?.canEdit);
+  canDeleteMessage = computed(() => !!this.currentChatRoomMessageResponse()?.permission?.canDelete);
   canShowMessageActionMenu = computed(() => this.canEditMessage() || this.canDeleteMessage());
   messageItemClasses = computed(() => ({
     'message-focus': this.isFocused(),
@@ -79,19 +83,7 @@ export class MessageItem {
   constructor() {
     effect(() => {
       const messageResponse = this.messageResponse();
-
-      this.currentMessageResponse.set(messageResponse);
-      this.selectedReactionCode.set(this.getMessageReactionCode(messageResponse));
-    });
-
-    effect(() => {
-      const liveMessage = this.chatState.liveMessage();
-      const messageResponse = liveMessage?.message;
-
-      if (messageResponse?.message.id === this.messageId()) {
-        this.currentMessageResponse.set(messageResponse);
-        this.selectedReactionCode.set(messageResponse.myReaction?.emoji || '');
-      }
+      this.setCurrentMessageResponse(messageResponse);
     });
   }
 
@@ -136,14 +128,14 @@ export class MessageItem {
       width: '50rem',
       height: '90dvh',
       data: {
-        chatRoomId: this.getCurrentChatRoomMessageResponse()?.chatRoomId,
+        chatRoomId: this.currentChatRoomMessageResponse()?.chatRoomId,
         messageId: this.messageId(),
       },
     });
   }
 
   quoteReply() {
-    const messageResponse = this.getCurrentChatRoomMessageResponse();
+    const messageResponse = this.currentChatRoomMessageResponse();
 
     if (messageResponse) {
       this.quoteReplyRequest.emit(messageResponse);
@@ -155,7 +147,7 @@ export class MessageItem {
   }
 
   startEdit() {
-    this.editingQuotedMessage.set(this.getCurrentChatRoomMessageResponse()?.quotedMessage);
+    this.editingQuotedMessage.set(this.currentChatRoomMessageResponse()?.quotedMessage);
     this.isEditing.set(true);
   }
 
@@ -191,13 +183,12 @@ export class MessageItem {
     });
   }
 
-  getCurrentChatRoomMessageResponse() {
-    const messageResponse = this.currentMessageResponse();
-
-    return messageResponse && 'chatRoomId' in messageResponse ? messageResponse : undefined;
-  }
-
-  private getMessageReactionCode(messageResponse: ChatRoomMessageResponse | QuotedMessageResponse) {
-    return 'myReaction' in messageResponse ? messageResponse.myReaction?.emoji || '' : '';
+  private setCurrentMessageResponse(messageResponse: ChatRoomMessageResponse | QuotedMessageResponse) {
+    this.currentMessageResponse.set(messageResponse);
+    if ('myReaction' in messageResponse) {
+      this.selectedReactionCode.set(messageResponse.myReaction?.emoji || '');
+    } else {
+      this.selectedReactionCode.set('');
+    }
   }
 }

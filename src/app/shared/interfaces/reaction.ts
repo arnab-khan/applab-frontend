@@ -25,6 +25,4 @@ export interface ReactionWithAuthorResponse {
   author: Author;
 }
 
-export interface ReactionWithAuthorCursorResponse extends CursorResponse<ReactionWithAuthorResponse> {
-  reactions: ReactionCount[];
-}
+export type ReactionWithAuthorCursorResponse = CursorResponse<ReactionWithAuthorResponse>;

@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageCursorResponse, ChatRoomMessageResponse, GlobalChatRoomResponse, Message, MessageQueryParams } from '../../../shared/interfaces/chat';
 import { CursorQueryParams } from '../../../shared/interfaces/pagination';
-import { ReactionEmojiRequest, Reaction, ReactionWithAuthorCursorResponse } from '../../../shared/interfaces/reaction';
+import { ReactionEmojiRequest, Reaction, ReactionCount, ReactionWithAuthorCursorResponse } from '../../../shared/interfaces/reaction';
 import { toHttpParams } from '../../../shared/utils/http';
 
 @Injectable({
@@ -39,5 +39,9 @@ export class ChatApi {
 
   getChatRoomMessageReactions(chatRoomId: number, messageId: number, params: CursorQueryParams & { emoji?: string }) {
     return this.httpClient.get<ReactionWithAuthorCursorResponse>(`${this.baseApiUrl}/${chatRoomId}/message/${messageId}/reaction/all`, { params: toHttpParams(params) });
+  }
+
+  getChatRoomMessageReactionCounts(chatRoomId: number, messageId: number) {
+    return this.httpClient.get<ReactionCount[]>(`${this.baseApiUrl}/${chatRoomId}/message/${messageId}/reaction/count/all`);
   }
 }

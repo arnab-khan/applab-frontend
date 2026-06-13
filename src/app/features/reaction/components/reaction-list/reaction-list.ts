@@ -1,6 +1,7 @@
 import { NgClass } from '@angular/common';
 import { Component, computed, inject, input, signal } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { catchError, forkJoin, of, Subscription, tap } from 'rxjs';
+import { InfiniteScroll } from '../../../../shared/components/data-display/infinite-scroll/infinite-scroll';
 import { ReactionCount, ReactionWithAuthorResponse } from '../../../../shared/interfaces/reaction';
 import { CHAT_REACTION_OPTIONS } from '../../../../shared/options/chat-reaction-options';
 import { orderReactionCounts } from '../../../../shared/utils/reaction';
@@ -9,7 +10,7 @@ import { ReactionListItem } from '../reaction-list-item/reaction-list-item';
 
 @Component({
   selector: 'app-reaction-list',
-  imports: [NgClass, ReactionListItem],
+  imports: [NgClass, ReactionListItem, InfiniteScroll],
   templateUrl: './reaction-list.html',
   styleUrl: './reaction-list.scss',
 })
@@ -22,9 +23,13 @@ export class ReactionList {
 
   reactions = signal<ReactionWithAuthorResponse[]>([]);
   reactionSummary = signal<ReactionCount[]>([]);
-  isLoading = signal(false);
+  isLoading = signal(true);
+  isLoadingMore = signal(false);
   activeReactionFilter = signal<string | undefined>(undefined);
   reactionOptions = CHAT_REACTION_OPTIONS;
+  private reactionLimit = 20;
+  private nextCursor?: number;
+  hasMore = signal(false);
 
   orderedReactionSummary = computed(() => orderReactionCounts(this.reactionSummary()));
   totalReactionCount = computed(() => this.reactionSummary().reduce((total, reaction) => total + reaction.count, 0));
@@ -38,7 +43,7 @@ export class ReactionList {
   ]);
 
   ngOnInit() {
-    this.loadReactions();
+    this.loadInitialReactions();
   }
 
   ngOnDestroy() {
@@ -51,21 +56,76 @@ export class ReactionList {
 
   onReactionFilter(emoji?: string) {
     this.activeReactionFilter.set(emoji);
-    this.loadReactions(emoji);
+    this.reactions.set([]);
+    this.nextCursor = undefined;
+    this.hasMore.set(false);
+    this.loadInitialReactions(emoji);
   }
 
-  private loadReactions(emoji?: string) {
-    this.reactionsSubscription?.unsubscribe();
-    this.isLoading.set(true);
-    this.reactionsSubscription = this.chatApi.getChatRoomMessageReactions(this.chatRoomId(), this.messageId(), { limit: 20, emoji }).subscribe({
-      next: (response) => {
-        this.reactions.set(response.items);
-        this.reactionSummary.set(response.reactions);
-        this.isLoading.set(false);
+  loadMoreReactions() {
+    if (!this.hasMore() || this.isLoading() || this.isLoadingMore()) {
+      return;
+    }
+
+    this.isLoadingMore.set(true);
+    this.reactionsSubscription = this.reactionsRequest(this.activeReactionFilter()).subscribe({
+      next: () => {
+        this.isLoadingMore.set(false);
       },
-      error: () => {
-        this.isLoading.set(false);
+      error: (error) => {
+        console.error(error);
       },
     });
+  }
+
+  private loadInitialReactions(emoji?: string) {
+    this.isLoading.set(true);
+    this.reactionsSubscription?.unsubscribe();
+    this.reactionsSubscription = this.initialReactionsRequest(emoji).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
+  }
+
+  private initialReactionsRequest(emoji?: string) {
+    return forkJoin([
+      this.reactionCountsRequest(),
+      this.reactionsRequest(emoji),
+    ]);
+  }
+
+  private reactionsRequest(emoji?: string) {
+    const cursor = this.nextCursor;
+    return this.chatApi.getChatRoomMessageReactions(this.chatRoomId(), this.messageId(), {
+      limit: this.reactionLimit,
+      emoji,
+      cursor,
+    }).pipe(
+      tap((response) => {
+        this.reactions.set([...this.reactions(), ...response.items]);
+        this.nextCursor = response.nextCursor ?? undefined;
+        this.hasMore.set(response.hasNext);
+      }),
+      catchError((error) => {
+        console.error(error);
+        return of(null);
+      }),
+    );
+  }
+
+  private reactionCountsRequest() {
+    return this.chatApi.getChatRoomMessageReactionCounts(this.chatRoomId(), this.messageId()).pipe(
+      tap((response) => {
+        this.reactionSummary.set(response);
+      }),
+      catchError((error) => {
+        console.error(error);
+        return of([]);
+      }),
+    );
   }
 }

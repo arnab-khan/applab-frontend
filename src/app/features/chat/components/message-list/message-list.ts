@@ -28,6 +28,7 @@ export class MessageList {
   private injector = inject(Injector);
   private messageInput = viewChild(MessageInput);
   private hasRequestedInitialMessages = false;
+  private authUserId?: number | null;
   private olderMessageCursor?: number;
   private newerMessageCursor?: number;
   private messageLimit = 20;
@@ -62,8 +63,22 @@ export class MessageList {
       }
 
       const state = this.authState();
-      if (state.completed && this.getMessagesRequest() && !this.hasRequestedInitialMessages) {
+      if (!state.completed || !this.getMessagesRequest()) {
+        return;
+      }
+
+      const authUserId = state.user?.id ?? null;
+
+      if (!this.hasRequestedInitialMessages) {
         this.hasRequestedInitialMessages = true;
+        this.authUserId = authUserId;
+        this.loadInitialMessages();
+        return;
+      }
+
+      // Reload messages when auth changes so user-specific fields like myReaction are refreshed.
+      if (this.authUserId !== authUserId) {
+        this.authUserId = authUserId;
         this.loadInitialMessages();
       }
     });
@@ -114,6 +129,7 @@ export class MessageList {
     this.olderMessageCursor = undefined;
     this.newerMessageCursor = undefined;
     this.messages.set([]);
+    this.chatState.liveMessage.set(null);
 
     const request = this.messagesRequest({ direction: this.olderDirection });
 

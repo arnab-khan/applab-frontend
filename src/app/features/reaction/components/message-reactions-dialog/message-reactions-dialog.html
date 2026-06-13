@@ -1,4 +1,4 @@
 <app-dialog-header containerClass="u-responsive-padding-x py-2 shadow" title="Reactions"></app-dialog-header>
-<mat-dialog-content class="c-message-reactions-dialog">
-  <app-reaction-list [chatRoomId]="data.chatRoomId" [messageId]="data.messageId"></app-reaction-list>
+<mat-dialog-content class="flex! flex-col c-message-reactions-dialog">
+  <app-reaction-list [chatRoomId]="data.chatRoomId" [messageId]="data.messageId" class="grow"></app-reaction-list>
 </mat-dialog-content>

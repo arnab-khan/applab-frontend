@@ -10,6 +10,7 @@ import { Platform } from '../../../services/platform';
 })
 export class InfiniteScroll {
   private platform = inject(Platform);
+  private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly topSentinel = viewChild<ElementRef<HTMLElement>>('topSentinel');
   readonly bottomSentinel = viewChild<ElementRef<HTMLElement>>('bottomSentinel');
@@ -17,6 +18,7 @@ export class InfiniteScroll {
   readonly loadingStart = input(false);
   readonly loadingEnd = input(false);
   readonly disabled = input(false);
+  readonly useElementScroll = input(false);
   readonly spinnerClass = input('');
   readonly reachedStart = output<void>();
   readonly reachedEnd = output<void>();
@@ -46,14 +48,15 @@ export class InfiniteScroll {
 
       const topTarget = this.topSentinel()?.nativeElement;
       const bottomTarget = this.bottomSentinel()?.nativeElement;
+      const root = this.useElementScroll() ? this.elementRef.nativeElement : null;
 
       if (!topTarget || !bottomTarget) {
         return;
       }
 
       // Watch both sentinels and emit before they reach the visible viewport edge.
-      const topObserver = this.createScrollObserver('start', '200px 0px 0px 0px');
-      const bottomObserver = this.createScrollObserver('end', '0px 0px 200px 0px');
+      const topObserver = this.createScrollObserver('start', '200px 0px 0px 0px', root);
+      const bottomObserver = this.createScrollObserver('end', '0px 0px 200px 0px', root);
 
       topObserver.observe(topTarget);
       bottomObserver.observe(bottomTarget);
@@ -65,7 +68,11 @@ export class InfiniteScroll {
     });
   }
 
-  private createScrollObserver(direction: 'start' | 'end', rootMargin: string) {
+  private createScrollObserver(
+    direction: 'start' | 'end',
+    rootMargin: string,
+    root: HTMLElement | null,
+  ) {
     return new IntersectionObserver(
       // `entry` describes how much the sentinel is intersecting with the viewport.
       ([entry]) => {
@@ -87,9 +94,9 @@ export class InfiniteScroll {
         this.emitReached(direction);
       },
       {
-        // Use the main page scroll, trigger about 200px before the sentinel reaches the viewport,
+        // Trigger about 200px before the sentinel reaches the scroll boundary,
         // and fire as soon as any part of the sentinel enters that area.
-        root: null,
+        root,
         rootMargin,
         threshold: 0,
       },
