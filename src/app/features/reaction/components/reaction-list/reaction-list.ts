@@ -79,8 +79,8 @@ export class ReactionList {
   }
 
   private loadInitialReactions(emoji?: string) {
+    this.reactionsSubscription?.unsubscribe(); // If reaction emoji tab change queckly then cancel previous one tabs api call.
     this.isLoading.set(true);
-    this.reactionsSubscription?.unsubscribe();
     this.reactionsSubscription = this.initialReactionsRequest(emoji).subscribe({
       next: () => {
         this.isLoading.set(false);

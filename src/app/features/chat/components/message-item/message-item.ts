@@ -4,11 +4,9 @@ import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dial
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faFaceSmile, faPenToSquare, faTrash, faUser, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faFaceSmile, faPenToSquare, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { finalize, Observable } from 'rxjs';
 import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageResponse, Message, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
-import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
-import { ProfileApiService } from '../../../profile/services/profile-api.service';
 import { CHAT_REACTION_OPTIONS } from '../../../../shared/options/chat-reaction-options';
 import { MessageReactionsDialog } from '../../../reaction/components/message-reactions-dialog/message-reactions-dialog';
 import { CommonDialog, CommonDialogResult } from '../../../../shared/components/dialogs/common-dialog/common-dialog';
@@ -17,10 +15,12 @@ import { orderReactionCounts } from '../../../../shared/utils/reaction';
 import { AuthAction } from '../../../auth/components/auth-action/auth-action';
 import { ChatMessage } from '../../services/chat-message';
 import { MessageInput } from '../message-input/message-input';
+import { AuthorSummary } from '../../../../shared/components/data-display/author-summary/author-summary';
+import { Author } from '../../../../shared/interfaces/author';
 
 @Component({
   selector: 'app-message-item',
-  imports: [DatePipe, NgClass, AuthAction, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, forwardRef(() => MessageInput), Thumbnail],
+  imports: [DatePipe, NgClass, AuthAction, AuthorSummary, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, forwardRef(() => MessageInput)],
   templateUrl: './message-item.html',
   styleUrl: './message-item.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,7 +58,7 @@ export class MessageItem {
   canDeleteMessage = computed(() => !!this.currentChatRoomMessageResponse()?.permission?.canDelete);
   canShowMessageActionMenu = computed(() => this.canEditMessage() || this.canDeleteMessage());
   messageItemClasses = computed(() => ({
-    'message-focus': this.isFocused(),
+    'c-message-focus': this.isFocused(),
     'p-2': this.isPreview(),
     'p-4': !this.isPreview(),
     ...((this.applyCurrentUserStyle() && this.isCurrentUserMessage() && !this.isPreview()) ? {
@@ -67,14 +67,12 @@ export class MessageItem {
       'border-white/15 bg-white/15': true,
     }),
   }));
-  profileApiService = inject(ProfileApiService);
   private chatMessage = inject(ChatMessage);
   private chatState = inject(ChatState);
   private dialog = inject(MatDialog);
 
   faPenToSquare = faPenToSquare;
   faTrash = faTrash;
-  faUser = faUser;
   faFaceSmile = faFaceSmile;
   faXmark = faXmark;
 
@@ -89,6 +87,27 @@ export class MessageItem {
 
   getReactionEmoji(code: string) {
     return this.reactionOptions.find((reaction) => reaction.code === code)?.emoji || code;
+  }
+
+  getMessageAuthor(): Author {
+    const messageResponse = this.currentMessageResponse();
+    const message = messageResponse?.message;
+
+    if (messageResponse?.author) {
+      return messageResponse.author;
+    }
+
+    if (message?.guestSessionId) {
+      return {
+        type: 'GUEST',
+        id: message.guestSessionId,
+      };
+    }
+
+    return {
+      type: 'USER',
+      id: message?.userId || 0,
+    };
   }
 
   toggleLikeReaction() {

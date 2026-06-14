@@ -15,8 +15,14 @@ export class ChatMessage {
       return false;
     }
 
+    const authUserId = this.auth.authState().user?.id;
+
     if (message.userId) {
-      return message.userId === this.auth.authState().user?.id;
+      return message.userId === authUserId;
+    }
+
+    if (authUserId) {
+      return false;
     }
 
     return !!message.guestSessionId && message.guestSessionId === this.guest.guestState().guestSessionId;

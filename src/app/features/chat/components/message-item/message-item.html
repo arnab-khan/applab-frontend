@@ -2,28 +2,11 @@
     <article class="rounded-xl border text-white shadow-sm backdrop-blur-md transition"
         [ngClass]="messageItemClasses()">
         <div class="flex items-start gap-3">
-            @if (currentMessageResponse()?.message?.userId) {
-            <app-thumbnail class="shrink-0" size="2.5rem" radius="9999px"
-                [imageUrl]="profileApiService.getPublicImageUrl(currentMessageResponse()?.author?.compressedProfileImageUrl)"
-                [name]="currentMessageResponse()?.author?.name || currentMessageResponse()?.author?.username"
-                [showBorder]="false">
-            </app-thumbnail>
-            } @else {
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-500 text-white">
-                <fa-icon [icon]="faUser"></fa-icon>
-            </div>
-            }
-
             <div class="min-w-0 flex-1">
                 <div class="flex items-center justify-between gap-2">
-                    <div class="min-w-0">
-                        <p class="truncate text-sm font-semibold text-white">
-                            {{ currentMessageResponse()?.message?.userId ? (currentMessageResponse()?.author?.name ||
-                            currentMessageResponse()?.author?.username || 'User #' +
-                            currentMessageResponse()?.message?.userId) : 'Guest #' +
-                            currentMessageResponse()?.message?.guestSessionId }}
-                        </p>
-                        <p class="text-xs text-white/60">
+                    <app-author-summary class="min-w-0" [author]="getMessageAuthor()"
+                        [classes]="{ authorNameColor: 'text-white' }" [disableLink]="isPreview()">
+                        <p #bodySecondary bodySecondary class="text-xs text-white/60">
                             <span>
                                 {{ currentMessageResponse()?.message?.createdAt | date:'MMM d, y, h:mm a' }}
                             </span>
@@ -31,7 +14,7 @@
                             <span class="text-white/45">(edited)</span>
                             }
                         </p>
-                    </div>
+                    </app-author-summary>
 
                     @if (!isPreview()) {
                     <div
@@ -145,7 +128,7 @@
                         </app-auth-action>
                     </div>
                     <button type="button"
-                        class="inline-flex min-h-8 items-center gap-2 rounded-full text-sm text-white/80 transition hover:bg-white/15 hover:text-white"
+                        class="inline-flex min-h-8 items-center gap-2 rounded-full text-sm text-white/80 transition hover:bg-white/15 hover:text-white px-1"
                         aria-label="Message reactions" (click)="openReactionsDialog()">
                         <ul class="flex flex-wrap items-center gap-2">
                             @for (reaction of orderedReactions(); track reaction.emoji) {
