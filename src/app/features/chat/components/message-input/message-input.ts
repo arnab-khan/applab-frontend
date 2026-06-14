@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPaperPlane, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
 import { AuthAction } from '../../../auth/components/auth-action/auth-action';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
@@ -25,6 +26,7 @@ const MESSAGE_MAX_LENGTH = 255;
 export class MessageInput {
   private formBuilder = inject(NonNullableFormBuilder);
   private destroyRef = inject(DestroyRef);
+  private snackBar = inject(MatSnackBar);
   private messageInput = viewChild<ElementRef<HTMLTextAreaElement>>('messageInput');
 
   chatRoomId = input.required<number>();
@@ -44,7 +46,7 @@ export class MessageInput {
   messageId = computed(() => this.message()?.id);
   activeQuotedMessage = computed(() => this.currentQuotedMessage());
   quotedMessageId = computed(() => this.currentQuotedMessage()?.message.id);
-  isEditUnchanged = computed(() => !!this.message() && this.currentContent() === (this.message()?.content || ''));
+  isEditUnchanged = computed(() => !!this.message() && this.currentContent().trim() === (this.message()?.content || '').trim());
 
   faPaperPlane = faPaperPlane;
   faXmark = faXmark;
@@ -91,8 +93,9 @@ export class MessageInput {
     const messageId = this.messageId();
     const quotedMessageId = this.quotedMessageId();
     const removeQuotedMessage = !!message?.quotedMessageId && !quotedMessageId;
+    const content = this.messageForm.controls.content.value.trim();
     const commonBody: Pick<ChatRoomAddRequest & ChatRoomEditRequest, 'content'> = {
-      content: this.messageForm.controls.content.value,
+      content,
     };
     let request: Observable<Message>;
     if (message && messageId) {
@@ -120,6 +123,8 @@ export class MessageInput {
       },
       error: (error) => {
         console.error(error);
+        const message = error.error?.message || error.message || 'Failed to save message. Please try again.';
+        this.snackBar.open(message, '✖', { duration: 3000, panelClass: 'snackbar-error' });
         this.isSubmitting.set(false);
       },
     });

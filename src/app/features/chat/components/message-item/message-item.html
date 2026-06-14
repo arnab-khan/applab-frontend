@@ -41,16 +41,16 @@
                         </button>
                         <mat-menu #messageActionMenu="matMenu">
                             @if (canEditMessage()) {
-                            <button mat-menu-item class="!text-white transition-colors duration-200 hover:!bg-white/15"
+                            <button mat-menu-item class="text-white! transition-colors duration-200 hover:bg-white/15!"
                                 (click)="startEdit()">
-                                <fa-icon [icon]="faPenToSquare" class="mr-2 !text-white"></fa-icon>
+                                <fa-icon [icon]="faPenToSquare" class="mr-2 text-white!"></fa-icon>
                                 <span>Edit</span>
                             </button>
                             }
                             @if (canDeleteMessage()) {
-                            <button mat-menu-item class="!text-white transition-colors duration-200 hover:!bg-white/15"
+                            <button mat-menu-item class="text-white! transition-colors duration-200 hover:bg-white/15!"
                                 (click)="deleteMessage()">
-                                <fa-icon [icon]="faTrash" class="mr-2 !text-white"></fa-icon>
+                                <fa-icon [icon]="faTrash" class="mr-2 text-white!"></fa-icon>
                                 <span>Delete</span>
                             </button>
                             }

@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, forwardRef, injec
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faFaceSmile, faPenToSquare, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { finalize, Observable } from 'rxjs';
@@ -70,6 +71,7 @@ export class MessageItem {
   private chatMessage = inject(ChatMessage);
   private chatState = inject(ChatState);
   private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   faPenToSquare = faPenToSquare;
   faTrash = faTrash;
@@ -195,6 +197,9 @@ export class MessageItem {
             next: () => dialogRef.close({ confirmed: true }),
             error: (error) => {
               console.error('Error deleting message', error);
+              const message = error.error?.message || error.message || 'Failed to delete message. Please try again.';
+              this.snackBar.open(message, '✖', { duration: 3000, panelClass: 'snackbar-error' });
+              dialogRef.close();
             },
           });
         },

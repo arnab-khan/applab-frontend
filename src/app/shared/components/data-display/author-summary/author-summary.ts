@@ -33,34 +33,4 @@ export class AuthorSummary {
       : null;
   }
 
-  getThumbnailName() {
-    const author = this.author();
-    if (this.isGuest()) {
-      return this.getGuestCode(author.id);
-    }
-
-    return this.getAuthorName();
-  }
-
-  getAuthorName() {
-    const author = this.author();
-    if (this.isGuest()) {
-      return `Guest #${this.getGuestCode(author.id).toLowerCase()}`;
-    }
-
-    return author?.name;
-  }
-
-  private getGuestCode(id: number) {
-    let value = id;
-    let code = '';
-
-    while (value > 0) {
-      value--;
-      code = String.fromCharCode(65 + (value % 26)) + code;
-      value = Math.floor(value / 26);
-    }
-
-    return code;
-  }
 }

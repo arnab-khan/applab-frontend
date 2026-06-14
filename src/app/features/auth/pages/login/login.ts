@@ -7,12 +7,12 @@ import { commonFormValidator } from '../../../../shared/validators/common-form-v
 import { LoginUser } from '../../../../shared/interfaces/user';
 import { Auth } from '../../../../core/services/auth';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { POST_LOGIN_DEFAULT_ROUTE } from '../../../../shared/config/config';
 import { PasswordField } from '../../../../shared/components/forms/password-field/password-field';
 import { FormValidation } from '../../../../shared/services/form-validation';
 import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
+import { Redirect } from '../../../../shared/services/redirect';
 
 @Component({
   selector: 'app-login',
@@ -34,9 +34,9 @@ export class Login implements OnInit {
 
   private authService = inject(Auth);
   private formBuilder = inject(NonNullableFormBuilder);
-  private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private formValidation = inject(FormValidation);
+  private redirect = inject(Redirect);
 
   loginForm!: FormGroup<{
     username: FormControl<string>;
@@ -88,7 +88,7 @@ export class Login implements OnInit {
       this.authService.login(loginData).subscribe({
         next: (response) => {
           console.log('Login successful', response);
-          this.router.navigate([POST_LOGIN_DEFAULT_ROUTE]);
+          this.redirect.postLogin();
         },
         error: (error) => {
           this.isSubmitting.set(false);

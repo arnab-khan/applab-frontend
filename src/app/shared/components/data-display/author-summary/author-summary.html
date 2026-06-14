@@ -2,8 +2,8 @@
   rel="noopener noreferrer">
   <div class="relative shrink-0">
     <app-thumbnail size="2.5rem" radius="50%"
-      [imageUrl]="profileApiService.getPublicImageUrl(author().compressedProfileImageUrl)" [name]="getThumbnailName()"
-      [showBorder]="false">
+      [imageUrl]="profileApiService.getPublicImageUrl(author().compressedProfileImageUrl)"
+      [name]="isGuest() ? null : author().name" [showBorder]="false">
     </app-thumbnail>
     @if (avatarBottomEndContent()) {
     <span
@@ -14,7 +14,11 @@
   </div>
   <div class="min-w-0 flex-1">
     <p class="truncate text-sm font-semibold" [ngClass]="classes().authorNameColor || 'text-slate-900'">
-      {{ getAuthorName() }}
+      @if (isGuest()) {
+      Guest #{{ author().id }}
+      } @else {
+      {{ author().name }}
+      }
     </p>
     @if (bodySecondaryContent()) {
     <ng-content select="[bodySecondary]"></ng-content>

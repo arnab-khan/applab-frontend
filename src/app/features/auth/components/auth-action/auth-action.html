@@ -3,21 +3,21 @@
         <ng-content></ng-content>
     </div>
     @if (!hasAuthenticatedAccess()) {
-    <button #authTriggerElement type="button" [matMenuTriggerFor]="authActionMenu" class="u-fill-parent z-10"
+    <button #authTriggerElement #authMenuTrigger="matMenuTrigger" type="button" [matMenuTriggerFor]="authActionMenu" class="u-fill-parent z-10"
         aria-label="Choose authentication option"></button>
     <mat-menu #authActionMenu="matMenu" xPosition="after" yPosition="above" class="reaction-menu-panel">
         <div class="flex flex-col gap-1 bg-white/15 px-2 py-2 text-white backdrop-blur-3xl"
             [style.width.px]="matchTriggerWidth() ? authTriggerElement.offsetWidth : null">
-            <a mat-menu-item routerLink="/auth/signup" class="!rounded-lg !bg-white/10 hover:!bg-white/20">
+            <a mat-menu-item routerLink="/auth/signup" [queryParams]="returnUrlQueryParams()" class="rounded-lg! bg-white/10! hover:bg-white/20!">
                 <span class="font-semibold text-white">Sign Up</span>
             </a>
-            <a mat-menu-item routerLink="/auth/login" class="!rounded-lg !bg-white/10 hover:!bg-white/20">
+            <a mat-menu-item routerLink="/auth/login" [queryParams]="returnUrlQueryParams()" class="rounded-lg! bg-white/10! hover:bg-white/20!">
                 <span class="font-semibold text-white">Login</span>
             </a>
             <app-loading-button [loading]="isGuestSubmitting()" spinnerClass="stroke-white">
-                <button type="button" mat-menu-item
-                    class="!rounded-lg !bg-white/10 !font-semibold !text-white hover:!bg-white/20"
-                    [disabled]="isGuestSubmitting()" (click)="continueAsGuest()">
+                <button type="button"
+                    class="w-full rounded-lg! bg-white/10! px-4 py-2 text-left font-semibold! text-white! hover:bg-white/20!"
+                    [disabled]="isGuestSubmitting()" (click)="$event.stopPropagation(); continueAsGuest(authMenuTrigger)">
                     <span class="block font-semibold text-white">Continue as Guest</span>
                     <span class="block text-xs font-normal">
                         Interact without creating an account
