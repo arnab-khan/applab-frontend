@@ -23,7 +23,8 @@
             <textarea #messageInput [formControl]="contentControl"
                 class="min-h-11 flex-1 resize-none rounded-lg bg-black/35 px-3 py-2 text-sm text-white outline-none placeholder:text-white/65"
                 [placeholder]="'Write a message'" name="content" rows="1" [maxLength]="messageMaxLength"
-                appSanitizeInput appAutoResizeTextarea (keydown.enter)="onMessageInputEnter($event)">
+                appSanitizeInput appAutoResizeTextarea (input)="onMessageInput()"
+                (keydown.enter)="onMessageInputEnter($event)">
             </textarea>
 
             <app-loading-button [loading]="isSubmitting()">

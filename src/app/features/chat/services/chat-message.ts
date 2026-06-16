@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Auth } from '../../../core/services/auth';
 import { Guest } from '../../../core/services/guest';
-import { Message } from '../../../shared/interfaces/chat';
+import { Author } from '../../../shared/interfaces/author';
 
 @Injectable({
   providedIn: 'root',
@@ -10,21 +10,19 @@ export class ChatMessage {
   private auth = inject(Auth);
   private guest = inject(Guest);
 
-  isCurrentUserMessage(message?: Message) {
-    if (!message) {
+  isCurrentUserAuthor(author?: Author) {
+    if (!author) {
       return false;
     }
 
     const authUserId = this.auth.authState().user?.id;
 
-    if (message.userId) {
-      return message.userId === authUserId;
-    }
-
     if (authUserId) {
-      return false;
+      return author.type === 'USER' && author.id === authUserId;
     }
 
-    return !!message.guestSessionId && message.guestSessionId === this.guest.guestState().guestSessionId;
+    const guestSessionId = this.guest.guestState().guestSessionId;
+
+    return author.type === 'GUEST' && author.id === guestSessionId;
   }
 }

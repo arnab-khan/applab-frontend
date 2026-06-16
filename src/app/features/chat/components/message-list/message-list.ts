@@ -1,11 +1,13 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, Injector, input, output, signal, untracked, viewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, effect, ElementRef, HostListener, inject, Injector, input, output, signal, untracked, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { forkJoin, Observable, tap } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
-import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageCursorResponse, ChatRoomMessageResponse, Message, MessageDirection, MessageQueryParams, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
+import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageCursorResponse, ChatRoomMessageResponse, ChatRoomTypingResponse, Message, MessageDirection, MessageQueryParams, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
 import { InfiniteScroll } from '../../../../shared/components/data-display/infinite-scroll/infinite-scroll';
+import { AnimatedDots } from '../../../../shared/components/icons/animated-dots/animated-dots';
 import { Platform } from '../../../../shared/services/platform';
+import { getAuthorDisplayName } from '../../../../shared/utils/author';
 import { scrollIntoView } from '../../../../shared/utils/scroll';
 import { ChatMessage } from '../../services/chat-message';
 import { ChatState } from '../../services/chat-state';
@@ -14,7 +16,7 @@ import { MessageItem } from '../message-item/message-item';
 
 @Component({
   selector: 'app-message-list',
-  imports: [FontAwesomeModule, MessageInput, MessageItem, InfiniteScroll],
+  imports: [FontAwesomeModule, MessageInput, MessageItem, InfiniteScroll, AnimatedDots],
   templateUrl: './message-list.html',
   styleUrl: './message-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,6 +48,7 @@ export class MessageList {
   isMainLoading = signal(true);
   distanceFromEnd = signal(0);
   isAwayFromEnd = signal(false);
+  typingUsers = computed(() => this.chatState.typingUsers().filter((typingUser) => typingUser.chatRoomId === this.chatRoomId()));
   faArrowDown = faArrowDown;
   chatRoomId = input.required<number>();
   getMessagesRequest = input<(params: MessageQueryParams) => Observable<ChatRoomMessageCursorResponse>>();
@@ -92,7 +95,7 @@ export class MessageList {
 
       const message = liveMessage.message;
       const isMessageAdd = liveMessage.action === 'ADD';
-      const shouldScrollToBottom = untracked(() => isMessageAdd && (!this.isAwayFromEnd() || this.chatMessage.isCurrentUserMessage(message.message)));
+      const shouldScrollToBottom = untracked(() => isMessageAdd && (!this.isAwayFromEnd() || this.chatMessage.isCurrentUserAuthor(message.author)));
 
       this.messages.update((messages) => {
         // Ignore live messages that do not belong in this list.
@@ -263,6 +266,20 @@ export class MessageList {
 
   addReaction(request: { messageId: number; emoji: string; onComplete: () => void; onError: () => void }) {
     this.addReactionRequest.emit(request);
+  }
+
+  typingUsersText(typingUsers: ChatRoomTypingResponse[]) {
+    const names = typingUsers.map((typingUser) => getAuthorDisplayName(typingUser.author));
+
+    if (names.length === 1) {
+      return `${names[0]} is typing...`;
+    }
+
+    if (names.length === 2) {
+      return `${names[0]} and ${names[1]} are typing...`;
+    }
+
+    return `${names[0]}, ${names[1]} and ${names.length - 2} others are typing...`;
   }
 
   quoteReply(message: ChatRoomMessageResponse) {

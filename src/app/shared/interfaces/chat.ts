@@ -17,7 +17,6 @@ export interface Message {
     content?: string;
     deleted: boolean;
     edited: boolean;
-    author?: Author;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -71,6 +70,11 @@ export interface ChatRoomMessageResponse {
 export interface ChatRoomMessageLiveResponse {
     action: string;
     message: ChatRoomMessageResponse;
+}
+
+export interface ChatRoomTypingResponse {
+    chatRoomId: number;
+    author: Author;
 }
 
 export type ChatRoomMessageCursorResponse = CursorResponse<ChatRoomMessageResponse>;

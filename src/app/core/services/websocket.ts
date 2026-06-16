@@ -6,6 +6,9 @@ import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 })
 export class WebsocketService {
 
+  readonly appDestination = '/app';
+  readonly topicDestination = '/topic';
+
   private stompClient!: Client;
   // Subscriptions requested before the socket connects are replayed in onConnect.
   private pendingSubscriptions: (() => void)[] = [];
@@ -17,7 +20,7 @@ export class WebsocketService {
 
     this.stompClient = new Client({
       brokerURL: 'ws://localhost:8080/ws',
-      reconnectDelay: 5000,
+      reconnectDelay: 3000,
       onConnect: () => {
         // Copy first so subscriptions added while replaying stay queued for the next connect.
         const subscriptions = [...this.pendingSubscriptions];

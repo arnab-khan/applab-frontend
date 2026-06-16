@@ -31,6 +31,13 @@
 </div>
 
 <div class="sticky bottom-0 mt-3 overflow-visible">
+    @if (typingUsers().length) {
+    <div
+        class="mb-1 flex items-center gap-2 rounded-md bg-white/10 px-3 py-1 text-sm font-medium text-white/80 backdrop-blur-3xl">
+        <app-animated-dots class="text-white/80"></app-animated-dots>
+        <span class="min-w-0 truncate">{{ typingUsersText(typingUsers()) }}</span>
+    </div>
+    }
     @if (isAwayFromEnd()) {
     <button type="button"
         class="backdrop-blur-3xl u-absolute-center-x -top-12 z-10 flex items-center gap-2 rounded-full border border-white/25 bg-white/30 px-3 py-1 text-white shadow-lg shadow-black/20 transition hover:bg-white/40"

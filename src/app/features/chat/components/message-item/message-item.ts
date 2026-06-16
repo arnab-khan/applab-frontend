@@ -54,7 +54,7 @@ export class MessageItem {
     return messageResponse && 'chatRoomId' in messageResponse ? messageResponse : undefined;
   });
   orderedReactions = computed(() => orderReactionCounts(this.currentChatRoomMessageResponse()?.reactions || []));
-  isCurrentUserMessage = computed(() => this.chatMessage.isCurrentUserMessage(this.currentMessageResponse()?.message));
+  isCurrentUserMessage = computed(() => this.chatMessage.isCurrentUserAuthor(this.getMessageAuthor()));
   canEditMessage = computed(() => !!this.currentChatRoomMessageResponse()?.permission?.canEdit);
   canDeleteMessage = computed(() => !!this.currentChatRoomMessageResponse()?.permission?.canDelete);
   canShowMessageActionMenu = computed(() => this.canEditMessage() || this.canDeleteMessage());

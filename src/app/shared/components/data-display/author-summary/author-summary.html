@@ -14,11 +14,7 @@
   </div>
   <div class="min-w-0 flex-1">
     <p class="truncate text-sm font-semibold" [ngClass]="classes().authorNameColor || 'text-slate-900'">
-      @if (isGuest()) {
-      Guest #{{ author().id }}
-      } @else {
-      {{ author().name }}
-      }
+      {{ getAuthorDisplayName(author()) }}
     </p>
     @if (bodySecondaryContent()) {
     <ng-content select="[bodySecondary]"></ng-content>

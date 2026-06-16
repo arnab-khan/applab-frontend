@@ -5,16 +5,18 @@ import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } f
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPaperPlane, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable } from 'rxjs';
+import { Observable, Subject, throttleTime } from 'rxjs';
 import { AuthAction } from '../../../auth/components/auth-action/auth-action';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
 import { AutoResizeTextarea } from '../../../../shared/directives/auto-resize';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { ChatRoomAddRequest, ChatRoomEditRequest, Message, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
+import { ChatWebsocket } from '../../services/chat-websocket';
 import { MessageItem } from '../message-item/message-item';
 
 const MESSAGE_MAX_LENGTH = 255;
+const TYPING_THROTTLE_TIME = 500;
 
 @Component({
   selector: 'app-message-input',
@@ -27,6 +29,7 @@ export class MessageInput {
   private formBuilder = inject(NonNullableFormBuilder);
   private destroyRef = inject(DestroyRef);
   private snackBar = inject(MatSnackBar);
+  private chatWebsocket = inject(ChatWebsocket);
   private messageInput = viewChild<ElementRef<HTMLTextAreaElement>>('messageInput');
 
   chatRoomId = input.required<number>();
@@ -42,6 +45,7 @@ export class MessageInput {
   isSubmitting = signal(false);
   currentQuotedMessage = signal<QuotedMessageResponse | undefined>(undefined);
   currentContent = signal('');
+  private typingSubject = new Subject<void>();
 
   messageId = computed(() => this.message()?.id);
   activeQuotedMessage = computed(() => this.currentQuotedMessage());
@@ -71,6 +75,13 @@ export class MessageInput {
       takeUntilDestroyed(this.destroyRef),
     ).subscribe((content) => {
       this.currentContent.set(content);
+    });
+
+    this.typingSubject.pipe(
+      throttleTime(TYPING_THROTTLE_TIME),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(() => {
+      this.chatWebsocket.sendChatRoomTyping(this.chatRoomId());
     });
 
     effect(() => {
@@ -138,6 +149,13 @@ export class MessageInput {
 
     keyboardEvent.preventDefault();
     this.onSubmit();
+  }
+
+  onMessageInput() {
+    if (this.message() || !this.messageForm.controls.content.value.trim()) {
+      return;
+    }
+    this.typingSubject.next();
   }
 
   focusMessageInput() {
