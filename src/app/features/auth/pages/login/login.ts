@@ -13,6 +13,7 @@ import { PasswordField } from '../../../../shared/components/forms/password-fiel
 import { FormValidation } from '../../../../shared/services/form-validation';
 import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
 import { Redirect } from '../../../../shared/services/redirect';
+import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 @Component({
   selector: 'app-login',
@@ -26,6 +27,7 @@ import { Redirect } from '../../../../shared/services/redirect';
     RouterLink,
     PasswordField,
     ScrollToInvalid,
+    TelemetryClick,
   ],
   templateUrl: './login.html',
   styleUrl: './login.scss',

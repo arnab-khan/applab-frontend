@@ -6,13 +6,17 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { credentialsInterceptor } from './core/interceptors/credentials-interceptor';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
+import { apiTelemetryInterceptor } from './core/interceptors/api-telemetry-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes), provideClientHydration(withEventReplay()),
     provideHttpClient(
-      withInterceptors([credentialsInterceptor])
+      withInterceptors([
+        credentialsInterceptor,
+        apiTelemetryInterceptor,
+      ])
     ),
     {
       provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,

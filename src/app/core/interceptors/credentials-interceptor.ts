@@ -6,6 +6,7 @@ export const credentialsInterceptor: HttpInterceptorFn = (
     req: HttpRequest<unknown>,
     next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
+    // Include cookies with every HttpClient request.
     const apiReq = req.clone({
         withCredentials: true
     });

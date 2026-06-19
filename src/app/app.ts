@@ -8,6 +8,7 @@ import { filter, map } from 'rxjs';
 import { Platform } from './shared/services/platform';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Footer } from './core/layout/footer/footer';
+import { Telemetry } from './core/services/telemetry';
 
 @Component({
   selector: 'app-root',
@@ -27,6 +28,8 @@ export class App implements OnInit {
   private authService = inject(Auth);
   protected platformService = inject(Platform);
   private router = inject(Router);
+  private telemetry = inject(Telemetry);
+  private previousUrl: string | null = null;
 
   authState = this.authService.authState;
 
@@ -53,6 +56,7 @@ export class App implements OnInit {
 
   ngOnInit(): void {
     this.getUser();
+    this.trackRouteChange();
   }
 
   getUser() {
@@ -69,5 +73,24 @@ export class App implements OnInit {
 
   pageReload(){
     console.log('Page reload');
+  }
+
+  trackRouteChange(): void {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(event => {
+      const nextUrl = event.urlAfterRedirects;
+
+      this.telemetry.collectActivity({
+        name: 'route_change',
+        type: 'ROUTER_CHANGE',
+        activity: {
+          from: this.previousUrl,
+          to: nextUrl,
+        },
+      });
+
+      this.previousUrl = nextUrl;
+    });
   }
 }
