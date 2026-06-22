@@ -1,4 +1,5 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, computed, effect, ElementRef, HostListener, inject, Injector, input, output, signal, untracked, viewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, Injector, input, output, signal, untracked, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { forkJoin, Observable, tap } from 'rxjs';
@@ -28,6 +29,7 @@ export class MessageList {
   private platformService = inject(Platform);
   private elementRef = inject(ElementRef<HTMLElement>);
   private injector = inject(Injector);
+  private destroyRef = inject(DestroyRef);
   private messageInput = viewChild(MessageInput);
   private hasRequestedInitialMessages = false;
   private authUserId?: number | null;
@@ -142,7 +144,9 @@ export class MessageList {
 
     this.isMainLoading.set(true);
 
-    request.subscribe({
+    request.pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
       next: (messagesPage) => {
         console.log('messagesPage', messagesPage);
         const messages = [...messagesPage.items].reverse();
@@ -187,7 +191,9 @@ export class MessageList {
 
     this.setLoadingMoreMessages(direction, true);
 
-    request.subscribe({
+    request.pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
       next: (messagesPage) => {
         console.log('messagesPage', messagesPage);
         this.setLoadingMoreMessages(direction, false);
@@ -316,16 +322,30 @@ export class MessageList {
     this.isMainLoading.set(true);
     this.isGoingToMessage.set(true);
 
-    forkJoin([olderRequest, newerRequest]).subscribe({
+    forkJoin([olderRequest, newerRequest]).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
       next: ([olderMessagesPage, newerMessagesPage]) => {
         const olderMessages = [...olderMessagesPage.items].reverse();
         const newerMessages = newerMessagesPage.items;
         const allMessages = [...olderMessages, ...newerMessages];
         this.messages.set(allMessages);
         this.isMainLoading.set(false);
+        if (this.destroyRef.destroyed) {
+          return;
+        }
+
         afterNextRender(() => {
+          if (this.destroyRef.destroyed) {
+            return;
+          }
+
           this.scrollToBottom();
           setTimeout(() => {
+            if (this.destroyRef.destroyed) {
+              return;
+            }
+
             const isScrollingToMessage = this.scrollToMessage(messageId, () => {
               this.focusMessage(messageId);
               this.isGoingToMessage.set(false);
@@ -390,7 +410,15 @@ export class MessageList {
   }
 
   private scrollToBottom(params?: { scrollOptions?: ScrollIntoViewOptions; onComplete?: () => void }) {
+    if (this.destroyRef.destroyed) {
+      return;
+    }
+
     afterNextRender(() => {
+      if (this.destroyRef.destroyed) {
+        return;
+      }
+
       scrollIntoView({
         element: this.elementRef.nativeElement,
         scrollOptions: { block: 'end', ...params?.scrollOptions },
@@ -431,7 +459,15 @@ export class MessageList {
       return;
     }
 
+    if (this.destroyRef.destroyed) {
+      return;
+    }
+
     afterNextRender(() => {
+      if (this.destroyRef.destroyed) {
+        return;
+      }
+
       window.scrollTo({
         top: document.documentElement.scrollHeight - distanceFromBottom,
       });

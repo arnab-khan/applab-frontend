@@ -1,19 +1,17 @@
 export type TelemetryActivity = Record<string, unknown>;
-export type TelemetryActivityType = 'CLICK' | 'API_CALL' | 'ROUTER_CHANGE';
-export type TelemetryIdentityType = 'USER' | 'GUEST' | 'SESSION';
-
-export interface TelemetryIdentity {
-  type: TelemetryIdentityType;
-  id: number | string;
-}
+export type TelemetryActivityType = 'CLICK' | 'API_CALL' | 'ROUTER_CHANGE' | 'ERROR';
+export type TelemetryIdentityType = 'USER' | 'GUEST' | 'ANONYMOUS';
 
 export interface TelemetryPayload {
   name: string;
   type: TelemetryActivityType;
   activity: TelemetryActivity;
-  identity: TelemetryIdentity;
+  localSessionId: string;
+  identityType: TelemetryIdentityType;
+  identityId?: number;
   route: string;
-  userAgent: string;
+  browser: string;
+  platform: string;
 }
 
 export interface CollectActivityParams {

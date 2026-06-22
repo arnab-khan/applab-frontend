@@ -9,7 +9,11 @@ export const apiTelemetryInterceptor: HttpInterceptorFn = (
 ): Observable<HttpEvent<unknown>> => {
   const telemetry = inject(Telemetry);
   const startedAt = performance.now();
-  const trackApiCall = (success: boolean, status?: number): void => {
+  const trackApiCall = ({ success, status, errorMessage }: {
+    success: boolean;
+    status?: number;
+    errorMessage?: string;
+  }): void => {
     telemetry.collectActivity({
       name: getApiTelemetryName(req.url),
       type: 'API_CALL',
@@ -18,6 +22,7 @@ export const apiTelemetryInterceptor: HttpInterceptorFn = (
         url: req.url,
         status,
         success,
+        ...(errorMessage ? { errorMessage } : {}),
         durationMs: Math.round(performance.now() - startedAt),
       },
     });
@@ -27,11 +32,16 @@ export const apiTelemetryInterceptor: HttpInterceptorFn = (
     tap({
       next: event => {
         if (event instanceof HttpResponse) {
-          trackApiCall(true, event.status);
+          trackApiCall({ success: true, status: event.status });
         }
       },
       error: (error: unknown) => {
-        trackApiCall(false, error instanceof HttpErrorResponse ? error.status : undefined);
+        const httpError = error as HttpErrorResponse;
+
+        trackApiCall({
+          success: false,
+          errorMessage: httpError?.error?.message || httpError?.message,
+        });
       },
     })
   );

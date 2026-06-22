@@ -1,8 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { CollectActivityParams, TelemetryIdentity, TelemetryPayload } from '../../shared/interfaces/telemetry';
+import { CollectActivityParams, TelemetryPayload } from '../../shared/interfaces/telemetry';
 import { Auth } from './auth';
 import { Guest } from './guest';
+
+type NavigatorWithUserAgentData = Navigator & {
+  userAgentData?: {
+    brands?: { brand: string; version: string }[];
+    platform?: string;
+  };
+};
 
 @Injectable({
   providedIn: 'root',
@@ -12,57 +19,64 @@ export class Telemetry {
   private auth = inject(Auth);
   private guest = inject(Guest);
   private payloads: TelemetryPayload[] = [];
-  private sessionStorageKey = 'telemetrySessionId';
+  private sessionStorageKey = 'telemetryLocalSessionId';
 
   collectActivity({ name, type, activity }: CollectActivityParams): void {
+    const userId = this.auth.authState().user?.id;
+    const guestSessionId = this.guest.guestState().guestSessionId;
+    const identityType = userId ? 'USER' : guestSessionId ? 'GUEST' : 'ANONYMOUS';
+    const identityId = userId || guestSessionId;
     const payload: TelemetryPayload = {
       name,
       type,
       activity,
-      identity: this.getIdentity(),
+      localSessionId: this.getLocalSessionId(),
+      identityType,
+      identityId,
       route: this.router.url,
-      userAgent: navigator.userAgent,
+      browser: this.getBrowserName(),
+      platform: this.getPlatform(),
     };
 
     this.payloads.push(payload);
     console.log('Telemetry payloads', this.payloads);
   }
 
-  private getIdentity(): TelemetryIdentity {
-    const userId = this.auth.authState().user?.id;
+  private getLocalSessionId(): string {
+    const localSessionId = sessionStorage.getItem(this.sessionStorageKey);
 
-    if (userId) {
-      return {
-        type: 'USER',
-        id: userId,
-      };
+    if (localSessionId) {
+      return localSessionId;
     }
 
-    const guestSessionId = this.guest.guestState().guestSessionId;
+    const newLocalSessionId = crypto.randomUUID();
+    sessionStorage.setItem(this.sessionStorageKey, newLocalSessionId);
 
-    if (guestSessionId) {
-      return {
-        type: 'GUEST',
-        id: guestSessionId,
-      };
-    }
-
-    return {
-      type: 'SESSION',
-      id: this.getSessionId(),
-    };
+    return newLocalSessionId;
   }
 
-  private getSessionId(): string {
-    const sessionId = sessionStorage.getItem(this.sessionStorageKey);
+  private getBrowserName(): string {
+    const brands = (navigator as NavigatorWithUserAgentData).userAgentData?.brands;
+    const browserBrand = brands?.find(({ brand }) => brand !== 'Chromium' && brand !== 'Not A(Brand');
 
-    if (sessionId) {
-      return sessionId;
+    if (browserBrand?.brand) {
+      return browserBrand.brand;
     }
 
-    const newSessionId = crypto.randomUUID();
-    sessionStorage.setItem(this.sessionStorageKey, newSessionId);
+    const userAgent = navigator.userAgent;
 
-    return newSessionId;
+    if (userAgent.includes('Edg/')) return 'Edge';
+    if (userAgent.includes('OPR/') || userAgent.includes('Opera')) return 'Opera';
+    if (userAgent.includes('Firefox/')) return 'Firefox';
+    if (userAgent.includes('Chrome/')) return 'Chrome';
+    if (userAgent.includes('Safari/')) return 'Safari';
+
+    return 'Unknown';
+  }
+
+  private getPlatform(): string {
+    const nav = navigator as NavigatorWithUserAgentData;
+
+    return nav.userAgentData?.platform || navigator.platform || 'Unknown';
   }
 }

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, effect, inject } from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -11,6 +11,8 @@ import { LayoutState } from '../../core/services/layout-state';
 import { Platform } from '../../shared/services/platform';
 import { ChatRoomTypingResponse } from '../../shared/interfaces/chat';
 import { Author } from '../../shared/interfaces/author';
+import { Auth } from '../../core/services/auth';
+import { Guest } from '../../core/services/guest';
 
 @Component({
   selector: 'app-chat',
@@ -25,14 +27,33 @@ export class Chat implements OnInit {
   private layoutState = inject(LayoutState);
   private platformService = inject(Platform);
   private destroyRef = inject(DestroyRef);
+  private auth = inject(Auth);
+  private guest = inject(Guest);
   private websocketSubscriptions: StompSubscription[] = [];
   private typingUserTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
+  private currentIdentityKey = '';
 
   faGlobe = faGlobe;
   faUser = faUser;
   faUsers = faUsers;
   headerHeight = this.layoutState.headerHeight;
   typingUsers: ChatRoomTypingResponse[] = [];
+
+  constructor() {
+    effect(() => {
+      const identityKey = this.getCurrentIdentityKey();
+
+      if (!this.currentIdentityKey) {
+        this.currentIdentityKey = identityKey;
+        return;
+      }
+
+      if (this.currentIdentityKey !== identityKey) {
+        this.currentIdentityKey = identityKey;
+        this.chatWebsocket.reconnect();
+      }
+    });
+  }
 
   ngOnInit() {
     if (!this.platformService.isBrowser()) {
@@ -74,5 +95,21 @@ export class Chat implements OnInit {
 
   private getAuthorKey(author: Author) {
     return `${author.type}:${author.id}`;
+  }
+
+  private getCurrentIdentityKey(): string {
+    const userId = this.auth.authState().user?.id;
+
+    if (userId) {
+      return `USER:${userId}`;
+    }
+
+    const guestSessionId = this.guest.guestState().guestSessionId;
+
+    if (guestSessionId) {
+      return `GUEST:${guestSessionId}`;
+    }
+
+    return 'ANONYMOUS';
   }
 }

@@ -4,14 +4,15 @@
     <div class="border-b border-white/20 p-3">
         <div class="flex items-start gap-2">
             <button type="button" class="min-w-0 flex-1 rounded-xl bg-black/30 text-left"
-                (click)="goToMessage(quote.message.id)">
+                appTelemetryClick="chat_message_input_open_quote" (click)="goToMessage(quote.message.id)">
                 <app-message-item [messageResponse]="quote" [isPreview]="true" [addMessageRequest]="addMessageRequest()"
                     [editMessageRequest]="editMessageRequest()">
                 </app-message-item>
             </button>
             <button type="button"
                 class="mt-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
-                aria-label="Cancel quote reply" (click)="clearQuotedMessage()">
+                aria-label="Cancel quote reply" appTelemetryClick="chat_message_input_clear_quote"
+                (click)="clearQuotedMessage()">
                 <fa-icon [icon]="faXmark" class="leading-0"></fa-icon>
             </button>
         </div>

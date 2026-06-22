@@ -9,6 +9,10 @@ import { ChatRoomMessageLiveResponse, ChatRoomTypingResponse } from '../../../sh
 export class ChatWebsocket {
   private websocketService = inject(WebsocketService);
 
+  reconnect(): void {
+    this.websocketService.reconnect();
+  }
+
   sendChatRoomTyping(chatRoomId: number): void {
     this.websocketService.connect();
     this.websocketService.publish(`${this.websocketService.appDestination}/chatroom-typing`, {

@@ -14,13 +14,14 @@ import { ChatRoomAddRequest, ChatRoomEditRequest, Message, QuotedMessageResponse
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
 import { ChatWebsocket } from '../../services/chat-websocket';
 import { MessageItem } from '../message-item/message-item';
+import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 const MESSAGE_MAX_LENGTH = 255;
 const TYPING_THROTTLE_TIME = 500;
 
 @Component({
   selector: 'app-message-input',
-  imports: [NgClass, ReactiveFormsModule, AuthAction, FontAwesomeModule, SanitizeInput, LoadingButton, AutoResizeTextarea, forwardRef(() => MessageItem)],
+  imports: [NgClass, ReactiveFormsModule, AuthAction, FontAwesomeModule, SanitizeInput, LoadingButton, AutoResizeTextarea, TelemetryClick, forwardRef(() => MessageItem)],
   templateUrl: './message-input.html',
   styleUrl: './message-input.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

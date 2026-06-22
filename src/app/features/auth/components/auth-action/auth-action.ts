@@ -5,10 +5,11 @@ import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../../../core/services/auth';
 import { Guest } from '../../../../core/services/guest';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
+import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 @Component({
   selector: 'app-auth-action',
-  imports: [MatMenuModule, RouterLink, LoadingButton],
+  imports: [MatMenuModule, RouterLink, LoadingButton, TelemetryClick],
   templateUrl: './auth-action.html',
   styleUrl: './auth-action.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
