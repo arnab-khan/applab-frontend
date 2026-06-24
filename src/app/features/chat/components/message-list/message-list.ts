@@ -116,7 +116,14 @@ export class MessageList {
         } else {
           // Apply updates only to messages that are already loaded.
           if (messages.some((item) => item.message.id === message.message.id)) {
-            return messages.map((item) => item.message.id === message.message.id ? message : item);
+            return messages.map((item) => item.message.id === message.message.id ? {
+              ...item,
+              ...message,
+              message: {
+                ...item.message,
+                ...message.message,
+              },
+            } : item);
           }
 
           return messages;

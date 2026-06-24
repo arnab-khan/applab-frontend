@@ -40,7 +40,7 @@ export const apiTelemetryInterceptor: HttpInterceptorFn = (
 
         trackApiCall({
           success: false,
-          errorMessage: httpError?.error?.message || httpError?.message,
+          errorMessage: httpError?.error?.message || httpError?.error?.error || httpError?.message,
         });
       },
     })

@@ -200,7 +200,7 @@ export class MessageItem {
             next: () => dialogRef.close({ confirmed: true }),
             error: (error) => {
               console.error('Error deleting message', error);
-              const message = error.error?.message || error.message || 'Failed to delete message. Please try again.';
+              const message = error.error?.message || error.error?.error || error.error || 'Failed to delete message. Please try again.'
               this.snackBar.open(message, '✖', { duration: 3000, panelClass: 'snackbar-error' });
               dialogRef.close();
             },

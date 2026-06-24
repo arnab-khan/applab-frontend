@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageCursorResponse, ChatRoomMessageResponse, GlobalChatRoomResponse, Message, MessageQueryParams } from '../../../shared/interfaces/chat';
+import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageCursorResponse, ChatRoomMessageResponse, ChatRoomMessageViewerStateResponse, GlobalChatRoomResponse, Message, MessageQueryParams } from '../../../shared/interfaces/chat';
 import { CursorQueryParams } from '../../../shared/interfaces/pagination';
 import { ReactionEmojiRequest, Reaction, ReactionCount, ReactionWithAuthorCursorResponse } from '../../../shared/interfaces/reaction';
 import { toHttpParams } from '../../../shared/utils/http';
@@ -19,6 +19,14 @@ export class ChatApi {
 
   getChatRoomMessages(chatRoomId: number, params: MessageQueryParams) {
     return this.httpClient.get<ChatRoomMessageCursorResponse>(`${this.baseApiUrl}/${chatRoomId}/message/all`, { params: toHttpParams(params) });
+  }
+
+  getChatRoomMessage(chatRoomId: number, messageId: number) {
+    return this.httpClient.get<ChatRoomMessageResponse>(`${this.baseApiUrl}/${chatRoomId}/message/${messageId}`);
+  }
+
+  getChatRoomMessageViewerState(chatRoomId: number, messageId: number) {
+    return this.httpClient.get<ChatRoomMessageViewerStateResponse>(`${this.baseApiUrl}/${chatRoomId}/message/${messageId}/viewer-state`);
   }
 
   addChatRoomMessage(chatRoomId: number, body: ChatRoomAddRequest) {

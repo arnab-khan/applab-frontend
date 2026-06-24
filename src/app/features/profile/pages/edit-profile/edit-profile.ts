@@ -177,7 +177,7 @@ export class EditProfile implements OnInit {
           });
         },
         error: (error) => {
-          const message = error.error?.message || error.error || 'Profile basics update failed. Please try again.';
+          const message = error.error?.message || error.error?.error || error.error || 'Profile basics update failed. Please try again.';
           this.snackBar.open(message, '✖', {
             duration: 5000,
             panelClass: 'snackbar-error',
@@ -213,7 +213,7 @@ export class EditProfile implements OnInit {
           this.hasClickedCredentialsSubmit.set(false);
         },
         error: (error) => {
-          const message = error.error?.message || error.error || 'Credentials update failed. Please try again.';
+          const message = error.error?.message || error.error?.error || error.error || 'Credentials update failed. Please try again.';
           this.snackBar.open(message, '✖', {
             duration: 3000,
             panelClass: 'snackbar-error',
@@ -265,7 +265,7 @@ export class EditProfile implements OnInit {
               });
             },
             error: (error) => {
-              const message = error.error?.message || error.error || 'Failed to remove profile photo. Please try again.';
+              const message = error.error?.message || error.error?.error || error.error || 'Failed to remove profile photo. Please try again.';
               this.snackBar.open(message, '✖', {
                 duration: 3000,
                 panelClass: 'snackbar-error',

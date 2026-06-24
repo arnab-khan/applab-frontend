@@ -134,8 +134,8 @@ export class MessageInput {
         this.isSubmitting.set(false);
       },
       error: (error) => {
-        console.error(error);
-        const message = error.error?.message || error.message || 'Failed to save message. Please try again.';
+        console.error('message submit', error);
+        const message = error.error?.message || error.error?.error || error.error || 'Failed to save message. Please try again.'
         this.snackBar.open(message, '✖', { duration: 3000, panelClass: 'snackbar-error' });
         this.isSubmitting.set(false);
       },

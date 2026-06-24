@@ -7,9 +7,10 @@ import { StompSubscription } from '@stomp/stompjs';
 import { ChatState } from './services/chat-state';
 import { ChatWebsocket } from './services/chat-websocket';
 import { ChatMessage } from './services/chat-message';
+import { ChatApi } from './services/chat-api';
 import { LayoutState } from '../../core/services/layout-state';
 import { Platform } from '../../shared/services/platform';
-import { ChatRoomTypingResponse } from '../../shared/interfaces/chat';
+import { ChatRoomMessageLiveResponse, ChatRoomTypingResponse } from '../../shared/interfaces/chat';
 import { Author } from '../../shared/interfaces/author';
 import { Auth } from '../../core/services/auth';
 import { Guest } from '../../core/services/guest';
@@ -24,6 +25,7 @@ export class Chat implements OnInit {
   private chatState = inject(ChatState);
   private chatWebsocket = inject(ChatWebsocket);
   private chatMessage = inject(ChatMessage);
+  private chatApi = inject(ChatApi);
   private layoutState = inject(LayoutState);
   private platformService = inject(Platform);
   private destroyRef = inject(DestroyRef);
@@ -62,8 +64,34 @@ export class Chat implements OnInit {
 
     this.websocketSubscriptions.push(
       this.chatWebsocket.getChatRoomMessageLive((response) => {
-        console.log('liveMessage', response);
-        this.chatState.liveMessage.set(response);
+        console.log('liveMessage by websocket', response);
+        const liveMessage = response as ChatRoomMessageLiveResponse;
+        const isAddMessage = liveMessage.action === 'ADD';
+        const shouldFetchViewerState = isAddMessage || liveMessage.action === 'REACTION_ADD' || liveMessage.action === 'REACTION_EDIT' || liveMessage.action === 'REACTION_DELETE';
+        if (!shouldFetchViewerState) {
+          this.chatState.liveMessage.set(liveMessage);
+          return;
+        }
+
+        if (isAddMessage) {
+          this.chatState.liveMessage.set(liveMessage);
+        }
+        this.chatApi.getChatRoomMessageViewerState(liveMessage.message.chatRoomId, liveMessage.message.message.id).subscribe({
+          next: (viewerState) => {
+            console.log('liveMessage viewerState by api', viewerState);
+            this.chatState.liveMessage.set({
+              action: isAddMessage ? 'UPDATE' : liveMessage.action, // 'UPDATE' use to stop duplicate adding
+              message: {
+                ...liveMessage.message,
+                permission: viewerState.permission,
+                myReaction: viewerState.myReaction,
+              },
+            });
+          },
+          error: (error) => {
+            console.error('liveMessageViewerStateError', error);
+          },
+        });
       })
     );
 

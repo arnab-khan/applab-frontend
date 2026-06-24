@@ -67,6 +67,12 @@ export interface ChatRoomMessageResponse {
     myReaction?: Reaction | null;
 }
 
+export interface ChatRoomMessageViewerStateResponse {
+    messageId: number;
+    permission?: MessagePermission;
+    myReaction?: Reaction | null;
+}
+
 export interface ChatRoomMessageLiveResponse {
     action: string;
     message: ChatRoomMessageResponse;
