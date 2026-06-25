@@ -7,6 +7,10 @@ export const apiTelemetryInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
+  if (isTelemetryRequest(req.url)) {
+    return next(req);
+  }
+
   const telemetry = inject(Telemetry);
   const startedAt = performance.now();
   const trackApiCall = ({ success, status, errorMessage }: {
@@ -46,6 +50,10 @@ export const apiTelemetryInterceptor: HttpInterceptorFn = (
     })
   );
 };
+
+function isTelemetryRequest(url: string): boolean {
+  return getUrlPath(url).startsWith('/telemetry');
+}
 
 function getApiTelemetryName(url: string): string {
   const path = getUrlPath(url);

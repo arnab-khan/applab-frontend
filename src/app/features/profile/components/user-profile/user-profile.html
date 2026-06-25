@@ -52,12 +52,12 @@
         <dd class="min-w-0 text-sm font-medium text-slate-900 sm:w-0 grow">{{ profileUrl }}</dd>
         <div class="shrink-0">
           <div class="flex items-center gap-4 sm:gap-2">
-            <button type="button" (click)="copyProfileLink()"
+            <button type="button" appTelemetryClick="profile_copy_link" (click)="copyProfileLink()"
               class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-600 text-white transition-colors hover:bg-cyan-700"
               aria-label="Copy profile link">
               <fa-icon [icon]="faCopy"></fa-icon>
             </button>
-            <button type="button" (click)="shareProfileLink()"
+            <button type="button" appTelemetryClick="profile_share_link" (click)="shareProfileLink()"
               class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-white transition-colors hover:bg-slate-800"
               aria-label="Share profile link">
               <fa-icon [icon]="faShareNodes"></fa-icon>

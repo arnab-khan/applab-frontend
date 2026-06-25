@@ -15,7 +15,8 @@
                 <div class="w-fit sm:mx-auto">
                     <app-image-uploader (fileSelected)="onProfilePhotoSelected($event)" class="block leading-0">
                         <div type="button"
-                            class="u-form-field block w-auto overflow-hidden rounded-[10%] p-0 outline-none" [ngClass]="{
+                            class="u-form-field block w-auto overflow-hidden rounded-[10%] p-0 outline-none"
+                            appTelemetryClick="signup_profile_photo_open" [ngClass]="{
                             'ng-valid': profilePhotoControl.valid,
                             'ng-invalid': profilePhotoControl.invalid,
                             'ng-touched': profilePhotoControl.touched,
@@ -32,7 +33,8 @@
                     <div class="flex items-center justify-center gap-2 mt-2 sm:order-1">
                         <app-image-uploader (fileSelected)="onProfilePhotoSelected($event)">
                             <div type="button"
-                                class="flex h-9 w-9 items-center justify-center rounded-full border border-cyan-200 bg-white text-cyan-600 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-700">
+                                class="flex h-9 w-9 items-center justify-center rounded-full border border-cyan-200 bg-white text-cyan-600 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-700"
+                                appTelemetryClick="signup_profile_photo_edit">
                                 <fa-icon
                                     [icon]="selectedProfileImage() ? faPen : (isMobileDevice ? faCamera : faFolderOpen)"></fa-icon>
                             </div>
@@ -41,7 +43,7 @@
                         @if (selectedProfileImage()) {
                         <button type="button"
                             class="flex h-9 w-9 items-center justify-center rounded-full border border-rose-200 bg-white text-rose-500 shadow-sm transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600"
-                            (click)="onRemovePhoto()">
+                            appTelemetryClick="signup_profile_photo_remove" (click)="onRemovePhoto()">
                             <fa-icon [icon]="faTrash"></fa-icon>
                         </button>
                         }

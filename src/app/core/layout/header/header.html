@@ -1,8 +1,7 @@
 <div class="sticky top-0 z-10 shadow px-3 u-gradient-background u-light-gradient c-header">
     <nav class="flex flex-row justify-between items-center py-2 mx-auto u-container-1">
         <ul class="flex gap-x-1 items-center">
-            <ng-container [ngTemplateOutlet]="routeLink"
-                [ngTemplateOutletContext]="{ route: '/chat', label: 'Chat' }">
+            <ng-container [ngTemplateOutlet]="routeLink" [ngTemplateOutletContext]="{ route: '/chat', label: 'Chat' }">
             </ng-container>
             <ng-container [ngTemplateOutlet]="routeLink"
                 [ngTemplateOutletContext]="{ route: '/users', label: 'Users' }">
@@ -25,8 +24,10 @@
                     <app-thumbnail [imageData]="profileState().profileImage?.compressedFileData"
                         [fileType]="profileState().profileImage?.fileType" [name]="authState().user?.name"
                         [loading]="profileState().loading" size="1.5rem" radius="50%"></app-thumbnail>
-                    <app-formatted-text [text]="(authState().user?.name | capitalizeWords) || authState().user?.username || 'Profile'"
-                        [maxLength]="11"></app-formatted-text>
+                    <app-formatted-text class="hidden sm:block"
+                        [text]="(authState().user?.name | capitalizeWords) || authState().user?.username || 'Profile'"
+                        [maxLength]="11">
+                    </app-formatted-text>
                 </a>
             </li>
             } @else {

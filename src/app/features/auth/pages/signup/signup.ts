@@ -26,6 +26,7 @@ import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid
 import { FormValidation } from '../../../../shared/services/form-validation';
 import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-pipe';
 import { Redirect } from '../../../../shared/services/redirect';
+import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 @Component({
   selector: 'app-signup',
@@ -42,6 +43,7 @@ import { Redirect } from '../../../../shared/services/redirect';
     Thumbnail,
     ImageUploader,
     ScrollToInvalid,
+    TelemetryClick,
   ],
   templateUrl: './signup.html',
   styleUrl: './signup.scss',

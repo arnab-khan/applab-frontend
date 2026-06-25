@@ -1,5 +1,5 @@
 import { ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
@@ -12,7 +12,10 @@ import { GlobalErrorHandler } from './core/services/global-error-handler';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes), provideClientHydration(withEventReplay()),
+    // Scroll to the top whenever users navigate to a different route.
+    provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
+    // Reuse server-rendered HTML in the browser and replay early user events after hydration.
+    provideClientHydration(withEventReplay()),
     provideHttpClient(
       withInterceptors([
         credentialsInterceptor,

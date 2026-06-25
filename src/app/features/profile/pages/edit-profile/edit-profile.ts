@@ -23,6 +23,7 @@ import { commonFormValidator } from '../../../../shared/validators/common-form-v
 import { existsValidator } from '../../../../shared/validators/exists-validator';
 import { matchControlValidator } from '../../../../shared/validators/match-control-validator';
 import { FormValidation } from '../../../../shared/services/form-validation';
+import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 @Component({
   selector: 'app-edit-profile',
@@ -40,6 +41,7 @@ import { FormValidation } from '../../../../shared/services/form-validation';
     ImageUploader,
     LoadingButton,
     PasswordField,
+    TelemetryClick,
   ],
   templateUrl: './edit-profile.html',
   styleUrl: './edit-profile.scss',

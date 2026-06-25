@@ -111,6 +111,7 @@
                                 <button type="button"
                                     class="inline-flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white disabled:pointer-events-none disabled:opacity-50"
                                     aria-label="Add reaction" [disabled]="isReactionSubmitting()"
+                                    appTelemetryClick="chat_message_open_reaction_menu"
                                     [matMenuTriggerFor]="reactionMenu">
                                     <mat-icon fontSet="material-symbols-outlined">add_reaction</mat-icon>
                                 </button>

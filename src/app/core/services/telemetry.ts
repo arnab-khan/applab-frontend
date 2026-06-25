@@ -1,6 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 import { CollectActivityParams, TelemetryPayload } from '../../shared/interfaces/telemetry';
+import { Platform } from '../../shared/services/platform';
 import { Auth } from './auth';
 import { Guest } from './guest';
 
@@ -15,13 +18,32 @@ type NavigatorWithUserAgentData = Navigator & {
   providedIn: 'root',
 })
 export class Telemetry {
+  private httpClient = inject(HttpClient);
   private router = inject(Router);
   private auth = inject(Auth);
   private guest = inject(Guest);
+  private platformService = inject(Platform);
   private payloads: TelemetryPayload[] = [];
+  private baseApiUrl = `${environment.rootApiUrl}/telemetry`;
+  private addApiUrl = `${this.baseApiUrl}/add`;
   private sessionStorageKey = 'telemetryLocalSessionId';
+  private isSaving = false;
+
+  constructor() {
+    if (!this.platformService.isBrowser()) {
+      return;
+    }
+
+    setInterval(() => this.savePayloads(), 60000);
+    window.addEventListener('pagehide', () => this.savePayloadsBeforeUnload());
+    window.addEventListener('beforeunload', () => this.savePayloadsBeforeUnload());
+  }
 
   collectActivity({ name, type, activity }: CollectActivityParams): void {
+    if (!this.platformService.isBrowser()) {
+      return;
+    }
+
     const userId = this.auth.authState().user?.id;
     const guestSessionId = this.guest.guestState().guestSessionId;
     const identityType = userId ? 'USER' : guestSessionId ? 'GUEST' : 'ANONYMOUS';
@@ -40,6 +62,45 @@ export class Telemetry {
 
     this.payloads.push(payload);
     console.log('Telemetry payloads', this.payloads);
+  }
+
+  // Flush queued telemetry during normal app usage.
+  private savePayloads(): void {
+    if (this.isSaving || !this.payloads.length) {
+      return;
+    }
+
+    const payloads = [...this.payloads];
+    this.payloads = [];
+
+    this.isSaving = true;
+    this.httpClient.post(this.addApiUrl, payloads).subscribe({
+      next: () => {
+        this.isSaving = false;
+      },
+      error: (error) => {
+        console.error('Failed to save telemetry', error);
+        this.payloads = [...payloads, ...this.payloads];
+        this.isSaving = false;
+      },
+    });
+  }
+
+  // Use sendBeacon so telemetry can still be sent while the page is closing.
+  private savePayloadsBeforeUnload(): void {
+    if (!this.payloads.length) {
+      return;
+    }
+
+    const payloads = [...this.payloads];
+    const body = new Blob([JSON.stringify(payloads)], {
+      type: 'application/json',
+    });
+    const queued = navigator.sendBeacon(this.addApiUrl, body);
+
+    if (queued) {
+      this.payloads = [];
+    }
   }
 
   private getLocalSessionId(): string {

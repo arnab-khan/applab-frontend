@@ -7,7 +7,8 @@
     </mat-checkbox>
     <h3 class="c-todo-title text-md font-semibold grow shrink w-0 text-gray-900" [appHighlightText]="searchTerm()">{{
       todo().title }}</h3>
-    <button [matMenuTriggerFor]="menu" class="text-gray-400 hover:text-gray-600 shrink-0">
+    <button [matMenuTriggerFor]="menu" class="text-gray-400 hover:text-gray-600 shrink-0"
+      appTelemetryClick="todo_item_open_menu">
       <fa-icon [icon]="faEllipsisVertical"></fa-icon>
     </button>
   </div>
@@ -28,7 +29,7 @@
 
   <mat-menu #menu="matMenu">
     <div class="bg-white/10 py-2">
-      <button mat-menu-item class="hover:!bg-gray-100" (click)="onEdit()">
+      <button mat-menu-item class="hover:!bg-gray-100" appTelemetryClick="todo_item_open_edit_form" (click)="onEdit()">
         <fa-icon [icon]="faPenToSquare" class="text-blue-600 mr-2"></fa-icon>
         <span class="text-blue-600">Edit</span>
       </button>

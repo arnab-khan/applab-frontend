@@ -41,7 +41,7 @@
     @if (isAwayFromEnd()) {
     <button type="button"
         class="backdrop-blur-3xl u-absolute-center-x -top-12 z-10 flex items-center gap-2 rounded-full border border-white/25 bg-white/30 px-3 py-1 text-white shadow-lg shadow-black/20 transition hover:bg-white/40"
-        aria-label="Jump to bottom" (click)="jumpToBottom()">
+        aria-label="Jump to bottom" appTelemetryClick="chat_message_list_jump_to_bottom" (click)="jumpToBottom()">
         <fa-icon [icon]="faArrowDown" class=" text-base font-semibold"></fa-icon>
         <span class="text-nowrap text-base font-semibold">Jump to bottom</span>
     </button>

@@ -14,10 +14,11 @@ import { ChatMessage } from '../../services/chat-message';
 import { ChatState } from '../../services/chat-state';
 import { MessageInput } from '../message-input/message-input';
 import { MessageItem } from '../message-item/message-item';
+import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 @Component({
   selector: 'app-message-list',
-  imports: [FontAwesomeModule, MessageInput, MessageItem, InfiniteScroll, AnimatedDots],
+  imports: [FontAwesomeModule, MessageInput, MessageItem, InfiniteScroll, AnimatedDots, TelemetryClick],
   templateUrl: './message-list.html',
   styleUrl: './message-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
