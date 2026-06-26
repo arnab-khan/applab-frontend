@@ -105,7 +105,7 @@
                                     @if (selectedReactionCode()) {
                                     <span class="text-lg leading-none">{{ selectedReactionEmoji() }}</span>
                                     } @else {
-                                    <mat-icon fontSet="material-symbols-outlined">thumb_up</mat-icon>
+                                    <fa-icon [icon]="faThumbsUp" class="text-xl font-bold"></fa-icon>
                                     }
                                 </button>
                                 <button type="button"
@@ -113,7 +113,7 @@
                                     aria-label="Add reaction" [disabled]="isReactionSubmitting()"
                                     appTelemetryClick="chat_message_open_reaction_menu"
                                     [matMenuTriggerFor]="reactionMenu">
-                                    <mat-icon fontSet="material-symbols-outlined">add_reaction</mat-icon>
+                                    <fa-icon [icon]="faFaceSmile" class="text-xl font-bold"></fa-icon>
                                 </button>
                                 <mat-menu #reactionMenu="matMenu" xPosition="after" yPosition="above"
                                     class="reaction-menu-panel">
