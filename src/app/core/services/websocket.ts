@@ -1,18 +1,23 @@
-import { Injectable } from '@angular/core';
-import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
+import { inject, Injectable } from '@angular/core';
+import { Client, IFrame, IMessage, StompSubscription } from '@stomp/stompjs';
 import { WebsocketSubscription } from '../../shared/interfaces/websocket';
 import { environment } from '../../../environments/environment';
+import { Telemetry } from './telemetry';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebsocketService {
+  private telemetry = inject(Telemetry);
 
   readonly appDestination = '/app';
   readonly topicDestination = '/topic';
 
   private stompClient?: Client;
   private subscriptions: WebsocketSubscription[] = [];
+  private reconnecting = false;
+  private pendingReconnect = false;
+  private collectedFailureKeys = new Set<string>();
 
   // Open the websocket connection if it is not already active.
   connect(): void {
@@ -20,13 +25,18 @@ export class WebsocketService {
       return;
     }
 
+    const brokerURL = `${environment.rootApiUrl.replace(/^http/, 'ws')}/ws`;
+
     this.stompClient = new Client({
-      brokerURL: `${environment.rootApiUrl.replace(/^http/, 'ws')}/ws`,
+      brokerURL,
       reconnectDelay: 3000,
       onConnect: () => {
         // STOMP subscriptions are lost after reconnect, so attach the active ones again.
         this.subscriptions.forEach((subscription) => this.subscribeStomp(subscription));
-      }
+      },
+      onStompError: (frame) => this.collectWebsocketFailureTelemetry('stomp_error', frame, brokerURL),
+      onWebSocketError: (event) => this.collectWebsocketFailureTelemetry('websocket_error', event, brokerURL),
+      onWebSocketClose: (event) => this.collectWebsocketFailureTelemetry('websocket_close', event, brokerURL),
     });
 
     this.stompClient.activate();
@@ -34,15 +44,30 @@ export class WebsocketService {
 
   // Recreate the websocket connection and restore active subscriptions.
   reconnect(): void {
+    if (this.reconnecting) {
+      this.pendingReconnect = true;
+      return;
+    }
+
     if (!this.stompClient?.active) {
       this.connect();
       return;
     }
 
-    this.subscriptions.forEach((subscription) => subscription.stompSubscription?.unsubscribe());
-    this.stompClient.deactivate().then(() => {
+    this.reconnecting = true;
+    const currentClient = this.stompClient;
+    this.subscriptions.forEach((subscription) => subscription.stompSubscription = undefined);
+    currentClient.deactivate().then(() => {
       // Create a fresh connection so updated cookies/session state are used in the handshake.
-      this.stompClient = undefined;
+      if (this.stompClient === currentClient) {
+        this.stompClient = undefined;
+      }
+      this.reconnecting = false;
+      if (this.pendingReconnect) {
+        this.pendingReconnect = false;
+        this.reconnect();
+        return;
+      }
       this.connect();
     });
   }
@@ -105,5 +130,52 @@ export class WebsocketService {
       subscription.topic,
       subscription.callback
     );
+  }
+
+  private collectWebsocketFailureTelemetry(name: string, error: Event | IFrame, brokerURL: string): void {
+    const details = {
+      brokerURL,
+      ...this.getWebsocketFailureDetails(error),
+    };
+    const failureKey = JSON.stringify({ name, details });
+
+    if (this.collectedFailureKeys.has(failureKey)) {
+      return;
+    }
+
+    this.collectedFailureKeys.add(failureKey);
+    this.telemetry.collectActivity({
+      name,
+      type: 'WEBSOCKET_ERROR',
+      activity: {
+        message: this.getWebsocketFailureMessage(error),
+        details,
+      },
+    });
+  }
+
+  private getWebsocketFailureMessage(error: Event | IFrame): string {
+    if ('headers' in error) {
+      return error.headers['message'] || error.command || 'STOMP websocket error';
+    }
+
+    return error.type || 'Websocket error';
+  }
+
+  private getWebsocketFailureDetails(error: Event | IFrame): Record<string, unknown> {
+    if ('headers' in error) {
+      return {
+        command: error.command,
+        headers: error.headers,
+        body: error.body,
+      };
+    }
+
+    return {
+      type: error.type,
+      code: 'code' in error ? error.code : undefined,
+      reason: 'reason' in error ? error.reason : undefined,
+      wasClean: 'wasClean' in error ? error.wasClean : undefined,
+    };
   }
 }

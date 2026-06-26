@@ -7,15 +7,27 @@ const MAX_ERROR_STACK_LENGTH = 4000;
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
   private telemetry = inject(Telemetry);
+  private collectedErrorKeys = new Set<string>();
 
   handleError(error: unknown): void {
+    const message = this.getErrorMessage(error);
+    const stack = this.getErrorStack(error);
+    const details = this.getErrorDetails(error);
+    const errorKey = JSON.stringify({ message, stack, details });
+
+    if (this.collectedErrorKeys.has(errorKey)) {
+      console.error(error);
+      return;
+    }
+
+    this.collectedErrorKeys.add(errorKey);
     this.telemetry.collectActivity({
       name: 'runtime_error',
       type: 'ERROR',
       activity: {
-        message: this.getErrorMessage(error),
-        stack: this.getErrorStack(error),
-        details: this.getErrorDetails(error),
+        message,
+        stack,
+        details,
       },
     });
 
@@ -24,7 +36,28 @@ export class GlobalErrorHandler implements ErrorHandler {
 
   private getErrorMessage(error: unknown): string {
     if (error instanceof Error) {
-      return error.message;
+      const message = `${error.name}: ${error.message}`;
+
+      if (error.cause) {
+        return `${message}; cause: ${String(error.cause)}`;
+      }
+
+      return message;
+    }
+
+    if (typeof error === 'object' && error !== null) {
+      const errorRecord = error as Record<string, unknown>;
+      const messageParts = [
+        errorRecord['name'],
+        errorRecord['message'],
+        errorRecord['reason'],
+        errorRecord['status'],
+        errorRecord['statusText'],
+      ].filter((item) => item !== undefined && item !== null && item !== '');
+
+      if (messageParts.length) {
+        return messageParts.map((item) => String(item)).join(' ');
+      }
     }
 
     return String(error);
