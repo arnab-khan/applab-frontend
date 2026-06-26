@@ -16,6 +16,8 @@ import { MessageInput } from '../message-input/message-input';
 import { MessageItem } from '../message-item/message-item';
 import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
+const TYPING_NAME_MAX_LENGTH = 24;
+
 @Component({
   selector: 'app-message-list',
   imports: [FontAwesomeModule, MessageInput, MessageItem, InfiniteScroll, AnimatedDots, TelemetryClick],
@@ -283,7 +285,7 @@ export class MessageList {
   }
 
   typingUsersText(typingUsers: ChatRoomTypingResponse[]) {
-    const names = typingUsers.map((typingUser) => getAuthorDisplayName(typingUser.author));
+    const names = typingUsers.map((typingUser) => this.truncateTypingName(getAuthorDisplayName(typingUser.author)));
 
     if (names.length === 1) {
       return `${names[0]} is typing...`;
@@ -294,6 +296,13 @@ export class MessageList {
     }
 
     return `${names[0]}, ${names[1]} and ${names.length - 2} others are typing...`;
+  }
+
+  private truncateTypingName(name?: string) {
+    if (!name || name.length <= TYPING_NAME_MAX_LENGTH) {
+      return name;
+    }
+    return `${name.slice(0, TYPING_NAME_MAX_LENGTH - 3)}...`;
   }
 
   quoteReply(message: ChatRoomMessageResponse) {

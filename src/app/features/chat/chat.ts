@@ -33,7 +33,6 @@ export class Chat implements OnInit {
   private guest = inject(Guest);
   private websocketSubscriptions: StompSubscription[] = [];
   private typingUserTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
-  private currentIdentityKey = '';
 
   faGlobe = faGlobe;
   faUser = faUser;
@@ -43,17 +42,9 @@ export class Chat implements OnInit {
 
   constructor() {
     effect(() => {
-      const identityKey = this.getCurrentIdentityKey();
-
-      if (!this.currentIdentityKey) {
-        this.currentIdentityKey = identityKey;
-        return;
-      }
-
-      if (this.currentIdentityKey !== identityKey) {
-        this.currentIdentityKey = identityKey;
-        this.chatWebsocket.reconnect();
-      }
+      this.auth.authState();
+      this.guest.guestState();      
+      this.chatWebsocket.reconnect();
     });
   }
 
@@ -125,19 +116,4 @@ export class Chat implements OnInit {
     return `${author.type}:${author.id}`;
   }
 
-  private getCurrentIdentityKey(): string {
-    const userId = this.auth.authState().user?.id;
-
-    if (userId) {
-      return `USER:${userId}`;
-    }
-
-    const guestSessionId = this.guest.guestState().guestSessionId;
-
-    if (guestSessionId) {
-      return `GUEST:${guestSessionId}`;
-    }
-
-    return 'ANONYMOUS';
-  }
 }

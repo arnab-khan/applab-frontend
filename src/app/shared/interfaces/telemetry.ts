@@ -1,5 +1,5 @@
 export type TelemetryActivity = Record<string, unknown>;
-export type TelemetryActivityType = 'CLICK' | 'API_CALL' | 'ROUTER_CHANGE' | 'ERROR';
+export type TelemetryActivityType = 'CLICK' | 'API_CALL' | 'ROUTER_CHANGE' | 'ERROR' | 'WEBSOCKET_ERROR';
 export type TelemetryIdentityType = 'USER' | 'GUEST' | 'ANONYMOUS';
 
 export interface TelemetryPayload {
