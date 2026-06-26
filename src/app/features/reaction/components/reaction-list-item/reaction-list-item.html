@@ -1,0 +1,6 @@
+<app-author-summary [author]="reaction().author">
+  <span #avatarBottomEnd avatarBottomEnd class="u-absolute-center-xy">{{ getReactionEmoji(reaction().reaction.emoji) }}</span>
+  <p #bodySecondary bodySecondary class="text-xs text-slate-500">
+    {{ reaction().reaction.createdAt | date:'MMM d, y, h:mm a' }}
+  </p>
+</app-author-summary>

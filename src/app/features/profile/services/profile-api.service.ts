@@ -26,11 +26,13 @@ export class ProfileApiService {
     });
   }
 
-  getPublicProfileImageUrl(userId: number) {
+  getPublicProfileImageUrl(userId?: number | undefined) {
+    if (!userId) return undefined;
     return `${this.baseApiUrl}/public/profile-image/raw/${userId}`;
   }
 
-  getPublicImageUrl(profileImageUrl: string) {
+  getPublicImageUrl(profileImageUrl?: string | undefined) {
+    if (!profileImageUrl) return undefined;
     return `${environment.rootApiUrl}${profileImageUrl}`;
   }
 }

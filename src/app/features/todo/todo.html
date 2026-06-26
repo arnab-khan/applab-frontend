@@ -13,7 +13,7 @@
 
     <!-- Create Todo Button -->
     <div class="flex justify-center">
-      <button (click)="openTodoForm()" class="u-gradient-btn">
+      <button (click)="openTodoForm()" class="u-gradient-btn" appTelemetryClick="todo_open_create_form">
         <fa-icon [icon]="faPlus" class="mr-3"></fa-icon>
         Create New Todo
       </button>

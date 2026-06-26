@@ -1,0 +1,23 @@
+<a [routerLink]="getAuthorLink()" class="flex items-center gap-3 rounded-lg py-2 transition" target="_blank"
+  rel="noopener noreferrer">
+  <div class="relative shrink-0">
+    <app-thumbnail size="2.5rem" radius="50%"
+      [imageUrl]="profileApiService.getPublicImageUrl(author().compressedProfileImageUrl)"
+      [name]="isGuest() ? null : author().name" [showBorder]="false">
+    </app-thumbnail>
+    @if (avatarBottomEndContent()) {
+    <span
+      class="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-white text-base leading-none text-slate-950 shadow ring-1 ring-slate-200">
+      <ng-content select="[avatarBottomEnd]"></ng-content>
+    </span>
+    }
+  </div>
+  <div class="min-w-0 flex-1">
+    <p class="truncate text-sm font-semibold" [ngClass]="classes().authorNameColor || 'text-slate-900'">
+      {{ getAuthorDisplayName(author()) }}
+    </p>
+    @if (bodySecondaryContent()) {
+    <ng-content select="[bodySecondary]"></ng-content>
+    }
+  </div>
+</a>

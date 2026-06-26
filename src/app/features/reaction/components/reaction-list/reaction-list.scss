@@ -1,0 +1,10 @@
+:host {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.c-reaction-list__tabs {
+    scrollbar-width: thin;
+}

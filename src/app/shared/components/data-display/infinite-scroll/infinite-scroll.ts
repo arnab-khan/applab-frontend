@@ -1,20 +1,38 @@
+import { NgClass } from '@angular/common';
 import { Component, effect, ElementRef, inject, input, output, viewChild } from '@angular/core';
 import { Platform } from '../../../services/platform';
 
 @Component({
   selector: 'app-infinite-scroll',
+  imports: [NgClass],
   templateUrl: './infinite-scroll.html',
   styleUrl: './infinite-scroll.scss',
 })
 export class InfiniteScroll {
   private platform = inject(Platform);
+  private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  readonly sentinel = viewChild<ElementRef<HTMLElement>>('sentinel');
+  readonly topSentinel = viewChild<ElementRef<HTMLElement>>('topSentinel');
+  readonly bottomSentinel = viewChild<ElementRef<HTMLElement>>('bottomSentinel');
 
-  readonly loading = input(false);
+  readonly loadingStart = input(false);
+  readonly loadingEnd = input(false);
+  readonly disabled = input(false);
+  readonly useElementScroll = input(false);
+  readonly spinnerClass = input('');
+  readonly reachedStart = output<void>();
   readonly reachedEnd = output<void>();
 
-  private hasTriggeredSinceExit = false;
+  private hasTriggeredStartSinceExit = false;
+  private hasTriggeredEndSinceExit = false;
+
+  isLoadingStart() {
+    return this.loadingStart();
+  }
+
+  isLoadingEnd() {
+    return this.loadingEnd();
+  }
 
   constructor() {
     effect((onCleanup) => {
@@ -22,44 +40,96 @@ export class InfiniteScroll {
         return;
       }
 
-      const target = this.sentinel()?.nativeElement;
-
-      if (!target) {
+      if (this.disabled()) {
+        this.hasTriggeredStartSinceExit = false;
+        this.hasTriggeredEndSinceExit = false;
         return;
       }
 
-      // Watch the bottom sentinel and emit before it reaches the visible viewport end.
-      const observer = new IntersectionObserver(
-        // `entry` describes how much the sentinel is intersecting with the viewport.
-        ([entry]) => {
-          if (!entry) {
-            return;
-          }
+      const topTarget = this.topSentinel()?.nativeElement;
+      const bottomTarget = this.bottomSentinel()?.nativeElement;
+      const root = this.useElementScroll() ? this.elementRef.nativeElement : null;
 
-          if (!entry.isIntersecting) {
-            this.hasTriggeredSinceExit = false;
-            return;
-          }
+      if (!topTarget || !bottomTarget) {
+        return;
+      }
 
-          if (this.hasTriggeredSinceExit || this.loading()) {
-            return;
-          }
+      // Watch both sentinels and emit before they reach the visible viewport edge.
+      const topObserver = this.createScrollObserver('start', '200px 0px 0px 0px', root);
+      const bottomObserver = this.createScrollObserver('end', '0px 0px 200px 0px', root);
 
-          this.hasTriggeredSinceExit = true;
-          this.reachedEnd.emit();
-        },
-        {
-          // Use the main page scroll, trigger about 200px before the sentinel reaches the viewport,
-          // and fire as soon as any part of the sentinel enters that area.
-          root: null,
-          rootMargin: '0px 0px 200px 0px',
-          threshold: 0,
-        },
-      );
+      topObserver.observe(topTarget);
+      bottomObserver.observe(bottomTarget);
 
-      observer.observe(target);
-
-      onCleanup(() => observer.disconnect());
+      onCleanup(() => {
+        topObserver.disconnect();
+        bottomObserver.disconnect();
+      });
     });
+  }
+
+  private createScrollObserver(
+    direction: 'start' | 'end',
+    rootMargin: string,
+    root: HTMLElement | null,
+  ) {
+    return new IntersectionObserver(
+      // `entry` describes how much the sentinel is intersecting with the viewport.
+      ([entry]) => {
+        if (!entry) {
+          return;
+        }
+
+        // When the marker is not visible (not inside the trigger zone anymore), so the infinite scroll can trigger again later when the sentinel enters the trigger zone again.
+        if (!entry.isIntersecting) {
+          this.setHasTriggeredSinceExit(direction, false);
+          return;
+        }
+
+        if (this.getHasTriggeredSinceExit(direction) || this.isLoadingDirection(direction)) {
+          return;
+        }
+
+        this.setHasTriggeredSinceExit(direction, true);
+        this.emitReached(direction);
+      },
+      {
+        // Trigger about 200px before the sentinel reaches the scroll boundary,
+        // and fire as soon as any part of the sentinel enters that area.
+        root,
+        rootMargin,
+        threshold: 0,
+      },
+    );
+  }
+
+  private getHasTriggeredSinceExit(direction: 'start' | 'end') {
+    return direction === 'start'
+      ? this.hasTriggeredStartSinceExit
+      : this.hasTriggeredEndSinceExit;
+  }
+
+  private setHasTriggeredSinceExit(direction: 'start' | 'end', value: boolean) {
+    if (direction === 'start') {
+      this.hasTriggeredStartSinceExit = value;
+      return;
+    }
+
+    this.hasTriggeredEndSinceExit = value;
+  }
+
+  private isLoadingDirection(direction: 'start' | 'end') {
+    return direction === 'start'
+      ? this.loadingStart()
+      : this.loadingEnd();
+  }
+
+  private emitReached(direction: 'start' | 'end') {
+    if (direction === 'start') {
+      this.reachedStart.emit();
+      return;
+    }
+
+    this.reachedEnd.emit();
   }
 }

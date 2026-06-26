@@ -1,0 +1,152 @@
+<div>
+    <article class="rounded-xl border text-white shadow-sm backdrop-blur-md transition"
+        [ngClass]="messageItemClasses()">
+        <div class="flex items-start gap-3">
+            <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-2">
+                    <app-author-summary class="min-w-0" [author]="getMessageAuthor()"
+                        [classes]="{ authorNameColor: 'text-white' }" [disableLink]="isPreview()">
+                        <p #bodySecondary bodySecondary class="text-xs text-white/60">
+                            <span>
+                                {{ currentMessageResponse()?.message?.createdAt | date:'MMM d, y, h:mm a' }}
+                            </span>
+                            @if (currentMessageResponse()?.message?.edited) {
+                            <span class="text-white/45">(edited)</span>
+                            }
+                        </p>
+                    </app-author-summary>
+
+                    @if (!isPreview()) {
+                    <div
+                        class="flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-black/10 shadow-sm">
+                        @if (isEditing()) {
+                        <button type="button"
+                            class="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
+                            aria-label="Cancel edit" appTelemetryClick="chat_message_cancel_edit"
+                            (click)="cancelEdit()">
+                            <fa-icon [icon]="faXmark" class="leading-0"></fa-icon>
+                        </button>
+                        } @else {
+                        <app-auth-action>
+                            <button type="button"
+                                class="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
+                                aria-label="Quote reply" appTelemetryClick="chat_message_quote_reply"
+                                (click)="quoteReply()">
+                                <fa-icon [icon]="faReply" class="leading-0"></fa-icon>
+                            </button>
+                        </app-auth-action>
+                        @if (canShowMessageActionMenu()) {
+                        <button type="button"
+                            class="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
+                            aria-label="More options" appTelemetryClick="chat_message_open_menu"
+                            [matMenuTriggerFor]="messageActionMenu">
+                            <fa-icon [icon]="faEllipsis" class="leading-0"></fa-icon>
+                        </button>
+                        <mat-menu #messageActionMenu="matMenu">
+                            @if (canEditMessage()) {
+                            <button mat-menu-item class="text-white! transition-colors duration-200 hover:bg-white/15!"
+                                appTelemetryClick="chat_message_start_edit" (click)="startEdit()">
+                                <fa-icon [icon]="faPenToSquare" class="mr-2 text-white!"></fa-icon>
+                                <span>Edit</span>
+                            </button>
+                            }
+                            @if (canDeleteMessage()) {
+                            <button mat-menu-item class="text-white! transition-colors duration-200 hover:bg-white/15!"
+                                (click)="deleteMessage()">
+                                <fa-icon [icon]="faTrash" class="mr-2 text-white!"></fa-icon>
+                                <span>Delete</span>
+                            </button>
+                            }
+                        </mat-menu>
+                        }
+                        }
+                    </div>
+                    }
+                </div>
+
+                @if (isEditing()) {
+                <div class="mt-3">
+                    <app-message-input [chatRoomId]="chatRoomId()!" [addMessageRequest]="addMessageRequest()"
+                        [editMessageRequest]="editMessageRequest()"
+                        [message]="currentChatRoomMessageResponse()?.message" [quotedMessage]="editingQuotedMessage()"
+                        (goToMessageRequest)="quoteMessageClick($event)" (submitSuccess)="cancelEdit()">
+                    </app-message-input>
+                </div>
+                } @else {
+                @if (!isPreview() && quotedMessageResponse(); as quote) {
+                <button type="button" class="mt-3 block w-full rounded-xl bg-black/20 text-left"
+                    appTelemetryClick="chat_message_open_quote" (click)="quoteMessageClick(quote.message.id)">
+                    <app-message-item [messageResponse]="quote" [isPreview]="true"
+                        [addMessageRequest]="addMessageRequest()" [editMessageRequest]="editMessageRequest()"
+                        [deleteMessageRequest]="deleteMessageRequest()"></app-message-item>
+                </button>
+                }
+                @if (currentMessageResponse()?.message?.deleted) {
+                <p
+                    class="mt-3 inline-flex rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-sm italic text-white/55">
+                    This message was deleted.
+                </p>
+                } @else {
+                <p class="mt-3 whitespace-pre-line text-sm leading-6 text-white/85">
+                    {{ currentMessageResponse()?.message?.content }}
+                </p>
+                }
+                }
+
+                @if (!isPreview()) {
+                <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+                    <div class="shrink-0">
+                        <app-auth-action>
+                            <div class="flex items-center gap-1">
+                                <button type="button"
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white disabled:pointer-events-none disabled:opacity-50"
+                                    aria-label="Like reaction" [disabled]="isReactionSubmitting()"
+                                    (click)="toggleLikeReaction()">
+                                    @if (selectedReactionCode()) {
+                                    <span class="text-lg leading-none">{{ selectedReactionEmoji() }}</span>
+                                    } @else {
+                                    <mat-icon fontSet="material-symbols-outlined">thumb_up</mat-icon>
+                                    }
+                                </button>
+                                <button type="button"
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white disabled:pointer-events-none disabled:opacity-50"
+                                    aria-label="Add reaction" [disabled]="isReactionSubmitting()"
+                                    appTelemetryClick="chat_message_open_reaction_menu"
+                                    [matMenuTriggerFor]="reactionMenu">
+                                    <mat-icon fontSet="material-symbols-outlined">add_reaction</mat-icon>
+                                </button>
+                                <mat-menu #reactionMenu="matMenu" xPosition="after" yPosition="above"
+                                    class="reaction-menu-panel">
+                                    <div
+                                        class="grid grid-cols-4 gap-1 bg-white/15 px-2 py-2 backdrop-blur-3xl sm:grid-cols-6 lg:grid-cols-12">
+                                        @for (reaction of reactionOptions; track reaction.code) {
+                                        <button type="button"
+                                            class="flex aspect-square h-9 w-9 items-center justify-center rounded-full p-0 transition hover:scale-110 hover:bg-white/20 disabled:pointer-events-none disabled:opacity-50"
+                                            [disabled]="isReactionSubmitting()" (click)="addReaction(reaction)">
+                                            <span class="text-xl leading-none">{{ reaction.emoji }}</span>
+                                        </button>
+                                        }
+                                    </div>
+                                </mat-menu>
+                            </div>
+                        </app-auth-action>
+                    </div>
+                    <button type="button"
+                        class="inline-flex min-h-8 items-center gap-2 rounded-full text-sm text-white/80 transition hover:bg-white/15 hover:text-white px-1"
+                        aria-label="Message reactions" appTelemetryClick="chat_message_open_reactions"
+                        (click)="openReactionsDialog()">
+                        <ul class="flex flex-wrap items-center gap-2">
+                            @for (reaction of orderedReactions(); track reaction.emoji) {
+                            <li class="inline-flex items-center gap-0.5">
+                                {{ getReactionEmoji(reaction.emoji) }}
+                                <span class="text-xs text-white/55">{{ reaction.count }}</span>
+                            </li>
+                            }
+                        </ul>
+                    </button>
+                </div>
+                }
+            </div>
+        </div>
+    </article>
+</div>

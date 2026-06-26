@@ -1,4 +1,5 @@
-import { AfterViewInit, Directive, ElementRef, HostListener } from '@angular/core';
+import { AfterViewInit, Directive, ElementRef, HostListener, Optional } from '@angular/core';
+import { NgControl } from '@angular/forms';
 
 @Directive({
   selector: 'textarea[appAutoResizeTextarea]',
@@ -7,15 +8,24 @@ import { AfterViewInit, Directive, ElementRef, HostListener } from '@angular/cor
 export class AutoResizeTextarea implements AfterViewInit {
 
   constructor(
-    private el: ElementRef<HTMLTextAreaElement>
+    private el: ElementRef<HTMLTextAreaElement>,
+    @Optional() private ngControl?: NgControl
   ) { }
 
   ngAfterViewInit(): void {
     setTimeout(() => this.resize());
+    this.ngControl?.valueChanges?.subscribe(() => {
+      setTimeout(() => this.resize());
+    });
   }
 
   @HostListener('input')
   onInput(): void {
+    this.resize();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
     this.resize();
   }
 

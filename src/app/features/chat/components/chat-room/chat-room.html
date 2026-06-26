@@ -1,0 +1,6 @@
+<app-message-list [getMessagesRequest]="chatRoomId()?getMessagesRequest:undefined"
+  [addMessageRequest]="addMessageRequest" [editMessageRequest]="editMessageRequest"
+  [deleteMessageRequest]="deleteMessageRequest"
+  [chatRoomId]="chatRoomId()!" [isLiveMessageAllowed]="isLiveMessageAllowed" [applyCurrentUserStyle]="true"
+  (addReactionRequest)="addReaction($event)">
+</app-message-list>

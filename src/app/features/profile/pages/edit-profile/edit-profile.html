@@ -17,7 +17,7 @@
         @if (!profileImageLoading()) {
         <div class="mt-4 flex w-full flex-col gap-7">
           <app-image-uploader [cropButtonText]="'Save'" (fileSelected)="onProfilePhotoSelected($event)">
-            <div class="u-btn-primary-cyan">
+            <div class="u-btn-primary-cyan" appTelemetryClick="profile_photo_open_uploader">
               {{ profileState().profileImage?.fileData ? 'Edit Photo' : 'Upload Photo' }}
             </div>
           </app-image-uploader>

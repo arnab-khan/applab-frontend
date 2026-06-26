@@ -7,10 +7,11 @@ import { User, UserProfileImage } from '../../../../shared/interfaces/user';
 import { Share } from '../../../../shared/services/share';
 import { Url } from '../../../../shared/services/url';
 import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-pipe';
+import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [DatePipe, FontAwesomeModule, Thumbnail, CommonModule, CapitalizeWordsPipe],
+  imports: [DatePipe, FontAwesomeModule, Thumbnail, CommonModule, CapitalizeWordsPipe, TelemetryClick],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.scss',
 })
@@ -19,7 +20,7 @@ export class UserProfile {
   private share = inject(Share);
   user = input<User | null>(null);
   profileImage = input<UserProfileImage | null>(null);
-  profileImageUrl = input<string | null>(null);
+  profileImageUrl = input<string | null |undefined>(null);
   profileImageLoading = input(false);
   readonly faCopy = faCopy;
   readonly faShareNodes = faShareNodes;

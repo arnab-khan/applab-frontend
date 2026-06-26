@@ -3,9 +3,11 @@ import { inject, Injectable, Injector, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { CreateUser, LoginUser, User, UserProfileImage } from '../../shared/interfaces/user';
-import { catchError, finalize, of, tap } from 'rxjs';
+import { catchError, finalize, of, switchMap, tap } from 'rxjs';
 import { LOGIN_ROUTE } from '../../shared/config/config';
 import { User as UserService } from './user';
+import { Guest } from './guest';
+import { Platform } from '../../shared/services/platform';
 
 type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'anonymous';
 
@@ -16,6 +18,8 @@ export class Auth {
   private httpClient = inject(HttpClient);
   private router = inject(Router);
   private injector = inject(Injector);
+  private guest = inject(Guest);
+  private platformService = inject(Platform);
   private baseApiUrl = `${environment.rootApiUrl}/auth`;
 
   authState = signal<{
@@ -75,7 +79,7 @@ export class Auth {
   }
 
   me() {
-    if (typeof window === 'undefined') {
+    if (!this.platformService.isBrowser()) {
       return of(null);
     }
 
@@ -85,6 +89,11 @@ export class Auth {
       catchError(() => {
         this.updateUser(null, { updateStatus: false });
         return of(null);
+      }),
+      switchMap(user => {
+        return user ? of(user) : this.guest.exists().pipe(
+          switchMap(() => of(user))
+        );
       }),
       finalize(() => {
         this.updateUser(this.authState().user, { completed: true, fetchProfileImage: true });

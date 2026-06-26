@@ -1,0 +1,14 @@
+import { Component } from '@angular/core';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faClock, faRocket } from '@fortawesome/free-solid-svg-icons';
+
+@Component({
+  selector: 'app-coming-soon',
+  imports: [FontAwesomeModule],
+  templateUrl: './coming-soon.html',
+  styleUrl: './coming-soon.scss',
+})
+export class ComingSoon {
+  faClock = faClock;
+  faRocket = faRocket;
+}

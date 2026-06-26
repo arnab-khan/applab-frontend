@@ -11,10 +11,11 @@ import { TodoApi } from '../../services/todo-api';
 import { TodoFormDialog } from '../todo-form-dialog/todo-form-dialog';
 import { CommonDialog } from '../../../../shared/components/dialogs/common-dialog/common-dialog';
 import { HighlightText } from '../../../../shared/directives/highlight-text';
+import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 @Component({
   selector: 'app-todo-list-item',
-  imports: [CommonModule, DatePipe, MatMenuModule, MatCheckboxModule, FontAwesomeModule, HighlightText],
+  imports: [CommonModule, DatePipe, MatMenuModule, MatCheckboxModule, FontAwesomeModule, HighlightText, TelemetryClick],
   templateUrl: './todo-list-item.html',
   styleUrl: './todo-list-item.scss',
 })

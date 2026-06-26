@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPlus, faClipboardList } from '@fortawesome/free-solid-svg-icons';
 import { TodoList } from './components/todo-list/todo-list';
+import { TelemetryClick } from '../../shared/directives/telemetry-click';
 
 @Component({
   selector: 'app-todo',
@@ -13,6 +14,7 @@ import { TodoList } from './components/todo-list/todo-list';
     MatButtonModule, 
     FontAwesomeModule,
     TodoList,
+    TelemetryClick,
   ],
   templateUrl: './todo.html',
   styleUrl: './todo.scss',

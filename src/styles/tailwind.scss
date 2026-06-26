@@ -90,6 +90,11 @@
     @apply max-w-full;
 }
 
+@utility u-container-2-5 {
+    width: var(--container-2-5-width);
+    @apply max-w-full;
+}
+
 @utility u-container-3 {
     width: var(--container-3-width);
     @apply max-w-full;

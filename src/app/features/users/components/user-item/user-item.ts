@@ -6,6 +6,7 @@ import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbna
 import { HighlightText } from '../../../../shared/directives/highlight-text';
 import { User } from '../../../../shared/interfaces/user';
 import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-pipe';
+import { userProfileLink } from '../../../../shared/utils/link';
 
 @Component({
   selector: 'app-user-item',
@@ -15,16 +16,15 @@ import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-p
 })
 export class UserItem {
   private profileApiService = inject(ProfileApiService);
+  userProfileLink = userProfileLink;
   user = input.required<User>();
   searchTerm = input('');
 
   getCompressedProfileImageUrl() {
-    const profileImageUrl = this.user().compressedProfileImageUrl;
-    return profileImageUrl ? this.profileApiService.getPublicImageUrl(profileImageUrl) : null;
+    return this.profileApiService.getPublicImageUrl(this.user().compressedProfileImageUrl);
   }
 
   getProfileImageUrl() {
-    const profileImageUrl = this.user().profileImageUrl;
-    return profileImageUrl ? this.profileApiService.getPublicImageUrl(profileImageUrl) : null;
+    return this.profileApiService.getPublicImageUrl(this.user().profileImageUrl);
   }
 }

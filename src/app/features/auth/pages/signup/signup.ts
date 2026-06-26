@@ -15,9 +15,8 @@ import { finalize, map, of, switchMap } from 'rxjs';
 import { CreateUser } from '../../../../shared/interfaces/user';
 import { Auth } from '../../../../core/services/auth';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { POST_LOGIN_DEFAULT_ROUTE } from '../../../../shared/config/config';
 import { PasswordField } from '../../../../shared/components/forms/password-field/password-field';
 import { matchControlValidator } from '../../../../shared/validators/match-control-validator';
 import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
@@ -26,6 +25,8 @@ import { CommonDialog } from '../../../../shared/components/dialogs/common-dialo
 import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
 import { FormValidation } from '../../../../shared/services/form-validation';
 import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-pipe';
+import { Redirect } from '../../../../shared/services/redirect';
+import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 @Component({
   selector: 'app-signup',
@@ -42,6 +43,7 @@ import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-p
     Thumbnail,
     ImageUploader,
     ScrollToInvalid,
+    TelemetryClick,
   ],
   templateUrl: './signup.html',
   styleUrl: './signup.scss',
@@ -51,10 +53,10 @@ export class Signup implements OnInit {
   private userService = inject(User);
   private authService = inject(Auth);
   private formBuilder = inject(NonNullableFormBuilder);
-  private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private formValidation = inject(FormValidation);
+  private redirect = inject(Redirect);
   private capitalizeWordsPipe = new CapitalizeWordsPipe();
 
   signupForm!: FormGroup<{
@@ -216,7 +218,7 @@ export class Signup implements OnInit {
             duration: 3000,
             panelClass: 'snackbar-success',
           });
-          this.router.navigate([POST_LOGIN_DEFAULT_ROUTE]);
+          this.redirect.postLogin();
         },
         error: (error) => {
           const isAuthenticated = !!this.authService.authState().user;
@@ -227,7 +229,7 @@ export class Signup implements OnInit {
           this.snackBar.open(message, '✖', { duration: 3000, panelClass: 'snackbar-error' });
 
           if (isAuthenticated) {
-            this.router.navigate([POST_LOGIN_DEFAULT_ROUTE]);
+            this.redirect.postLogin();
           }
 
           console.error('error creating user', error);
