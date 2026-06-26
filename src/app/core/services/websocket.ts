@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { WebsocketSubscription } from '../../shared/interfaces/websocket';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class WebsocketService {
     }
 
     this.stompClient = new Client({
-      brokerURL: 'ws://localhost:8080/ws',
+      brokerURL: `${environment.rootApiUrl.replace(/^http/, 'ws')}/ws`,
       reconnectDelay: 3000,
       onConnect: () => {
         // STOMP subscriptions are lost after reconnect, so attach the active ones again.
