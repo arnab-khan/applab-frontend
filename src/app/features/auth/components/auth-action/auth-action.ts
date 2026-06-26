@@ -38,7 +38,7 @@ export class AuthAction {
         this.isGuestSubmitting.set(false);
         menuTrigger.closeMenu();
         this.snackBar.open('You can now interact on this page', '✖', {
-          duration: 3000,
+          duration: 2000,
           panelClass: 'snackbar-success',
         });
       },

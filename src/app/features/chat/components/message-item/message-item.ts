@@ -1,11 +1,11 @@
 import { DatePipe, NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, forwardRef, inject, input, output, signal, untracked } from '@angular/core';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faEllipsis, faFaceSmile, faPenToSquare, faReply, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faPenToSquare, faReply, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faFaceSmile, faThumbsUp } from '@fortawesome/free-regular-svg-icons';
 import { finalize, Observable } from 'rxjs';
 import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageResponse, Message, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
 import { CHAT_REACTION_OPTIONS } from '../../../../shared/options/chat-reaction-options';
@@ -22,7 +22,7 @@ import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 @Component({
   selector: 'app-message-item',
-  imports: [DatePipe, NgClass, AuthAction, AuthorSummary, FontAwesomeModule, MatDialogModule, MatIconModule, MatMenuModule, TelemetryClick, forwardRef(() => MessageInput)],
+  imports: [DatePipe, NgClass, AuthAction, AuthorSummary, FontAwesomeModule, MatDialogModule, MatMenuModule, TelemetryClick, forwardRef(() => MessageInput)],
   templateUrl: './message-item.html',
   styleUrl: './message-item.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,6 +80,7 @@ export class MessageItem {
   faXmark = faXmark;
   faEllipsis = faEllipsis;
   faReply = faReply;
+  faThumbsUp = faThumbsUp;
 
   reactionOptions = CHAT_REACTION_OPTIONS;
 
