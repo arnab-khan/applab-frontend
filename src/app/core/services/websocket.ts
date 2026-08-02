@@ -3,12 +3,14 @@ import { Client, IFrame, IMessage, StompSubscription } from '@stomp/stompjs';
 import { WebsocketSubscription } from '../../shared/interfaces/websocket';
 import { environment } from '../../../environments/environment';
 import { Telemetry } from './telemetry';
+import { Platform } from '../../shared/services/platform';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebsocketService {
   private telemetry = inject(Telemetry);
+  private platform = inject(Platform);
 
   readonly appDestination = '/app';
   readonly topicDestination = '/topic';
@@ -21,6 +23,10 @@ export class WebsocketService {
 
   // Open the websocket connection if it is not already active.
   connect(): void {
+    if (this.platform.isServer()) {
+      return;
+    }
+
     if (this.stompClient?.active) {
       return;
     }
