@@ -3,7 +3,7 @@ import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { credentialsInterceptor } from './core/interceptors/credentials-interceptor';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import { apiTelemetryInterceptor } from './core/interceptors/api-telemetry-interceptor';
@@ -17,6 +17,7 @@ export const appConfig: ApplicationConfig = {
     // Reuse server-rendered HTML in the browser and replay early user events after hydration.
     provideClientHydration(withEventReplay()),
     provideHttpClient(
+      withFetch(), // Use the Fetch API for better Angular SSR performance and compatibility.
       withInterceptors([
         credentialsInterceptor,
         apiTelemetryInterceptor,
