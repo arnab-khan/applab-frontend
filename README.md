@@ -1,45 +1,86 @@
-# Angular Application
+# Applab Frontend
+
+Frontend application for Applab, a full-stack web application built with Angular and Spring Boot.
 
 ## Overview
-This repository contains an Angular application developed and maintained by **Arnab Khan**.
 
-The source code is publicly visible for **review and evaluation purposes only**.  
-This project is **NOT open source**.
+This repository contains the Angular frontend for Applab. It provides the user interface for authentication, profile management, public profile pages, profile image upload, and real-time global chat.
 
----
+The frontend uses Angular SSR to support SEO-friendly public profile pages with dynamic metadata for search engine indexing and rich link previews. It connects to the Spring Boot backend through REST APIs for user and profile features, and uses STOMP WebSocket for real-time chat updates.
 
-## 🚫 Usage Restrictions
-**Unauthorized use of this code is strictly prohibited.**
+## Tech Stack
 
-You are **NOT allowed** to:
-- Use this code in any commercial or production application
-- Copy, reuse, or replicate any part of the codebase
-- Modify, distribute, sublicense, or sell the code
-- Include this code in your own projects (public or private)
+- Angular
+- Angular SSR
+- Angular Material
+- Tailwind CSS
+- TypeScript
+- STOMP WebSocket
 
-**Explicit written permission from the author is required** for any of the above actions.
+## Related Links
 
----
+- Live project: https://applab.arnabkhan.in/chat/global
+- Demo video: https://arnab-khan.github.io/images/projects/app-lab.mp4
+- Frontend source code: https://github.com/arnab-khan/applab-frontend
+- Backend source code: https://github.com/arnab-khan/applab-backend
 
-## ✅ Allowed Usage
-You MAY:
-- View the code for learning, review, and evaluation purposes
-- Analyze implementation patterns and structure
-- Reference concepts **without copying code**
+## Features
 
----
+- User registration and login interface
+- Secure cookie-based session authentication flow
+- Profile management
+- Unique username validation
+- Profile image upload and cropping
+- Public user profile pages
+- SEO-friendly profile pages using Angular SSR
+- Dynamic metadata for public pages
+- Real-time global chat using STOMP WebSocket
+- Live messaging and synchronization
+- Typing indicators
+- Message editing and deletion
+- Message reactions
+- Quoted replies
+- Responsive UI built with Angular Material and Tailwind CSS
 
-## 🛡 Intellectual Property
-All source code, architecture, logic, and design patterns in this repository are the  
-**exclusive intellectual property of Arnab Khan**.
+## Deployment
 
-Any unauthorized use, reproduction, or distribution may result in legal action.
+The application is designed to run as the frontend client for the Applab backend. The full project is deployed on a Linux VPS using Nginx and PM2, with automated CI/CD pipelines handled through GitHub Actions.
 
----
+## Development Setup
 
-## ⚙️ Development Setup
-> This project is not intended to be used as a template or starter application.
+### Prerequisites
+
+- Node.js ^20.19.0, ^22.12.0, or ^24.0.0
+- npm 11.3.0
+- Angular CLI 21
+- Running Applab backend service
+
+### Install Dependencies
 
 ```bash
 npm install
-ng serve
+```
+
+### Run the Application
+
+```bash
+npm start
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+### Run SSR Build
+
+After building the application, run the SSR server:
+
+```bash
+npm run serve:ssr:applab_frontend
+```
+
+## License
+
+This project is not open source. See [LICENSE](LICENSE) for usage restrictions.
