@@ -1,0 +1,7 @@
+<app-loading-button [loading]="isSubmitting() || isStatusLoading()" spinnerClass="stroke-white">
+  <button type="button" class="gap-2" [ngClass]="buttonStatus().themeClass" (click)="onConnect()"
+    [disabled]="isSubmitting() || isStatusLoading() || buttonStatus().disabled">
+    <fa-icon [icon]="buttonStatus().icon"></fa-icon>
+    {{ buttonStatus().text }}
+  </button>
+</app-loading-button>

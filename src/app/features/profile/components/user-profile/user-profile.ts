@@ -2,6 +2,8 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCopy, faShareNodes } from '@fortawesome/free-solid-svg-icons';
+import { ConnectionListButton } from '../../../connection/components/connection-list-button/connection-list-button';
+import { ConnectionRequestButton } from '../../../connection/components/connection-request-button/connection-request-button';
 import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
 import { User, UserProfileImage } from '../../../../shared/interfaces/user';
 import { Share } from '../../../../shared/services/share';
@@ -11,7 +13,7 @@ import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [DatePipe, FontAwesomeModule, Thumbnail, CommonModule, CapitalizeWordsPipe, TelemetryClick],
+  imports: [DatePipe, FontAwesomeModule, Thumbnail, CommonModule, CapitalizeWordsPipe, TelemetryClick, ConnectionRequestButton, ConnectionListButton],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.scss',
 })

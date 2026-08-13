@@ -7,7 +7,7 @@ html {
     }
 }
 
-router-outlet + * {
+router-outlet + * { // stretch the component to fill entire page
   display: flex;
   flex-direction: column;
   flex-grow: 1;

@@ -17,7 +17,7 @@ export const appConfig: ApplicationConfig = {
     // Reuse server-rendered HTML in the browser and replay early user events after hydration.
     provideClientHydration(withEventReplay()),
     provideHttpClient(
-      withFetch(), // Use the Fetch API for better Angular SSR performance and compatibility.
+      // withFetch(), // Fetch is better for Angular SSR, but DevTools may sometimes not show response bodies for api requests.
       withInterceptors([
         credentialsInterceptor,
         apiTelemetryInterceptor,
