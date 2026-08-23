@@ -1,4 +1,5 @@
 import { PageResponse, PaginationQueryParams } from './pagination';
+import { User } from './user';
 
 export type ConnectionStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELED';
 
@@ -9,6 +10,11 @@ export interface Connection {
     status: ConnectionStatus;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface ConnectionWithUser {
+    connection: Connection;
+    user: User;
 }
 
 export interface ConnectionRequest {
@@ -25,4 +31,4 @@ export interface ConnectionQueryParams extends PaginationQueryParams {
     status?: ConnectionStatus;
 }
 
-export type ConnectionPageResponse = PageResponse<Connection>;
+export type ConnectionPageResponse = PageResponse<ConnectionWithUser>;

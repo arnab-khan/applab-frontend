@@ -26,7 +26,7 @@ export class ConnectionApi {
   }
 
   getStatus(userId: number) {
-    return this.httpClient.get<ConnectionStatus | null>(`${this.baseApiUrl}/status`, {
+    return this.httpClient.get<Connection | null>(`${this.baseApiUrl}/status`, {
       params: toHttpParams({ userId }),
     });
   }

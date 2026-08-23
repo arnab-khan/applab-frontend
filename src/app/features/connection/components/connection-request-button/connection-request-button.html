@@ -1,7 +1,40 @@
-<app-loading-button [loading]="isSubmitting() || isStatusLoading()" spinnerClass="stroke-white">
-  <button type="button" class="gap-2" [ngClass]="buttonStatus().themeClass" (click)="onConnect()"
-    [disabled]="isSubmitting() || isStatusLoading() || buttonStatus().disabled">
-    <fa-icon [icon]="buttonStatus().icon"></fa-icon>
-    {{ buttonStatus().text }}
-  </button>
+@if (isStatusLoading()) {
+<div class="h-10 w-32 animate-pulse rounded-lg bg-gray-200" aria-label="Loading connection status"></div>
+} @else {
+<app-loading-button [loading]="isSubmitting()" spinnerClass="stroke-white">
+  @if (statusActions().length) {
+    <button type="button" [matMenuTriggerFor]="statusMenu"
+      [disabled]="isSubmitting() || buttonStatus().disabled">
+      <ng-container [ngTemplateOutlet]="buttonContent"
+        [ngTemplateOutletContext]="{ button: buttonStatus() }"></ng-container>
+    </button>
+
+    <mat-menu #statusMenu="matMenu" class="bg-white!" backdropClass="bg-black/50!">
+      <div class="w-64 bg-white p-4">
+        @for (action of statusActions(); track action.text) {
+          @if (action.description) {
+            <p class="mb-3 text-sm text-gray-600">{{ action.description }}</p>
+          }
+          <button type="button" mat-menu-item class="p-0! w-full!" (click)="onStatusActionSelect(action)">
+            <ng-container [ngTemplateOutlet]="buttonContent"
+              [ngTemplateOutletContext]="{ button: action }"></ng-container>
+          </button>
+        }
+      </div>
+    </mat-menu>
+  } @else {
+    <button type="button" (click)="onButtonClick()"
+      [disabled]="isSubmitting() || buttonStatus().disabled">
+      <ng-container [ngTemplateOutlet]="buttonContent"
+        [ngTemplateOutletContext]="{ button: buttonStatus() }"></ng-container>
+    </button>
+  }
 </app-loading-button>
+}
+
+<ng-template #buttonContent let-button="button">
+  <div class="flex items-center gap-2" [ngClass]="button.themeClass">
+    <fa-icon [icon]="button.icon"></fa-icon>
+    {{ button.text }}
+  </div>
+</ng-template>

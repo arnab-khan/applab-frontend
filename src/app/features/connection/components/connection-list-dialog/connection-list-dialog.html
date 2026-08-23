@@ -1,0 +1,64 @@
+<app-dialog-header containerClass="u-responsive-padding-x py-2 shadow" title="Connections"></app-dialog-header>
+
+<nav class="flex shrink-0 overflow-x-auto border-b border-gray-200 px-3" aria-label="Connection lists">
+  @for (tab of tabs; track tab.value) {
+  <button type="button" class="whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors" [ngClass]="activeTab() === tab.value
+      ? 'border-emerald-600 text-emerald-700'
+      : 'border-transparent text-gray-500 hover:text-gray-700'" [disabled]="activeTab() === tab.value"
+    (click)="selectTab(tab.value)">
+    {{ tab.label }}
+  </button>
+  }
+</nav>
+
+<mat-dialog-content class="flex! grow flex-col">
+  @if (isLoading()) {
+  <div class="flex grow items-center justify-center">
+    <div class="u-spinner"></div>
+  </div>
+  } @else if (connections().length) {
+  <app-infinite-scroll class="grow overflow-auto px-3 py-4" [useElementScroll]="true" [loadingEnd]="isLoadingMore()"
+    [disabled]="!hasMore()" spinnerClass="stroke-gray-700" (reachedEnd)="loadMore()">
+    <div class="space-y-3">
+      @for (connectionItem of connections(); track connectionItem.connection.id) {
+      <article
+        class="flex flex-col items-stretch gap-y-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:gap-x-3 sm:gap-y-0">
+        <div class="min-w-0 w-full sm:w-[60%]">
+          <a [routerLink]="userProfileLink(connectionItem.user.username)"
+            class="flex max-w-fit min-w-0 items-center gap-3">
+            <app-thumbnail [imageUrl]="profileImageUrl(connectionItem.user.compressedProfileImageUrl)"
+              [viewerImageUrl]="profileImageUrl(connectionItem.user.profileImageUrl)" [name]="connectionItem.user.name"
+              [alt]="connectionItem.user.name || 'User profile image'" size="3rem" radius="50%" class="shrink-0">
+            </app-thumbnail>
+            <div class="min-w-0 grow">
+              <p class="truncate font-semibold text-gray-900">{{ connectionItem.user.name || 'Unnamed user' }}</p>
+              <p class="truncate text-sm text-gray-500">@{{ connectionItem.user.username || 'unknown' }}</p>
+            </div>
+          </a>
+        </div>
+        <div class="w-full shrink-0 text-left sm:w-[40%] sm:text-right">
+          <app-connection-request-button [userId]="connectionItem.user.id" [connection]="connectionItem.connection"
+            class="mb-1 inline-block"></app-connection-request-button>
+          <time class="block whitespace-nowrap text-xs text-gray-500"
+            [attr.datetime]="connectionItem.connection.createdAt">
+            {{ connectionItem.connection.createdAt | date: 'medium' }}
+          </time>
+        </div>
+      </article>
+      }
+
+    </div>
+  </app-infinite-scroll>
+  } @else {
+  <div class="flex grow flex-col items-center justify-center py-16 text-center text-gray-500">
+    <fa-icon [icon]="faUsers" class="mb-4 text-6xl text-gray-300"></fa-icon>
+    <p class="text-xl font-medium">
+      @switch (activeTab()) {
+      @case ('pending') { No pending requests }
+      @case ('rejected') { No rejected requests }
+      @default { No connections yet }
+      }
+    </p>
+  </div>
+  }
+</mat-dialog-content>
