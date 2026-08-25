@@ -1,3 +1,5 @@
+<app-auth-action [allowGuest]="false" theme="light" menuContainerClass="w-64"
+  message="Sign in or create an account to connect with this user.">
 @if (isStatusLoading()) {
 <div class="h-10 w-32 animate-pulse rounded-lg bg-gray-200" aria-label="Loading connection status"></div>
 } @else {
@@ -31,6 +33,7 @@
   }
 </app-loading-button>
 }
+</app-auth-action>
 
 <ng-template #buttonContent let-button="button">
   <div class="flex items-center gap-2" [ngClass]="button.themeClass">

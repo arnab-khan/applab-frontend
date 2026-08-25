@@ -24,6 +24,7 @@ export class UserProfile {
   profileImage = input<UserProfileImage | null>(null);
   profileImageUrl = input<string | null |undefined>(null);
   profileImageLoading = input(false);
+  showConnectionRequestButton = input(true);
   readonly faCopy = faCopy;
   readonly faShareNodes = faShareNodes;
 

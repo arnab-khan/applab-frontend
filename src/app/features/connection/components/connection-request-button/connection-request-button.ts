@@ -2,10 +2,13 @@ import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faClock, faUserCheck, faUserMinus, faUserPlus, faUserXmark } from '@fortawesome/free-solid-svg-icons';
 import { Auth } from '../../../../core/services/auth';
+import { AuthAction } from '../../../auth/components/auth-action/auth-action';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
+import { LOGIN_ROUTE } from '../../../../shared/config/config';
 import { Connection, ConnectionStatus } from '../../../../shared/interfaces/connection';
 import { ConnectionApi } from '../../services/connection-api';
 
@@ -40,14 +43,34 @@ const CONNECTION_STATUS_ACTIONS: Record<string, ConnectionStatusAction[]> = {
       successMessage: 'Connection request rejected',
     },
   ],
-  REJECTED: [
+  PENDING_SENT: [
+    {
+      icon: faUserMinus,
+      themeClass: 'u-btn-secondary-gray',
+      text: 'Cancel Request',
+      status: 'CANCELED',
+      description: 'This connection request is waiting for a response.',
+      successMessage: 'Connection request canceled',
+    },
+  ],
+  REJECTED_SENT: [
     {
       icon: faUserPlus,
       themeClass: 'u-btn-primary-emerald',
-      text: 'Reconnect',
+      text: 'Resend Request',
       status: 'PENDING',
-      description: 'Send a new connection request to this user.',
-      successMessage: 'Connection request sent',
+      description: 'Send this connection request again.',
+      successMessage: 'Connection request resent',
+    },
+  ],
+  REJECTED_RECEIVED: [
+    {
+      icon: faUserCheck,
+      themeClass: 'u-btn-primary-emerald',
+      text: 'Accept Request',
+      status: 'ACCEPTED',
+      description: 'Accept the connection request you previously rejected.',
+      successMessage: 'Connection request accepted',
     },
   ],
 };
@@ -89,7 +112,7 @@ const CONNECTION_BUTTON_STATUS_LIST: Record<ConnectionButtonStatus, ConnectionBu
 
 @Component({
   selector: 'app-connection-request-button',
-  imports: [FontAwesomeModule, LoadingButton, NgClass, NgTemplateOutlet, MatMenuModule],
+  imports: [FontAwesomeModule, LoadingButton, NgClass, NgTemplateOutlet, MatMenuModule, AuthAction],
   templateUrl: './connection-request-button.html',
   styleUrl: './connection-request-button.scss',
 })
@@ -97,6 +120,7 @@ export class ConnectionRequestButton {
   private connectionApi = inject(ConnectionApi);
   private snackBar = inject(MatSnackBar);
   private auth = inject(Auth);
+  private router = inject(Router);
   private statusLoadStarted = false;
   userId = input.required<number>();
   connection = input<Connection>();
@@ -112,8 +136,14 @@ export class ConnectionRequestButton {
       return CONNECTION_STATUS_ACTIONS['PENDING_RECEIVED'];
     }
 
+    if (connection?.status === 'PENDING' && connection.senderUserId === currentUserId) {
+      return CONNECTION_STATUS_ACTIONS['PENDING_SENT'];
+    }
+
     if (connection?.status === 'REJECTED') {
-      return CONNECTION_STATUS_ACTIONS['REJECTED'];
+      return connection.senderUserId === currentUserId
+        ? CONNECTION_STATUS_ACTIONS['REJECTED_SENT']
+        : CONNECTION_STATUS_ACTIONS['REJECTED_RECEIVED'];
     }
 
     return [];
@@ -127,6 +157,15 @@ export class ConnectionRequestButton {
         icon: faUserCheck,
         themeClass: 'u-btn-primary-emerald',
         text: 'Respond to Request',
+        disabled: false,
+      };
+    }
+
+    if (connection?.status === 'PENDING' && connection.senderUserId === currentUserId) {
+      return {
+        icon: faClock,
+        themeClass: 'u-btn-secondary-gray',
+        text: 'Pending',
         disabled: false,
       };
     }
@@ -179,12 +218,24 @@ export class ConnectionRequestButton {
   onButtonClick() {
     const connection = this.currentConnection();
 
-    if (!connection || connection.status === 'REJECTED' || connection.status === 'CANCELED') {
+    if (!connection) {
       this.onConnect();
+      return;
+    }
+
+    if (connection.status === 'CANCELED') {
+      this.updateConnectionStatus(connection, 'PENDING', 'Connection request sent');
     }
   }
 
   onConnect() {
+    if (this.auth.authState().status !== 'authenticated') {
+      this.router.navigate([LOGIN_ROUTE], {
+        queryParams: { returnUrl: this.router.url },
+      });
+      return;
+    }
+
     if (this.buttonStatus().disabled) {
       return;
     }
@@ -221,11 +272,15 @@ export class ConnectionRequestButton {
       return;
     }
 
+    this.updateConnectionStatus(connection, action.status, action.successMessage);
+  }
+
+  private updateConnectionStatus(connection: Connection, status: ConnectionStatus, successMessage?: string) {
     this.isSubmitting.set(true);
-    this.connectionApi.updateStatus({ id: connection.id, status: action.status }).subscribe({
+    this.connectionApi.updateStatus({ id: connection.id, status }).subscribe({
       next: (connection) => {
         this.setConnection(connection);
-        this.snackBar.open(action.successMessage || 'Connection request updated', '✖', {
+        this.snackBar.open(successMessage || 'Connection request updated', '✖', {
           duration: 3000,
           panelClass: 'snackbar-success',
         });

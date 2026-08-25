@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -9,7 +10,7 @@ import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 @Component({
   selector: 'app-auth-action',
-  imports: [MatMenuModule, RouterLink, LoadingButton, TelemetryClick],
+  imports: [MatMenuModule, RouterLink, LoadingButton, TelemetryClick, NgClass],
   templateUrl: './auth-action.html',
   styleUrl: './auth-action.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,9 +24,13 @@ export class AuthAction {
   authState = this.auth.authState;
   guestState = this.guest.guestState;
   matchTriggerWidth = input(false);
+  allowGuest = input(true);
+  theme = input<'dark' | 'light'>('dark');
+  menuContainerClass = input('');
+  message = input('');
   isGuestSubmitting = signal(false);
   returnUrlQueryParams = computed(() => ({ returnUrl: this.router.url }));
-  hasAuthenticatedAccess = computed(() => !!this.authState().user?.id || this.guestState().isGuest);
+  hasAuthenticatedAccess = computed(() => !!this.authState().user?.id || (this.allowGuest() && this.guestState().isGuest));
 
   continueAsGuest(menuTrigger: MatMenuTrigger) {
     if (this.isGuestSubmitting()) {
