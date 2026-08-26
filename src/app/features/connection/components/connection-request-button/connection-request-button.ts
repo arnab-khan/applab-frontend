@@ -53,6 +53,16 @@ const CONNECTION_STATUS_ACTIONS: Record<string, ConnectionStatusAction[]> = {
       successMessage: 'Connection request canceled',
     },
   ],
+  ACCEPTED: [
+    {
+      icon: faUserMinus,
+      themeClass: 'u-btn-danger-rose',
+      text: 'Remove Connection',
+      status: 'CANCELED',
+      description: 'Remove this user from your connections.',
+      successMessage: 'Connection removed',
+    },
+  ],
   REJECTED_SENT: [
     {
       icon: faUserPlus,
@@ -140,6 +150,10 @@ export class ConnectionRequestButton {
       return CONNECTION_STATUS_ACTIONS['PENDING_SENT'];
     }
 
+    if (connection?.status === 'ACCEPTED') {
+      return CONNECTION_STATUS_ACTIONS['ACCEPTED'];
+    }
+
     if (connection?.status === 'REJECTED') {
       return connection.senderUserId === currentUserId
         ? CONNECTION_STATUS_ACTIONS['REJECTED_SENT']
@@ -166,6 +180,15 @@ export class ConnectionRequestButton {
         icon: faClock,
         themeClass: 'u-btn-secondary-gray',
         text: 'Pending',
+        disabled: false,
+      };
+    }
+
+    if (connection?.status === 'ACCEPTED') {
+      return {
+        icon: faUserCheck,
+        themeClass: 'u-btn-secondary-gray',
+        text: 'Connected',
         disabled: false,
       };
     }
