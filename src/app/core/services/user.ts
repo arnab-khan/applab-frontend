@@ -43,7 +43,7 @@ export class User {
         }));
       }),
       catchError((error) => {
-        if (error?.status === 404) {
+        if (error?.status === 404 || error?.status === 401) {
           this.authService.profileState.update(state => ({
             ...state,
             profileImage: null,

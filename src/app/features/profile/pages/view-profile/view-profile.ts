@@ -29,7 +29,11 @@ export class ViewProfile implements OnInit {
     this.profileImageLoading.set(true);
     this.userService.getFullProfileImage().pipe(
       finalize(() => this.profileImageLoading.set(false))
-    ).subscribe();
+    ).subscribe({
+      error: (error) => {
+        console.error('Error loading profile image', error);
+      },
+    });
   }
 
   onLogout() {

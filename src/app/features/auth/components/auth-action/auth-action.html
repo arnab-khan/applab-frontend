@@ -7,16 +7,37 @@
         class="u-fill-parent z-10" aria-label="Choose authentication option"
         appTelemetryClick="auth_action_open_menu"></button>
     <mat-menu #authActionMenu="matMenu" xPosition="after" yPosition="above" class="reaction-menu-panel">
-        <div class="flex flex-col gap-1 bg-white/15 px-2 py-2 text-white backdrop-blur-3xl"
+        <div class="flex flex-col gap-2 px-3 py-3"
+            [ngClass]="[
+                theme() === 'light'
+                    ? 'bg-white text-slate-900 shadow-xl ring-1 ring-slate-200'
+                    : 'bg-white/15 text-white backdrop-blur-3xl',
+                menuContainerClass()
+            ]"
             [style.width.px]="matchTriggerWidth() ? authTriggerElement.offsetWidth : null">
+            @if (message()) {
+            <p class="px-2 pb-1 text-sm font-medium leading-5"
+                [ngClass]="theme() === 'light' ? 'text-slate-600' : 'text-white/80'">
+                {{ message() }}
+            </p>
+            }
             <a mat-menu-item routerLink="/auth/signup" [queryParams]="returnUrlQueryParams()"
-                class="rounded-lg! bg-white/10! hover:bg-white/20!">
-                <span class="font-semibold text-white">Sign Up</span>
+                class="rounded-lg!" [ngClass]="theme() === 'light'
+                    ? 'p-0!'
+                    : 'bg-white/10! hover:bg-white/20!'">
+                <span class="font-semibold" [ngClass]="theme() === 'light'
+                    ? 'u-btn-primary-cyan flex w-full items-center'
+                    : 'text-white'">Sign Up</span>
             </a>
             <a mat-menu-item routerLink="/auth/login" [queryParams]="returnUrlQueryParams()"
-                class="rounded-lg! bg-white/10! hover:bg-white/20!">
-                <span class="font-semibold text-white">Login</span>
+                class="rounded-lg!" [ngClass]="theme() === 'light'
+                    ? 'p-0!'
+                    : 'bg-white/10! hover:bg-white/20!'">
+                <span class="font-semibold" [ngClass]="theme() === 'light'
+                    ? 'u-btn-primary-cyan flex w-full items-center'
+                    : 'text-white'">Login</span>
             </a>
+            @if (allowGuest()) {
             <app-loading-button [loading]="isGuestSubmitting()" spinnerClass="stroke-white">
                 <button type="button"
                     class="w-full rounded-lg! bg-white/10! px-4 py-2 text-left font-semibold! text-white! hover:bg-white/20!"
@@ -28,6 +49,7 @@
                     </span>
                 </button>
             </app-loading-button>
+            }
         </div>
     </mat-menu>
     }
