@@ -1,10 +1,11 @@
 import { DatePipe, NgClass } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 import { finalize, Subscription } from 'rxjs';
+import { Auth } from '../../../../core/services/auth';
 import { InfiniteScroll } from '../../../../shared/components/data-display/infinite-scroll/infinite-scroll';
 import { DialogHeader } from '../../../../shared/components/dialogs/dialog-header/dialog-header';
 import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
@@ -31,8 +32,11 @@ const CONNECTION_TABS: { value: ConnectionTab; label: string }[] = [
 export class ConnectionListDialog {
   private readonly connectionApi = inject(ConnectionApi);
   private readonly profileApi = inject(ProfileApiService);
+  private readonly auth = inject(Auth);
   readonly data = inject<{ userId: number }>(MAT_DIALOG_DATA);
   readonly userProfileLink = userProfileLink;
+  readonly authState = this.auth.authState;
+  readonly isOwnConnectionList = computed(() => this.authState().user?.id === this.data.userId);
   readonly tabs = CONNECTION_TABS;
 
   readonly connections = signal<ConnectionWithUser[]>([]);

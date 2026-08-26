@@ -1,5 +1,6 @@
 <app-dialog-header containerClass="u-responsive-padding-x py-2 shadow" title="Connections"></app-dialog-header>
 
+@if (isOwnConnectionList()) {
 <nav class="flex shrink-0 overflow-x-auto border-b border-gray-200 px-3" aria-label="Connection lists">
   @for (tab of tabs; track tab.value) {
   <button type="button" class="whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors" [ngClass]="activeTab() === tab.value
@@ -10,6 +11,7 @@
   </button>
   }
 </nav>
+}
 
 <mat-dialog-content class="flex! grow flex-col">
   @if (isLoading()) {
@@ -37,8 +39,10 @@
           </a>
         </div>
         <div class="w-full shrink-0 text-left sm:w-[40%] sm:text-right">
+          @if (isOwnConnectionList()) {
           <app-connection-request-button [userId]="connectionItem.user.id" [connection]="connectionItem.connection"
             class="mb-1 inline-block"></app-connection-request-button>
+          }
           <time class="block whitespace-nowrap text-xs text-gray-500"
             [attr.datetime]="connectionItem.connection.createdAt">
             {{ connectionItem.connection.createdAt | date: 'medium' }}
