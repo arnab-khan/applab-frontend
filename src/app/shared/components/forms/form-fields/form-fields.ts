@@ -24,6 +24,7 @@ export class FormFieldsComponent {
 
   readonly errorOrder = [
     'required',
+    'email',
     'disallowNumber',
     'disallowSpaces',
     'disallowSpecialChar',

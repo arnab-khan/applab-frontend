@@ -1,0 +1,71 @@
+<div class="auth-form text-center">
+  <div class="mb-8 text-center">
+    <h1 class="text-3xl font-bold text-gray-900">Verify OTP</h1>
+    <p class="mt-2 text-sm text-gray-600">
+      Enter the {{ otpDigits() }}-digit verification code sent to your email address.
+    </p>
+    @if (sentTo()) {
+      <p class="mt-2 inline-flex rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
+        {{ sentTo() }}
+      </p>
+    }
+  </div>
+
+  @if (message() || expiresAt() || hasExpiresInSeconds()) {
+  <div class="mb-6 flex flex-col items-center gap-3 rounded-xl border border-indigo-100 bg-linear-to-r from-blue-50 via-indigo-50 to-violet-50 px-4 py-3 text-left shadow-sm sm:flex-row">
+    @if (message()) {
+    <div class="flex min-w-0 items-center gap-2.5">
+      <fa-icon [icon]="faCircleCheck" class="shrink-0 text-xl text-emerald-600"></fa-icon>
+      <p class="text-sm font-semibold text-indigo-950">{{ message() }}</p>
+    </div>
+    }
+    @if (expiresAt() || hasExpiresInSeconds()) {
+      <p class="shrink-0 rounded-full bg-amber-100 px-3 py-1.5 text-center text-xs font-semibold text-amber-700 sm:ml-auto">
+        <fa-icon [icon]="faClock" class="mr-1"></fa-icon>
+        OTP expires in {{ expiryMinutes() }}m {{ expiryRemainingSeconds() }}s
+      </p>
+    }
+  </div>
+  }
+
+  @if (otpForm) {
+  <form appScrollToInvalid [formGroup]="otpForm" (ngSubmit)="onSubmit()" class="space-y-5">
+    @let otpControl = otpForm.controls.otp;
+    <app-form-fields [fieldConfig]="{ label: 'Verification Code' }" [dynamicFormControl]="otpControl"
+      [hasClickedSubmit]="hasClickedSubmit()">
+      <div class="flex justify-center">
+        <ng-otp-input [formControl]="otpControl" [config]="otpConfig"
+          (focusin)="otpControl.markAsUntouched()"></ng-otp-input>
+      </div>
+    </app-form-fields>
+
+    <app-loading-button [loading]="isSubmitting()" class="mt-10 w-full">
+      <button type="submit" class="u-gradient-btn w-full" [disabled]="isSubmitting()">
+        Verify OTP
+      </button>
+    </app-loading-button>
+
+    @if (sentTo()) {
+      <div class="text-sm text-gray-600">
+        <span>Didn't receive the code?</span>
+        <button type="button" class="ml-1 font-semibold text-indigo-600 transition-colors hover:text-violet-600 disabled:cursor-not-allowed disabled:opacity-50"
+          [disabled]="isResending() || resendSecondsLeft() > 0 || remainingResends() <= 0"
+          (click)="resendOtp()">
+          @if (isResending()) {
+            Resending...
+          } @else if (remainingResends() <= 0) {
+            No resends remaining
+          } @else if (resendSecondsLeft() > 0) {
+            Resend in {{ resendSecondsLeft() }}s
+          } @else {
+            Resend OTP
+          }
+        </button>
+        @if (hasRemainingResends()) {
+          <span class="ml-1">({{ remainingResends() }} left)</span>
+        }
+      </div>
+    }
+  </form>
+  }
+</div>

@@ -12,3 +12,34 @@ router-outlet + * { // stretch the component to fill entire page
   flex-direction: column;
   flex-grow: 1;
 }
+
+app-otp-verification {
+  ng-otp-input {
+    .otp-input {
+      background-color: #fff;
+      border: 2px solid #e5e7eb !important;
+      border-radius: 0.75rem !important;
+      outline: none;
+      transition: border-color 150ms ease;
+
+      &:focus {
+        border-color: #3b82f6 !important;
+      }
+    }
+
+    &.ng-valid .otp-input {
+      border-color: #22c55e !important;
+    }
+  }
+
+  .clicked-submit-button ng-otp-input.ng-invalid .otp-input {
+    border-color: #ef4444 !important;
+  }
+
+  @media (max-width: 319px) {
+    ng-otp-input .otp-input-mobile-gap {
+      margin-right: 0.25rem !important;
+      margin-left: 0.25rem !important;
+    }
+  }
+}

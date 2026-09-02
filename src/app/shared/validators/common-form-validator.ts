@@ -12,6 +12,7 @@ export interface TextValidationConfig {
   disallowSpecialChars?: Boolean;
   minLength?: number;
   maxLength?: number;
+  email?: boolean;
 }
 
 interface Rule {
@@ -39,6 +40,7 @@ export function commonFormValidator(
     const hasLowercase = /[a-z]/.test(value);
     const hasSpace = /\s/.test(value);
     const hasSpecialChar = /[^a-zA-Z0-9\s]/.test(value);
+    const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
 
     /*  rules */
     const rules: Rule[] = [];
@@ -52,6 +54,14 @@ export function commonFormValidator(
     }
 
     if (value) {
+      if (config.email) {
+        rules.push({
+          ok: !hasValidEmail,
+          key: 'email',
+          msg: 'Enter a valid email address.',
+        });
+      }
+
       if (config.requireNumber) {
         rules.push({
           ok: !hasNumber,
