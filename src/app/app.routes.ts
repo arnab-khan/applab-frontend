@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
-import { GuestGuard } from './core/guards/guest.guard';
 import { PublicProfileResolver } from './features/profile/pages/public-profile/public-profile.resolver';
 
 export const routes: Routes = [
@@ -11,7 +10,6 @@ export const routes: Routes = [
     // },
     {
         path: 'auth',
-        canActivateChild: [GuestGuard],
         loadChildren: () => import('./features/auth/auth.routes').then(r => r.authRoutes),
     },
     {

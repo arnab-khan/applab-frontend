@@ -55,7 +55,7 @@ export class Telemetry {
       localSessionId: this.getLocalSessionId(),
       identityType,
       identityId,
-      route: this.router.url,
+      route: this.router.url.split('?')[0],
       browser: this.getBrowserName(),
       platform: this.getPlatform(),
     };

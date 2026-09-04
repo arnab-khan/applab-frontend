@@ -1,11 +1,20 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { IsUsernameExist } from '../../shared/interfaces/is-username-exist';
+import { EmailOtpRequest, EmailOtpResponse, EmailOtpVerificationRequest, PasswordVerificationRequest } from '../../shared/interfaces/auth';
 import { UpdateProfileBasics, UpdateProfileCredentials, User as AuthUser, UserProfileImage } from '../../shared/interfaces/user';
 import { toHttpParams } from '../../shared/utils/http';
-import { catchError, finalize, Observable, of, tap, throwError } from 'rxjs';
+import { catchError, EMPTY, finalize, Observable, of, tap, throwError } from 'rxjs';
 import { Auth } from './auth';
+
+const EMAIL_OTP_SESSION_ERROR_CODES = [
+  'PASSWORD_VERIFICATION_REQUIRED',
+  'EMAIL_CHANGE_SESSION_MISMATCH',
+  'EMAIL_CHANGE_INVALID_OR_EXPIRED',
+];
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +22,8 @@ import { Auth } from './auth';
 export class User {
   private httpClient = inject(HttpClient);
   private authService = inject(Auth);
+  private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
   private baseApiUrl = `${environment.rootApiUrl}/user`;
 
   private mergeAuthUser(user: AuthUser) {
@@ -95,6 +106,33 @@ export class User {
 
   updateCredentials(body: UpdateProfileCredentials) {
     return this.httpClient.patch<AuthUser>(`${this.baseApiUrl}/update-credentials`, body).pipe(
+      tap(user => this.mergeAuthUser(user))
+    );
+  }
+
+  verifyPassword(body: PasswordVerificationRequest) {
+    return this.httpClient.post<{ message: string }>(`${this.baseApiUrl}/verify-password`, body);
+  }
+
+  sendEmailOtp(body: EmailOtpRequest) {
+    return this.httpClient.post<EmailOtpResponse>(`${this.baseApiUrl}/email/send-otp`, body).pipe(
+      catchError(error => {
+        if (EMAIL_OTP_SESSION_ERROR_CODES.includes(error.error?.code)) {
+          this.snackBar.open('Your password verification session has expired.', '✖', {
+            duration: 5000,
+            panelClass: 'snackbar-error',
+          });
+          this.router.navigateByUrl('/profile/edit-profile');
+          return EMPTY;
+        }
+
+        return throwError(() => error);
+      })
+    );
+  }
+
+  verifyEmailOtp(body: EmailOtpVerificationRequest) {
+    return this.httpClient.post<AuthUser>(`${this.baseApiUrl}/email/verify-otp`, body).pipe(
       tap(user => this.mergeAuthUser(user))
     );
   }

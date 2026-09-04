@@ -7,16 +7,16 @@
   <form appScrollToInvalid [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
 
     @let usernameControl=loginForm.controls.username;
-    <app-form-fields [fieldConfig]="{label: 'Username'}" [dynamicFormControl]="usernameControl"
+    <app-form-fields [fieldConfig]="{label: 'Username or Email'}" [dynamicFormControl]="usernameControl"
       [hasClickedSubmit]="hasClickedSubmit">
       <input type="text" [formControl]="usernameControl" class="lowercase placeholder:normal-case u-form-field"
-        [placeholder]="'Enter username'" name="username" appSanitizeInput [noSpaceAllow]="true" />
+        [placeholder]="'Enter username or email'" name="username" appSanitizeInput [noSpaceAllow]="true" />
     </app-form-fields>
 
     @let passwordControl=loginForm.controls.password;
     <app-form-fields [fieldConfig]="{label: 'Password'}" [dynamicFormControl]="passwordControl"
       [hasClickedSubmit]="hasClickedSubmit">
-      <app-password-field>
+      <app-password-field [showForgotPassword]="true">
         <input type="password" [formControl]="passwordControl" class="u-form-field" name="password"
           [placeholder]="'Enter password'" appSanitizeInput [noSpaceAllow]="true" />
       </app-password-field>
