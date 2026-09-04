@@ -2,7 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, Injector, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { CreateUser, LoginUser, User, UserProfileImage } from '../../shared/interfaces/user';
+import { CreateUser, EmailOtpResponse, ForgotPasswordOtpRequest, ForgotPasswordOtpVerificationRequest, LoginUser, PasswordResetRequest, PasswordResetResponse, PasswordResetTokenResponse } from '../../shared/interfaces/auth';
+import { User, UserProfileImage } from '../../shared/interfaces/user';
 import { catchError, finalize, of, switchMap, tap } from 'rxjs';
 import { LOGIN_ROUTE } from '../../shared/config/config';
 import { User as UserService } from './user';
@@ -76,6 +77,18 @@ export class Auth {
       tap(user => this.updateUser(user)),
       finalize(() => this.updateUser(this.authState().user, { updateStatus: false, completed: true, fetchProfileImage: true }))
     );
+  }
+
+  sendForgotPasswordOtp(body: ForgotPasswordOtpRequest) {
+    return this.httpClient.post<EmailOtpResponse>(`${this.baseApiUrl}/forgot-password/send-otp`, body);
+  }
+
+  verifyForgotPasswordOtp(body: ForgotPasswordOtpVerificationRequest) {
+    return this.httpClient.post<PasswordResetTokenResponse>(`${this.baseApiUrl}/forgot-password/verify-otp`, body);
+  }
+
+  resetPassword(body: PasswordResetRequest) {
+    return this.httpClient.post<PasswordResetResponse>(`${this.baseApiUrl}/forgot-password/reset`, body);
   }
 
   me() {

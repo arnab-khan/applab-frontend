@@ -9,7 +9,7 @@ import { FormFieldsComponent } from '../../../../shared/components/forms/form-fi
 import { PasswordField } from '../../../../shared/components/forms/password-field/password-field';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
-import { PasswordVerificationPurpose } from '../../../../shared/interfaces/user';
+import { PasswordVerificationPurpose } from '../../../../shared/interfaces/auth';
 import { FormValidation } from '../../../../shared/services/form-validation';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
 
@@ -17,11 +17,13 @@ const PURPOSE_CONTENT: Record<PasswordVerificationPurpose, {
   title: string;
   description: string;
   successRoute: string;
+  successQueryParams?: Record<string, string>;
 }> = {
   CHANGE_EMAIL: {
     title: 'Verify Password',
     description: 'Enter your current password to continue changing your email.',
-    successRoute: '/auth/email-entry?purpose=EDIT_PROFILE',
+    successRoute: '/auth/email-entry',
+    successQueryParams: { purpose: 'EDIT_PROFILE' },
   },
 };
 
@@ -104,7 +106,14 @@ export class PasswordVerification implements OnInit {
         finalize(() => this.isSubmitting.set(false)),
       ).subscribe({
         next: () => {
-          this.router.navigateByUrl(PURPOSE_CONTENT[purpose].successRoute, { replaceUrl: true });
+          const content = PURPOSE_CONTENT[purpose];
+          this.router.navigate([content.successRoute], {
+            queryParams: {
+              ...content.successQueryParams,
+              returnUrl: this.route.snapshot.queryParamMap.get('returnUrl'),
+            },
+            replaceUrl: true,
+          });
         },
         error: error => {
           const message = error.error?.message || error.error?.error || 'Password verification failed. Please try again.';

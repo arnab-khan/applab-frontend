@@ -12,10 +12,10 @@ import { User } from '../../../../core/services/user';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
 import { existsValidator } from '../../../../shared/validators/exists-validator';
 import { finalize, map, of, switchMap } from 'rxjs';
-import { CreateUser } from '../../../../shared/interfaces/user';
+import { CreateUser } from '../../../../shared/interfaces/auth';
 import { Auth } from '../../../../core/services/auth';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PasswordField } from '../../../../shared/components/forms/password-field/password-field';
 import { matchControlValidator } from '../../../../shared/validators/match-control-validator';
@@ -25,7 +25,6 @@ import { CommonDialog } from '../../../../shared/components/dialogs/common-dialo
 import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
 import { FormValidation } from '../../../../shared/services/form-validation';
 import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-pipe';
-import { Redirect } from '../../../../shared/services/redirect';
 import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 
 @Component({
@@ -56,7 +55,8 @@ export class Signup implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private formValidation = inject(FormValidation);
-  private redirect = inject(Redirect);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private capitalizeWordsPipe = new CapitalizeWordsPipe();
 
   signupForm!: FormGroup<{
@@ -210,6 +210,10 @@ export class Signup implements OnInit {
             })
           );
         }),
+        switchMap(() => this.userService.verifyPassword({
+          currentPassword: userData.password,
+          purpose: 'CHANGE_EMAIL',
+        })),
         finalize(() => this.isSubmitting.set(false))
       ).subscribe({
         next: (response) => {
@@ -218,7 +222,7 @@ export class Signup implements OnInit {
             duration: 3000,
             panelClass: 'snackbar-success',
           });
-          this.redirect.postLogin();
+          this.navigateToEmailEntry();
         },
         error: (error) => {
           const isAuthenticated = !!this.authService.authState().user;
@@ -229,13 +233,22 @@ export class Signup implements OnInit {
           this.snackBar.open(message, '✖', { duration: 3000, panelClass: 'snackbar-error' });
 
           if (isAuthenticated) {
-            this.redirect.postLogin();
+            this.navigateToEmailEntry();
           }
 
           console.error('error creating user', error);
         },
       });
     }
+  }
+
+  private navigateToEmailEntry(): void {
+    this.router.navigate(['/auth/email-entry'], {
+      queryParams: {
+        purpose: 'SIGNUP',
+        returnUrl: this.route.snapshot.queryParamMap.get('returnUrl'),
+      },
+    });
   }
 
   onProfilePhotoSelected(selection: ImageUploaderSelection) {

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormFieldsComponent } from '../../../../shared/components/forms/form-fields/form-fields';
 import { SanitizeInput } from '../../../../shared/directives/sanitize-input';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
-import { LoginUser } from '../../../../shared/interfaces/user';
+import { LoginUser } from '../../../../shared/interfaces/auth';
 import { Auth } from '../../../../core/services/auth';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
 import { RouterLink } from '@angular/router';

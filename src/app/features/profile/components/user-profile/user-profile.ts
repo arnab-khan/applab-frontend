@@ -1,5 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCopy, faShareNodes } from '@fortawesome/free-solid-svg-icons';
 import { ConnectionListButton } from '../../../connection/components/connection-list-button/connection-list-button';
@@ -10,21 +11,24 @@ import { Share } from '../../../../shared/services/share';
 import { Url } from '../../../../shared/services/url';
 import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-pipe';
 import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
+import { Auth } from '../../../../core/services/auth';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [DatePipe, FontAwesomeModule, Thumbnail, CommonModule, CapitalizeWordsPipe, TelemetryClick, ConnectionRequestButton, ConnectionListButton],
+  imports: [DatePipe, FontAwesomeModule, RouterLink, Thumbnail, CommonModule, CapitalizeWordsPipe, TelemetryClick, ConnectionRequestButton, ConnectionListButton],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.scss',
 })
 export class UserProfile {
   private url = inject(Url);
   private share = inject(Share);
+  private authService = inject(Auth);
   user = input<User | null>(null);
   profileImage = input<UserProfileImage | null>(null);
   profileImageUrl = input<string | null |undefined>(null);
   profileImageLoading = input(false);
   showConnectionRequestButton = input(true);
+  isCurrentUser = computed(() => this.user()?.id === this.authService.authState().user?.id);
   readonly faCopy = faCopy;
   readonly faShareNodes = faShareNodes;
 

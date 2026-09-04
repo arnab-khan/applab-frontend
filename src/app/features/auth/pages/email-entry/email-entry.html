@@ -6,12 +6,18 @@
     </p>
   </div>
 
+  @if (isForgotPasswordUnavailable()) {
+    <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center text-sm font-medium text-amber-800">
+      No email address has been added to your account.
+    </div>
+  } @else {
   <form appScrollToInvalid [formGroup]="emailForm" (ngSubmit)="onSubmit()" class="space-y-5">
     @let emailControl = emailForm.controls.email;
-    <app-form-fields [fieldConfig]="{ label: 'New Email' }" [dynamicFormControl]="emailControl"
+    <app-form-fields [fieldConfig]="{ label: pageContent().fieldLabel }" [dynamicFormControl]="emailControl"
       [hasClickedSubmit]="hasClickedSubmit()">
       <input type="text" inputmode="email" [formControl]="emailControl"
-        class="u-form-field lowercase placeholder:normal-case" name="email" placeholder="Enter new email"
+        class="u-form-field lowercase placeholder:normal-case" name="email"
+        [placeholder]="pageContent().fieldPlaceholder" [readOnly]="useLoggedInUserEmail()"
         autocomplete="email" appSanitizeInput [noSpaceAllow]="true" />
     </app-form-fields>
 
@@ -20,5 +26,13 @@
         Send OTP
       </button>
     </app-loading-button>
+
+    @if (pageContent().showSkipButton) {
+      <button type="button" class="w-full text-sm font-semibold text-slate-500 transition-colors hover:text-slate-700"
+        [disabled]="isSubmitting()" (click)="skipEmail()">
+        Skip for now
+      </button>
+    }
   </form>
+  }
 </div>

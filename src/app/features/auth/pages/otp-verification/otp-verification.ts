@@ -5,22 +5,29 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCircleCheck, faClock } from '@fortawesome/free-solid-svg-icons';
 import { NgOtpInputComponent, NgOtpInputConfig } from 'ng-otp-input';
-import { finalize } from 'rxjs';
+import { finalize, map, Observable } from 'rxjs';
+import { Auth } from '../../../../core/services/auth';
 import { User } from '../../../../core/services/user';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
 import { FormFieldsComponent } from '../../../../shared/components/forms/form-fields/form-fields';
 import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
-import { EmailFlowPurpose, EmailOtpResponse } from '../../../../shared/interfaces/user';
+import { EmailFlowPurpose, EmailOtpResponse, PasswordResetTokenResponse } from '../../../../shared/interfaces/auth';
 import { FormValidation } from '../../../../shared/services/form-validation';
 import { commonFormValidator } from '../../../../shared/validators/common-form-validator';
 
-const PURPOSE_CONFIG: Record<EmailFlowPurpose, { successRoute: string; successMessage?: string }> = {
+type OtpFlowPurpose = EmailFlowPurpose | 'FORGOT_PASSWORD';
+
+const PURPOSE_CONFIG: Record<OtpFlowPurpose, { successMessage?: string; showSkipButton?: boolean; nextRoute: string }> = {
   EDIT_PROFILE: {
-    successRoute: '/profile/edit-profile',
     successMessage: 'Email added successfully.',
+    nextRoute: '/profile/edit-profile',
   },
   SIGNUP: {
-    successRoute: '/profile/view-profile',
+    showSkipButton: true,
+    nextRoute: '/profile/view-profile',
+  },
+  FORGOT_PASSWORD: {
+    nextRoute: '/auth/reset-password',
   },
 };
 
@@ -36,11 +43,12 @@ export class OtpVerification implements OnInit, OnDestroy {
 
   private formBuilder = inject(NonNullableFormBuilder);
   private formValidation = inject(FormValidation);
+  private authService = inject(Auth);
   private userService = inject(User);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
-  private emailChangeId = '';
+  private requestId = '';
   private cooldownTimer?: ReturnType<typeof setInterval>;
   private expiryTimer?: ReturnType<typeof setInterval>;
 
@@ -50,7 +58,11 @@ export class OtpVerification implements OnInit, OnDestroy {
   hasClickedSubmit = signal(false);
   isSubmitting = signal(false);
   isResending = signal(false);
-  purpose = signal<EmailFlowPurpose | null>(null);
+  purpose = signal<OtpFlowPurpose | null>(null);
+  showSkipButton = computed(() => {
+    const purpose = this.purpose();
+    return purpose ? PURPOSE_CONFIG[purpose].showSkipButton : false;
+  });
   message = signal('');
   sentTo = signal('');
   expiresAt = signal('');
@@ -76,14 +88,14 @@ export class OtpVerification implements OnInit, OnDestroy {
     this.createForm();
 
     const purpose = this.route.snapshot.queryParamMap.get('purpose');
-    const emailChangeId = this.route.snapshot.queryParamMap.get('emailChangeId');
-    if (!purpose || !(purpose in PURPOSE_CONFIG) || !emailChangeId) {
+    const requestId = this.route.snapshot.queryParamMap.get('requestId');
+    if (!purpose || !(purpose in PURPOSE_CONFIG) || !requestId) {
       this.router.navigateByUrl('/404', { replaceUrl: true });
       return;
     }
 
-    this.purpose.set(purpose as EmailFlowPurpose);
-    this.emailChangeId = emailChangeId;
+    this.purpose.set(purpose as OtpFlowPurpose);
+    this.requestId = requestId;
 
     const params = this.route.snapshot.queryParamMap;
     const otpDigits = Number(params.get('otpDigits')) || 6;
@@ -129,13 +141,10 @@ export class OtpVerification implements OnInit, OnDestroy {
       if (!purpose) return;
 
       this.isSubmitting.set(true);
-      this.userService.verifyEmailOtp({
-        emailChangeId: this.emailChangeId,
-        otp: this.otpForm.controls.otp.value,
-      }).pipe(
+      this.verifyOtp(purpose).pipe(
         finalize(() => this.isSubmitting.set(false)),
       ).subscribe({
-        next: () => {
+        next: response => {
           const successMessage = PURPOSE_CONFIG[purpose].successMessage;
           if (successMessage) {
             this.snackBar.open(successMessage, '✖', {
@@ -143,7 +152,19 @@ export class OtpVerification implements OnInit, OnDestroy {
               panelClass: 'snackbar-success',
             });
           }
-          this.router.navigateByUrl(PURPOSE_CONFIG[purpose].successRoute, { replaceUrl: true });
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+          if (purpose === 'SIGNUP' && returnUrl) {
+            this.router.navigateByUrl(returnUrl, { replaceUrl: true });
+            return;
+          }
+
+          this.router.navigate([PURPOSE_CONFIG[purpose].nextRoute], {
+            queryParams: response ? {
+              ...response,
+              returnUrl,
+            } : undefined,
+            replaceUrl: true,
+          });
         },
         error: error => {
           const message = error.error?.message || error.error?.error || 'OTP verification failed. Please try again.';
@@ -156,11 +177,21 @@ export class OtpVerification implements OnInit, OnDestroy {
     });
   }
 
+  skipEmailVerification(): void {
+    const purpose = this.purpose();
+    if (!purpose || !this.showSkipButton()) return;
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    this.router.navigateByUrl(returnUrl || PURPOSE_CONFIG[purpose].nextRoute);
+  }
+
   resendOtp(): void {
     if (!this.sentTo() || this.remainingResends() <= 0 || this.resendSecondsLeft() > 0 || this.isResending()) return;
 
+    const purpose = this.purpose();
+    if (!purpose) return;
+
     this.isResending.set(true);
-    this.userService.sendEmailOtp({ email: this.sentTo() }).pipe(
+    this.sendOtp(purpose).pipe(
       finalize(() => this.isResending.set(false)),
     ).subscribe({
       next: response => {
@@ -188,8 +219,28 @@ export class OtpVerification implements OnInit, OnDestroy {
     });
   }
 
+  private verifyOtp(purpose: OtpFlowPurpose): Observable<PasswordResetTokenResponse | null> {
+    const body = {
+      requestId: this.requestId,
+      otp: this.otpForm.controls.otp.value,
+    };
+
+    if (purpose === 'FORGOT_PASSWORD') {
+      return this.authService.verifyForgotPasswordOtp(body);
+    }
+
+    return this.userService.verifyEmailOtp(body).pipe(map(() => null));
+  }
+
+  private sendOtp(purpose: OtpFlowPurpose): Observable<EmailOtpResponse> {
+    const body = { email: this.sentTo() };
+    return purpose === 'FORGOT_PASSWORD'
+      ? this.authService.sendForgotPasswordOtp(body)
+      : this.userService.sendEmailOtp(body);
+  }
+
   private applyOtpResponse(response: EmailOtpResponse): void {
-    this.emailChangeId = response.emailChangeId;
+    this.requestId = response.requestId;
     this.message.set(response.message || '');
     this.sentTo.set(response.sentTo || '');
     this.expiresAt.set(response.expiresAt || '');
