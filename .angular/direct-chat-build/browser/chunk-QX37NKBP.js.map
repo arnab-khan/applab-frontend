@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/features/chat/chat.routes.ts"],
+  "sourcesContent": ["import { Routes } from '@angular/router';\nimport { AuthGuard } from '../../core/guards/auth.guard';\n\nexport const chatRoutes: Routes = [\n    {\n        path: '',\n        loadComponent: () => import('./chat').then(r => r.Chat),\n        children: [\n            { path: '', redirectTo: 'global', pathMatch: 'full' },\n            { path: 'global', loadComponent: () => import('./pages/global-chat/global-chat').then(r => r.GlobalChat) },\n            { path: 'group', loadComponent: () => import('../../core/pages/coming-soon/coming-soon').then(r => r.ComingSoon) },\n            { path: 'direct', loadComponent: () => import('../../core/pages/coming-soon/coming-soon').then(r => r.ComingSoon) },\n            { path: 'direct/:userId', canActivate: [AuthGuard], loadComponent: () => import('./pages/direct-chat/direct-chat').then(r => r.DirectChat) },\n        ],\n    },\n];\n"],
+  "mappings": ";;;;;;;;;;;;;;AAGO,IAAM,aAAqB;EAC9B;IACI,MAAM;IACN,eAAe,MAAM,OAAO,qBAAQ,EAAE,KAAK,OAAK,EAAE,IAAI;IACtD,UAAU;MACN,EAAE,MAAM,IAAI,YAAY,UAAU,WAAW,OAAM;MACnD,EAAE,MAAM,UAAU,eAAe,MAAM,OAAO,qBAAiC,EAAE,KAAK,OAAK,EAAE,UAAU,EAAC;MACxG,EAAE,MAAM,SAAS,eAAe,MAAM,OAAO,qBAA0C,EAAE,KAAK,OAAK,EAAE,UAAU,EAAC;MAChH,EAAE,MAAM,UAAU,eAAe,MAAM,OAAO,qBAA0C,EAAE,KAAK,OAAK,EAAE,UAAU,EAAC;MACjH,EAAE,MAAM,kBAAkB,aAAa,CAAC,SAAS,GAAG,eAAe,MAAM,OAAO,qBAAiC,EAAE,KAAK,OAAK,EAAE,UAAU,EAAC;;;;",
+  "names": []
+}

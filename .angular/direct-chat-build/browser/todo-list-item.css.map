@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/features/todo/components/todo-list-item/todo-list-item.scss", "src/app/features/todo/components/todo-list-item/todo-list-item.scss"],
+  "sourcesContent": [".c-todo-item.c-completed {\n  background-color: #f0fdf4;\n  border-color: #bbf7d0;\n\n  .todo-title {\n    color: #15803d;\n  }\n\n  .todo-description {\n    color: #16a34a;\n  }\n}", ".c-todo-item.c-completed {\n  background-color: #f0fdf4;\n  border-color: #bbf7d0;\n}\n.c-todo-item.c-completed .todo-title {\n  color: #15803d;\n}\n.c-todo-item.c-completed .todo-description {\n  color: #16a34a;\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJmaWxlOi8vL0U6L015JTIwUHJvamVjdHMvQW5ndWxhci9hcHBsYWJfZnJvbnRlbmQvc3JjL2FwcC9mZWF0dXJlcy90b2RvL2NvbXBvbmVudHMvdG9kby1saXN0LWl0ZW0vdG9kby1saXN0LWl0ZW0uc2NzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtFQUNFO0VBQ0E7O0FBRUE7RUFDRTs7QUFHRjtFQUNFIiwic291cmNlc0NvbnRlbnQiOlsiLmMtdG9kby1pdGVtLmMtY29tcGxldGVkIHtcbiAgYmFja2dyb3VuZC1jb2xvcjogI2YwZmRmNDtcbiAgYm9yZGVyLWNvbG9yOiAjYmJmN2QwO1xuXG4gIC50b2RvLXRpdGxlIHtcbiAgICBjb2xvcjogIzE1ODAzZDtcbiAgfVxuXG4gIC50b2RvLWRlc2NyaXB0aW9uIHtcbiAgICBjb2xvcjogIzE2YTM0YTtcbiAgfVxufSJdfQ== */"],
+  "mappings": ";AAAA,CAAA,WAAA,CAAA;AACE,oBAAA;AACA,gBAAA;ACCF;ADCE,CAJF,WAIE,CAJF,YAIE,CAAA;AACE,SAAA;ACCJ;ADEE,CARF,WAQE,CARF,YAQE,CAAA;AACE,SAAA;ACAJ;",
+  "names": []
+}

@@ -33,4 +33,18 @@ export class ChatWebsocket {
       callback
     );
   }
+
+  getPrivateChatRoomTyping(chatRoomId: number, callback: (data: ChatRoomTypingResponse) => void): StompSubscription {
+    return this.websocketService.subscribe<ChatRoomTypingResponse>(
+      `${this.websocketService.topicDestination}/chatroom/${chatRoomId}/typing`,
+      callback,
+    );
+  }
+
+  getPrivateChatRoomMessageLive(chatRoomId: number, callback: (data: ChatRoomMessageLiveResponse) => void): StompSubscription {
+    return this.websocketService.subscribe<ChatRoomMessageLiveResponse>(
+      `${this.websocketService.topicDestination}/chatroom/${chatRoomId}/message`,
+      callback,
+    );
+  }
 }

@@ -17,6 +17,10 @@ export class ChatApi {
     return this.httpClient.get<GlobalChatRoomResponse>(`${this.baseApiUrl}/global`);
   }
 
+  getOrCreateDirectChat(userId: number) {
+    return this.httpClient.post<{ chatRoomId: number }>(`${this.baseApiUrl}/direct/${userId}`, {});
+  }
+
   getChatRoomMessages(chatRoomId: number, params: MessageQueryParams) {
     return this.httpClient.get<ChatRoomMessageCursorResponse>(`${this.baseApiUrl}/${chatRoomId}/message/all`, { params: toHttpParams(params) });
   }

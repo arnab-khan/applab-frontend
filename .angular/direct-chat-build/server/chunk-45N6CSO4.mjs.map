@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/features/profile/profile.routes.ts"],
+  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport const profileRoutes: Routes = [\n    {\n        path: '',\n        loadComponent: () => import('./profile').then(m => m.Profile),\n        children: [\n            { path: '', redirectTo: 'view-profile', pathMatch: 'full' },\n            {\n                path: 'view-profile',\n                loadComponent: () =>\n                    import('./pages/view-profile/view-profile').then(\n                        m => m.ViewProfile,\n                    ),\n            },\n            {\n                path: 'edit-profile',\n                loadComponent: () =>\n                    import('./pages/edit-profile/edit-profile').then(\n                        m => m.EditProfile,\n                    ),\n            },\n        ],\n    },\n];\n"],
+  "mappings": ";;;;;;AAEO,IAAM,gBAAwB;EACjC;IACI,MAAM;IACN,eAAe,MAAM,OAAO,sBAAW,EAAE,KAAK,OAAK,EAAE,OAAO;IAC5D,UAAU;MACN,EAAE,MAAM,IAAI,YAAY,gBAAgB,WAAW,OAAM;MACzD;QACI,MAAM;QACN,eAAe,MACX,OAAO,sBAAmC,EAAE,KACxC,OAAK,EAAE,WAAW;;MAG9B;QACI,MAAM;QACN,eAAe,MACX,OAAO,sBAAmC,EAAE,KACxC,OAAK,EAAE,WAAW;;;;;",
+  "names": []
+}

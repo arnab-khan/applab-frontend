@@ -3,6 +3,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCopy, faShareNodes } from '@fortawesome/free-solid-svg-icons';
+import { faComment } from '@fortawesome/free-regular-svg-icons';
 import { ConnectionListButton } from '../../../connection/components/connection-list-button/connection-list-button';
 import { ConnectionRequestButton } from '../../../connection/components/connection-request-button/connection-request-button';
 import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbnail';
@@ -12,10 +13,11 @@ import { Url } from '../../../../shared/services/url';
 import { CapitalizeWordsPipe } from '../../../../shared/pipes/capitalize-words-pipe';
 import { TelemetryClick } from '../../../../shared/directives/telemetry-click';
 import { Auth } from '../../../../core/services/auth';
+import { AuthAction } from '../../../auth/components/auth-action/auth-action';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [DatePipe, FontAwesomeModule, RouterLink, Thumbnail, CommonModule, CapitalizeWordsPipe, TelemetryClick, ConnectionRequestButton, ConnectionListButton],
+  imports: [DatePipe, FontAwesomeModule, RouterLink, Thumbnail, CommonModule, CapitalizeWordsPipe, TelemetryClick, ConnectionRequestButton, ConnectionListButton, AuthAction],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.scss',
 })
@@ -29,6 +31,7 @@ export class UserProfile {
   profileImageLoading = input(false);
   showConnectionRequestButton = input(true);
   isCurrentUser = computed(() => this.user()?.id === this.authService.authState().user?.id);
+  readonly faComment = faComment;
   readonly faCopy = faCopy;
   readonly faShareNodes = faShareNodes;
 

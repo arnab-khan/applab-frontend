@@ -36,6 +36,11 @@ export const routes: Routes = [
         loadChildren: () => import('./features/chat/chat.routes').then(r => r.chatRoutes),
     },
     {
+        path: 'user-chat/:userId',
+        canActivate: [AuthGuard],
+        loadComponent: () => import('./features/chat/pages/user-chat/user-chat').then(r => r.UserChat),
+    },
+    {
         path: '**',
         loadComponent: () =>
             import('./core/pages/not-found/not-found').then(r => r.NotFound),

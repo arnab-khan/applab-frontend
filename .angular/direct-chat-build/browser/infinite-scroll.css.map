@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/components/data-display/infinite-scroll/infinite-scroll.scss", "src/app/shared/components/data-display/infinite-scroll/infinite-scroll.scss"],
+  "sourcesContent": [":host {\n  display: block;\n}\n\n.c-infinite-scroll__sentinel {\n  block-size: 1px;\n  inline-size: 100%;\n  pointer-events: none;\n}\n", ":host {\n  display: block;\n}\n\n.c-infinite-scroll__sentinel {\n  block-size: 1px;\n  inline-size: 100%;\n  pointer-events: none;\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJmaWxlOi8vL0U6L015JTIwUHJvamVjdHMvQW5ndWxhci9hcHBsYWJfZnJvbnRlbmQvc3JjL2FwcC9zaGFyZWQvY29tcG9uZW50cy9kYXRhLWRpc3BsYXkvaW5maW5pdGUtc2Nyb2xsL2luZmluaXRlLXNjcm9sbC5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0U7OztBQUdGO0VBQ0U7RUFDQTtFQUNBIiwic291cmNlc0NvbnRlbnQiOlsiOmhvc3Qge1xuICBkaXNwbGF5OiBibG9jaztcbn1cblxuLmMtaW5maW5pdGUtc2Nyb2xsX19zZW50aW5lbCB7XG4gIGJsb2NrLXNpemU6IDFweDtcbiAgaW5saW5lLXNpemU6IDEwMCU7XG4gIHBvaW50ZXItZXZlbnRzOiBub25lO1xufVxuIl19 */"],
+  "mappings": ";AAAA;AACE,WAAA;ACCF;ADEA,CAAA;AACE,cAAA;AACA,eAAA;AACA,kBAAA;ACCF;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/features/connection/components/connection-list-dialog/connection-list-dialog.scss", "src/app/features/connection/components/connection-list-dialog/connection-list-dialog.scss"],
+  "sourcesContent": [":host {\n  display: flex;\n  height: 100%;\n  flex-direction: column;\n}\n", ":host {\n  display: flex;\n  height: 100%;\n  flex-direction: column;\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJmaWxlOi8vL0U6L015JTIwUHJvamVjdHMvQW5ndWxhci9hcHBsYWJfZnJvbnRlbmQvc3JjL2FwcC9mZWF0dXJlcy9jb25uZWN0aW9uL2NvbXBvbmVudHMvY29ubmVjdGlvbi1saXN0LWRpYWxvZy9jb25uZWN0aW9uLWxpc3QtZGlhbG9nLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyI6aG9zdCB7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGhlaWdodDogMTAwJTtcbiAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcbn1cbiJdfQ== */"],
+  "mappings": ";AAAA;AACE,WAAA;AACA,UAAA;AACA,kBAAA;ACCF;",
+  "names": []
+}

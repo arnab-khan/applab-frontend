@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/services/redirect.ts"],
+  "sourcesContent": ["import { inject, Injectable } from '@angular/core';\nimport { ActivatedRoute, Router } from '@angular/router';\nimport { POST_LOGIN_DEFAULT_ROUTE } from '../config/config';\n\n@Injectable({\n  providedIn: 'root',\n})\nexport class Redirect {\n  private router = inject(Router);\n  private route = inject(ActivatedRoute);\n\n  postLogin() {\n    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');\n    return this.router.navigateByUrl(returnUrl || POST_LOGIN_DEFAULT_ROUTE);\n  }\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;AAOM,IAAO,WAAP,MAAO,UAAQ;EACX,SAAS,OAAO,MAAM;EACtB,QAAQ,OAAO,cAAc;EAErC,YAAS;AACP,UAAM,YAAY,KAAK,MAAM,SAAS,cAAc,IAAI,WAAW;AACnE,WAAO,KAAK,OAAO,cAAc,aAAa,wBAAwB;EACxE;;qCAPW,WAAQ;EAAA;4EAAR,WAAQ,SAAR,UAAQ,WAAA,YAFP,OAAM,CAAA;;;sEAEP,UAAQ,CAAA;UAHpB;WAAW;MACV,YAAY;KACb;;;",
+  "names": []
+}
