@@ -1,10 +1,28 @@
 import { CursorQueryParams, CursorResponse } from './pagination';
+import { PageResponse } from './pagination';
 import { Reaction, ReactionCount } from './reaction';
 import { Author } from './author';
 
 export interface GlobalChatRoomResponse {
     chatRoomId: number;
 }
+
+export interface ChatRoomResponse {
+    id: number;
+    name: string;
+    roomType: string;
+    firstUserId?: number;
+    secondUserId?: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface ChatRoomConversationResponse {
+    chatRoom: ChatRoomResponse;
+    user: Author;
+}
+
+export type ChatRoomPageResponse = PageResponse<ChatRoomConversationResponse>;
 
 export interface Message {
     id: number;

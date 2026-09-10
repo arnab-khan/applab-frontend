@@ -11,6 +11,7 @@ import { StompSubscription } from '@stomp/stompjs';
 import { ChatState } from '../../services/chat-state';
 import { ChatWebsocket } from '../../services/chat-websocket';
 import { ChatMessage } from '../../services/chat-message';
+import { User } from '../../../../shared/interfaces/user';
 
 @Component({
   selector: 'app-user-chat',
@@ -31,14 +32,11 @@ export class UserChat {
   private websocketSubscriptions: StompSubscription[] = [];
   private typingUserTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
   chatRoomId = signal<number | undefined>(undefined);
-  recipientUserId = signal<number | undefined>(undefined);
-  recipientName = signal('');
-  recipientUsername = signal('');
-  recipientCompressedProfileImageUrl = signal('');
+  recipient = signal<User | null>(null);
   errorMessage = signal('');
   headerHeight = this.layoutState.headerHeight;
   recipientProfileImageUrl = computed(() =>
-    this.profileApiService.getPublicImageUrl(this.recipientCompressedProfileImageUrl()),
+    this.profileApiService.getPublicImageUrl(this.recipient()?.compressedProfileImageUrl),
   );
 
   constructor() {
@@ -50,24 +48,25 @@ export class UserChat {
     this.route.paramMap.pipe(
       switchMap(params => {
         this.chatRoomId.set(undefined);
+        this.recipient.set(null);
         this.errorMessage.set('');
-        const userId = Number(params.get('userId'));
-        this.recipientUserId.set(userId);
-        this.recipientName.set(this.route.snapshot.queryParamMap.get('name') || '');
-        this.recipientUsername.set(this.route.snapshot.queryParamMap.get('username') || '');
-        this.recipientCompressedProfileImageUrl.set(
-          this.route.snapshot.queryParamMap.get('profileImageUrl') || '',
-        );
+        const username = params.get('username');
 
-        if (!Number.isSafeInteger(userId) || userId <= 0) {
-          this.errorMessage.set('Invalid user id.');
+        if (!username) {
+          this.errorMessage.set('Invalid username.');
           return EMPTY;
         }
 
-        return this.chatApi.getOrCreateDirectChat(userId).pipe(
+        return this.profileApiService.getPublicUserByUsername({ username }).pipe(
+          switchMap(recipient => {
+            this.recipient.set(recipient);
+            return this.chatApi.getOrCreateDirectChat(recipient.id);
+          }),
           catchError(error => {
             console.error('Error loading user chat room', error);
-            this.errorMessage.set('Unable to load chat.');
+            this.errorMessage.set(
+              error?.status === 404 ? 'User not found.' : 'Unable to load chat.',
+            );
             return EMPTY;
           }),
         );

@@ -1,26 +1,33 @@
+@if (recipient()) {
 <div class="sticky z-10" [style.top.px]="headerHeight()">
   <header class="u-container-2-5 mx-auto rounded-b-md py-1 backdrop-blur-3xl">
     <div class="rounded-md border border-white/20 bg-white/20 px-3 py-1 shadow-lg">
-      <a [routerLink]="recipientUsername() ? ['/user', recipientUsername()] : null"
+      <a [routerLink]="recipient()?.username ? ['/user', recipient()?.username] : null"
         class="flex items-center justify-center gap-2 no-underline" target="_blank" rel="noopener noreferrer">
         <app-thumbnail [imageUrl]="recipientProfileImageUrl()"
-          [name]="recipientName() || recipientUsername()" [showBorder]="false"
-          [alt]="(recipientName() || recipientUsername() || 'User') + ' profile image'"
+          [name]="recipient()?.name || recipient()?.username" [showBorder]="false"
+          [alt]="(recipient()?.name || recipient()?.username || 'User') + ' profile image'"
           size="1.5rem" radius="50%" class="shrink-0">
         </app-thumbnail>
         <p class="min-w-0 truncate text-sm text-white/75">
           Chat with
-          <span class="font-semibold text-white">{{ recipientName() || recipientUsername() || 'User' }}</span>
+          <span class="font-semibold text-white">{{ recipient()?.name || recipient()?.username || 'User' }}</span>
         </p>
       </a>
     </div>
   </header>
 </div>
+}
 
-<main class="u-container-2-5 u-responsive-padding-x mx-auto flex grow flex-col">
-  @if (errorMessage()) {
-    <p role="alert">{{ errorMessage() }}</p>
-  } @else {
+@if (errorMessage()) {
+  <section class="u-container-2-5 u-responsive-padding-x mx-auto flex grow items-center justify-center" role="alert">
+    <div class="w-full rounded-xl border border-white/15 bg-white/15 px-4 py-12 text-center text-white">
+      <p class="text-lg font-semibold">{{ errorMessage() }}</p>
+      <p class="mt-1 text-sm text-white/70">Check the username and try again.</p>
+    </div>
+  </section>
+} @else {
+  <main class="u-container-2-5 u-responsive-padding-x mx-auto flex grow flex-col">
     <app-chat-room [chatRoomId]="chatRoomId()"></app-chat-room>
-  }
-</main>
+  </main>
+}

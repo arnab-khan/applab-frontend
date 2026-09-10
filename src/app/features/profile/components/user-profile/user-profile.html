@@ -32,8 +32,7 @@
           <div class="max-sm:grow">
             <app-auth-action [allowGuest]="false" theme="light" menuContainerClass="w-64"
               message="Sign in or create an account to chat with this user.">
-              <button type="button" class="u-btn-outline-cyan" [routerLink]="['/user-chat', profileUser.id]"
-                [queryParams]="{ name: profileUser.name, username: profileUser.username, profileImageUrl: profileUser.compressedProfileImageUrl }">
+              <button type="button" class="u-btn-outline-cyan" [routerLink]="['/user-chat', profileUser.username]">
                 <span class="flex items-center gap-2">
                   <fa-icon [icon]="faComment"></fa-icon>
                   Chat
