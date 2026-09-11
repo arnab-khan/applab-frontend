@@ -7,4 +7,5 @@ import { ChatRoomMessageLiveResponse, ChatRoomTypingResponse } from '../../../sh
 export class ChatState {
   liveMessage = signal<ChatRoomMessageLiveResponse | null>(null);
   typingUsers = signal<ChatRoomTypingResponse[]>([]);
+  totalUnreadCount = signal(0);
 }

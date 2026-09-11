@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, throwError } from 'rxjs';
 import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageResponse, MessageQueryParams } from '../../../../shared/interfaces/chat';
@@ -14,6 +14,9 @@ import { MessageList } from '../message-list/message-list';
 })
 export class ChatRoom {
   chatRoomId = input<number>();
+  unreadCount = input(0);
+  otherUserHasRead = input<boolean>();
+  messagesLoaded = output<void>();
 
   private chatApi = inject(ChatApi);
   private snackBar = inject(MatSnackBar);

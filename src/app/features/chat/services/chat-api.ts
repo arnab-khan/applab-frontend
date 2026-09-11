@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageCursorResponse, ChatRoomMessageResponse, ChatRoomMessageViewerStateResponse, ChatRoomPageResponse, GlobalChatRoomResponse, Message, MessageQueryParams } from '../../../shared/interfaces/chat';
+import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageCursorResponse, ChatRoomMessageResponse, ChatRoomMessageViewerStateResponse, ChatRoomPageResponse, ChatRoomUnreadResponse, GlobalChatRoomResponse, Message, MessageQueryParams } from '../../../shared/interfaces/chat';
 import { CursorQueryParams, PaginationQueryParams } from '../../../shared/interfaces/pagination';
 import { ReactionEmojiRequest, Reaction, ReactionCount, ReactionWithAuthorCursorResponse } from '../../../shared/interfaces/reaction';
 import { toHttpParams } from '../../../shared/utils/http';
@@ -25,6 +25,14 @@ export class ChatApi {
     return this.httpClient.get<ChatRoomPageResponse>(`${this.baseApiUrl}/all`, {
       params: toHttpParams(params),
     });
+  }
+
+  getChatRoomUnreadCount(chatRoomId: number) {
+    return this.httpClient.get<ChatRoomUnreadResponse>(`${this.baseApiUrl}/${chatRoomId}/unread-count`);
+  }
+
+  markChatRoomAsRead(chatRoomId: number) {
+    return this.httpClient.patch<void>(`${this.baseApiUrl}/${chatRoomId}/read`, {});
   }
 
   getChatRoomMessages(chatRoomId: number, params: MessageQueryParams) {

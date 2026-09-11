@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { catchError, EMPTY, switchMap } from 'rxjs';
+import { catchError, EMPTY, map, switchMap } from 'rxjs';
 import { ChatRoom } from '../../components/chat-room/chat-room';
 import { ChatApi } from '../../services/chat-api';
 import { LayoutState } from '../../../../core/services/layout-state';
@@ -31,7 +31,10 @@ export class UserChat {
   private destroyRef = inject(DestroyRef);
   private websocketSubscriptions: StompSubscription[] = [];
   private typingUserTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
+  private hasMarkedInitialMessagesAsRead = false;
   chatRoomId = signal<number | undefined>(undefined);
+  unreadCount = signal(0);
+  otherUserHasRead = signal(false);
   recipient = signal<User | null>(null);
   errorMessage = signal('');
   headerHeight = this.layoutState.headerHeight;
@@ -48,6 +51,9 @@ export class UserChat {
     this.route.paramMap.pipe(
       switchMap(params => {
         this.chatRoomId.set(undefined);
+        this.unreadCount.set(0);
+        this.otherUserHasRead.set(false);
+        this.hasMarkedInitialMessagesAsRead = false;
         this.recipient.set(null);
         this.errorMessage.set('');
         const username = params.get('username');
@@ -62,6 +68,11 @@ export class UserChat {
             this.recipient.set(recipient);
             return this.chatApi.getOrCreateDirectChat(recipient.id);
           }),
+          switchMap(({ chatRoomId }) =>
+            this.chatApi.getChatRoomUnreadCount(chatRoomId).pipe(
+              map(({ unreadCount, otherUserHasRead }) => ({ chatRoomId, unreadCount, otherUserHasRead })),
+            ),
+          ),
           catchError(error => {
             console.error('Error loading user chat room', error);
             this.errorMessage.set(
@@ -72,9 +83,35 @@ export class UserChat {
         );
       }),
       takeUntilDestroyed(this.destroyRef),
-    ).subscribe(({ chatRoomId }) => {
+    ).subscribe(({ chatRoomId, unreadCount, otherUserHasRead }) => {
       this.chatRoomId.set(chatRoomId);
+      this.unreadCount.set(unreadCount);
+      this.otherUserHasRead.set(otherUserHasRead);
       this.subscribeToRoom(chatRoomId);
+    });
+  }
+
+  markRoomAsRead(updateUi = false) {
+    const chatRoomId = this.chatRoomId();
+    const unreadCount = this.unreadCount();
+
+    if (!chatRoomId || (!updateUi && (!unreadCount || this.hasMarkedInitialMessagesAsRead))) {
+      return;
+    }
+
+    this.chatApi.markChatRoomAsRead(chatRoomId).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: () => {
+        if (!this.hasMarkedInitialMessagesAsRead && unreadCount) {
+          this.chatState.totalUnreadCount.update(total => Math.max(0, total - unreadCount));
+          this.hasMarkedInitialMessagesAsRead = true;
+        }
+        if (updateUi) {
+          this.unreadCount.set(0);
+        }
+      },
+      error: error => console.error('Error marking direct chat as read', error),
     });
   }
 
@@ -96,6 +133,11 @@ export class UserChat {
 
         if (isAddMessage) {
           this.chatState.liveMessage.set(liveMessage);
+          if (this.chatMessage.isCurrentUserAuthor(liveMessage.message.author)) {
+            this.otherUserHasRead.set(false);
+          }
+          this.markRoomAsRead(true);
+          this.refreshOtherUserReadState(chatRoomId);
         }
 
         this.chatApi.getChatRoomMessageViewerState(chatRoomId, liveMessage.message.message.id).subscribe({
@@ -128,6 +170,11 @@ export class UserChat {
           this.typingUserTimeouts.delete(key);
         }, 2000));
       }),
+      this.chatWebsocket.getPrivateChatRoomRead(chatRoomId, readState => {
+        if (readState.userId === this.recipient()?.id) {
+          this.otherUserHasRead.set(true);
+        }
+      }),
     );
   }
 
@@ -137,5 +184,14 @@ export class UserChat {
     this.typingUserTimeouts.forEach(timeout => clearTimeout(timeout));
     this.typingUserTimeouts.clear();
     this.chatState.typingUsers.set([]);
+  }
+
+  private refreshOtherUserReadState(chatRoomId: number) {
+    this.chatApi.getChatRoomUnreadCount(chatRoomId).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: ({ otherUserHasRead }) => this.otherUserHasRead.set(otherUserHasRead),
+      error: error => console.error('Error refreshing direct chat read state', error),
+    });
   }
 }

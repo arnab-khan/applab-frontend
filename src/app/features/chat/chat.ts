@@ -38,6 +38,7 @@ export class Chat implements OnInit {
   faUser = faUser;
   faUsers = faUsers;
   headerHeight = this.layoutState.headerHeight;
+  totalUnreadCount = this.chatState.totalUnreadCount;
   typingUsers: ChatRoomTypingResponse[] = [];
 
   constructor() {

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { StompSubscription } from '@stomp/stompjs';
 import { WebsocketService } from '../../../core/services/websocket';
-import { ChatRoomMessageLiveResponse, ChatRoomTypingResponse } from '../../../shared/interfaces/chat';
+import { ChatRoomConversationWebSocketResponse, ChatRoomMessageLiveResponse, ChatRoomReadResponse, ChatRoomTypingResponse } from '../../../shared/interfaces/chat';
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +44,20 @@ export class ChatWebsocket {
   getPrivateChatRoomMessageLive(chatRoomId: number, callback: (data: ChatRoomMessageLiveResponse) => void): StompSubscription {
     return this.websocketService.subscribe<ChatRoomMessageLiveResponse>(
       `${this.websocketService.topicDestination}/chatroom/${chatRoomId}/message`,
+      callback,
+    );
+  }
+
+  getPrivateChatRoomRead(chatRoomId: number, callback: (data: ChatRoomReadResponse) => void): StompSubscription {
+    return this.websocketService.subscribe<ChatRoomReadResponse>(
+      `${this.websocketService.topicDestination}/chatroom/${chatRoomId}/read`,
+      callback,
+    );
+  }
+
+  getUserChatRoomUpdate(userId: number, callback: (data: ChatRoomConversationWebSocketResponse) => void): StompSubscription {
+    return this.websocketService.subscribe<ChatRoomConversationWebSocketResponse>(
+      `${this.websocketService.topicDestination}/user/${userId}/chatroom-update`,
       callback,
     );
   }

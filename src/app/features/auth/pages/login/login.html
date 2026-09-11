@@ -5,36 +5,38 @@
   </div>
   @if (loginForm) {
   <form appScrollToInvalid [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+    <fieldset class="contents" [disabled]="isSubmitting()">
 
-    @let usernameControl=loginForm.controls.username;
-    <app-form-fields [fieldConfig]="{label: 'Username or Email'}" [dynamicFormControl]="usernameControl"
-      [hasClickedSubmit]="hasClickedSubmit">
-      <input type="text" [formControl]="usernameControl" class="lowercase placeholder:normal-case u-form-field"
-        [placeholder]="'Enter username or email'" name="username" appSanitizeInput [noSpaceAllow]="true" />
-    </app-form-fields>
+      @let usernameControl=loginForm.controls.username;
+      <app-form-fields [fieldConfig]="{label: 'Username or Email'}" [dynamicFormControl]="usernameControl"
+        [hasClickedSubmit]="hasClickedSubmit">
+        <input type="text" [formControl]="usernameControl" class="lowercase placeholder:normal-case u-form-field"
+          [placeholder]="'Enter username or email'" name="username" appSanitizeInput [noSpaceAllow]="true" />
+      </app-form-fields>
 
-    @let passwordControl=loginForm.controls.password;
-    <app-form-fields [fieldConfig]="{label: 'Password'}" [dynamicFormControl]="passwordControl"
-      [hasClickedSubmit]="hasClickedSubmit">
-      <app-password-field [showForgotPassword]="true">
-        <input type="password" [formControl]="passwordControl" class="u-form-field" name="password"
-          [placeholder]="'Enter password'" appSanitizeInput [noSpaceAllow]="true" />
-      </app-password-field>
-    </app-form-fields>
+      @let passwordControl=loginForm.controls.password;
+      <app-form-fields [fieldConfig]="{label: 'Password'}" [dynamicFormControl]="passwordControl"
+        [hasClickedSubmit]="hasClickedSubmit">
+        <app-password-field [showForgotPassword]="true">
+          <input type="password" [formControl]="passwordControl" class="u-form-field" name="password"
+            [placeholder]="'Enter password'" appSanitizeInput [noSpaceAllow]="true" />
+        </app-password-field>
+      </app-form-fields>
 
-    <app-loading-button [loading]="isSubmitting()" class="mt-10 w-full">
-      <button type="submit" class="u-gradient-btn w-full">
-        Login
-      </button>
-    </app-loading-button>
+      <app-loading-button [loading]="isSubmitting()" class="mt-10 w-full">
+        <button type="submit" class="u-gradient-btn w-full">
+          Login
+        </button>
+      </app-loading-button>
 
-    <div class="text-center mt-6">
-      <p class="text-gray-600 text-sm">Don't have an account?
-        <a routerLink="/auth/signup" class="text-blue-600 hover:text-blue-700 font-semibold">
-          Sign up
-        </a>
-      </p>
-    </div>
+      <div class="text-center mt-6">
+        <p class="text-gray-600 text-sm">Don't have an account?
+          <a routerLink="/auth/signup" class="text-blue-600 hover:text-blue-700 font-semibold">
+            Sign up
+          </a>
+        </p>
+      </div>
+    </fieldset>
   </form>
   }
 </div>

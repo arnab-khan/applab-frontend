@@ -3,7 +3,7 @@
         <nav
             class="mx-auto flex items-center gap-1 rounded-md border-2 border-white/20 bg-white/20 px-1.5 py-0.5 shadow-lg sm:gap-2">
             <ng-container [ngTemplateOutlet]="chatMenuLink"
-                [ngTemplateOutletContext]="{ route: 'direct', icon: faUser, label: 'Direct' }">
+                [ngTemplateOutletContext]="{ route: 'direct', icon: faUser, label: 'Direct', unreadCount: totalUnreadCount() }">
             </ng-container>
             <ng-container [ngTemplateOutlet]="chatMenuLink"
                 [ngTemplateOutletContext]="{ route: 'global', icon: faGlobe, label: 'Global' }">
@@ -20,7 +20,7 @@
     <router-outlet></router-outlet>
 </main>
 
-<ng-template #chatMenuLink let-route="route" let-icon="icon" let-label="label" let-active="active">
+<ng-template #chatMenuLink let-route="route" let-icon="icon" let-label="label" let-unreadCount="unreadCount">
     <a [routerLink]="route" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }"
         class="flex min-w-0 flex-1 items-center justify-center gap-1 rounded px-2 py-1 text-center text-sm font-semibold no-underline transition sm:gap-2 sm:px-4 whitespace-nowrap"
         [ngClass]="{
@@ -33,5 +33,11 @@
                 chat
             </span>
         </span>
+        @if (unreadCount > 0) {
+            <span class="rounded-full bg-cyan-400/20 px-1.5 py-0.5 text-xs font-bold leading-none text-cyan-100 ring-1 ring-cyan-200/30"
+                [attr.aria-label]="unreadCount + ' unread messages'">
+                +{{ unreadCount }}
+            </span>
+        }
     </a>
 </ng-template>
