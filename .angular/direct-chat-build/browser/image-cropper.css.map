@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/components/media/image-cropper/image-cropper.scss", "src/app/shared/components/media/image-cropper/image-cropper.scss"],
+  "sourcesContent": [":host{\r\n    height: 90vh;\r\n    height: 90dvh;\r\n    display: flex;\r\n    flex-direction: column;\r\n}", ":host {\n  height: 90vh;\n  height: 90dvh;\n  display: flex;\n  flex-direction: column;\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJmaWxlOi8vL0U6L015JTIwUHJvamVjdHMvQW5ndWxhci9hcHBsYWJfZnJvbnRlbmQvc3JjL2FwcC9zaGFyZWQvY29tcG9uZW50cy9tZWRpYS9pbWFnZS1jcm9wcGVyL2ltYWdlLWNyb3BwZXIuc2NzcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtFQUNJO0VBQ0E7RUFDQTtFQUNBIiwic291cmNlc0NvbnRlbnQiOlsiOmhvc3R7XHJcbiAgICBoZWlnaHQ6IDkwdmg7XHJcbiAgICBoZWlnaHQ6IDkwZHZoO1xyXG4gICAgZGlzcGxheTogZmxleDtcclxuICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XHJcbn0iXX0= */"],
+  "mappings": ";AAAA;AACI,UAAA;AACA,UAAA;AACA,WAAA;AACA,kBAAA;ACCJ;",
+  "names": []
+}

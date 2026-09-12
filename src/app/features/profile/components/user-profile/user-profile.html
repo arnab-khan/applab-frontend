@@ -28,6 +28,19 @@
           <div class="max-sm:grow">
             <app-connection-list-button [userId]="profileUser.id"></app-connection-list-button>
           </div>
+          @if (!isCurrentUser()) {
+          <div class="max-sm:grow">
+            <app-auth-action [allowGuest]="false" theme="light" menuContainerClass="w-64"
+              message="Sign in or create an account to chat with this user.">
+              <button type="button" class="u-btn-outline-cyan" [routerLink]="['/user-chat', profileUser.username]">
+                <span class="flex items-center gap-2">
+                  <fa-icon [icon]="faComment"></fa-icon>
+                  Chat
+                </span>
+              </button>
+            </app-auth-action>
+          </div>
+          }
         </div>
         <div class="max-sm:w-full">
           <ng-content select="[profile-actions]"></ng-content>

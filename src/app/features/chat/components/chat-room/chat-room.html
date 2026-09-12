@@ -1,6 +1,7 @@
 <app-message-list [getMessagesRequest]="chatRoomId()?getMessagesRequest:undefined"
   [addMessageRequest]="addMessageRequest" [editMessageRequest]="editMessageRequest"
-  [deleteMessageRequest]="deleteMessageRequest"
-  [chatRoomId]="chatRoomId()!" [isLiveMessageAllowed]="isLiveMessageAllowed" [applyCurrentUserStyle]="true"
+  [deleteMessageRequest]="deleteMessageRequest" [chatRoomId]="chatRoomId()!" [unreadCount]="unreadCount()"
+  [isLiveMessageAllowed]="isLiveMessageAllowed" [applyCurrentUserStyle]="true"
+  [otherUserHasRead]="otherUserHasRead()" (messagesLoaded)="messagesLoaded.emit()"
   (addReactionRequest)="addReaction($event)">
 </app-message-list>

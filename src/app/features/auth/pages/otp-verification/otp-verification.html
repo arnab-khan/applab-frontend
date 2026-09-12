@@ -32,52 +32,54 @@
 
   @if (otpForm) {
   <form appScrollToInvalid [formGroup]="otpForm" (ngSubmit)="onSubmit()" class="space-y-5">
-    @let otpControl = otpForm.controls.otp;
-    <app-form-fields [fieldConfig]="{ label: 'Verification Code' }" [dynamicFormControl]="otpControl"
-      [hasClickedSubmit]="hasClickedSubmit()">
-      <div class="flex justify-center">
-        <ng-otp-input [formControl]="otpControl" [config]="otpConfig"
-          (focusin)="otpControl.markAsUntouched()"></ng-otp-input>
+    <fieldset class="contents" [disabled]="isSubmitting()">
+      @let otpControl = otpForm.controls.otp;
+      <app-form-fields [fieldConfig]="{ label: 'Verification Code' }" [dynamicFormControl]="otpControl"
+        [hasClickedSubmit]="hasClickedSubmit()">
+        <div class="flex justify-center">
+          <ng-otp-input [formControl]="otpControl" [config]="otpConfig"
+            (focusin)="otpControl.markAsUntouched()"></ng-otp-input>
+        </div>
+      </app-form-fields>
+
+      <app-loading-button [loading]="isSubmitting()" class="mt-10 w-full">
+        <button type="submit" class="u-gradient-btn w-full" [disabled]="isSubmitting()">
+          Verify OTP
+        </button>
+      </app-loading-button>
+
+      @if (sentTo()) {
+      <div class="text-sm text-gray-600 mt-3">
+        <span>Didn't receive the code?</span>
+        <button type="button"
+          class="ml-1 font-semibold text-indigo-600 transition-colors hover:text-violet-600 disabled:cursor-not-allowed disabled:opacity-50"
+          [disabled]="isResending() || resendSecondsLeft() > 0 || remainingResends() <= 0" (click)="resendOtp()">
+          @if (isResending()) {
+          Resending...
+          } @else if (remainingResends() <= 0) { No resends remaining } @else if (resendSecondsLeft()> 0) {
+            Resend in {{ resendSecondsLeft() }}s
+            } @else {
+            Resend OTP
+            }
+        </button>
+        @if (hasRemainingResends()) {
+        <span class="ml-1">({{ remainingResends() }} left)</span>
+        }
       </div>
-    </app-form-fields>
-
-    <app-loading-button [loading]="isSubmitting()" class="mt-10 w-full">
-      <button type="submit" class="u-gradient-btn w-full" [disabled]="isSubmitting()">
-        Verify OTP
-      </button>
-    </app-loading-button>
-
-    @if (sentTo()) {
-    <div class="text-sm text-gray-600">
-      <span>Didn't receive the code?</span>
-      <button type="button"
-        class="ml-1 font-semibold text-indigo-600 transition-colors hover:text-violet-600 disabled:cursor-not-allowed disabled:opacity-50"
-        [disabled]="isResending() || resendSecondsLeft() > 0 || remainingResends() <= 0" (click)="resendOtp()">
-        @if (isResending()) {
-        Resending...
-        } @else if (remainingResends() <= 0) { No resends remaining } @else if (resendSecondsLeft()> 0) {
-          Resend in {{ resendSecondsLeft() }}s
-          } @else {
-          Resend OTP
-          }
-      </button>
-      @if (hasRemainingResends()) {
-      <span class="ml-1">({{ remainingResends() }} left)</span>
       }
-    </div>
-    }
 
-    @if (showSkipButton()) {
-    <div class="border-t border-slate-200 pt-4 text-center">
-      <p class="text-xs text-slate-500">You can add your email later from your profile.</p>
-      <button type="button"
-        class="mt-2 text-sm font-semibold text-slate-600 transition-colors hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
-        [disabled]="isSubmitting() || isResending()" (pointerdown)="$event.preventDefault()"
-        (click)="skipEmailVerification()">
-        Skip email verification for now
-      </button>
-    </div>
-    }
+      @if (showSkipButton()) {
+      <div class="border-t border-slate-200 pt-4 text-center">
+        <p class="text-xs text-slate-500">You can add your email later from your profile.</p>
+        <button type="button"
+          class="mt-2 text-sm font-semibold text-slate-600 transition-colors hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+          [disabled]="isSubmitting() || isResending()" (pointerdown)="$event.preventDefault()"
+          (click)="skipEmailVerification()">
+          Skip email verification for now
+        </button>
+      </div>
+      }
+    </fieldset>
   </form>
   }
 </div>

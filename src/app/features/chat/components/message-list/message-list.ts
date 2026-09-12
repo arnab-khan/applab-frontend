@@ -1,7 +1,7 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, Injector, input, output, signal, untracked, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { forkJoin, Observable, tap } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
 import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageCursorResponse, ChatRoomMessageResponse, ChatRoomTypingResponse, Message, MessageDirection, MessageQueryParams, QuotedMessageResponse } from '../../../../shared/interfaces/chat';
@@ -55,16 +55,36 @@ export class MessageList {
   isAwayFromEnd = signal(false);
   typingUsers = computed(() => this.chatState.typingUsers().filter((typingUser) => typingUser.chatRoomId === this.chatRoomId()));
   faArrowDown = faArrowDown;
+  faCheck = faCheck;
   chatRoomId = input.required<number>();
+  unreadCount = input(0);
+  unreadStartMessageId = signal<number | undefined>(undefined);
+  messagesLoaded = output<void>();
   getMessagesRequest = input<(params: MessageQueryParams) => Observable<ChatRoomMessageCursorResponse>>();
   addMessageRequest = input.required<(body: ChatRoomAddRequest) => Observable<Message>>();
   editMessageRequest = input.required<(body: ChatRoomEditRequest) => Observable<Message>>();
   deleteMessageRequest = input.required<(messageId: number) => Observable<void>>();
   isLiveMessageAllowed = input<(message: ChatRoomMessageResponse) => boolean>(() => true);
   applyCurrentUserStyle = input(false);
+  otherUserHasRead = input<boolean>();
+  showReadReceipt = computed(() => {
+    const messages = this.messages();
+    const lastMessage = messages[messages.length - 1];
+    const currentUserId = this.authState().user?.id;
+    return this.otherUserHasRead() !== undefined
+      && !!lastMessage
+      && (this.chatMessage.isCurrentUserAuthor(lastMessage.author)
+        || (!!currentUserId && lastMessage.message.userId === currentUserId));
+  });
   addReactionRequest = output<{ messageId: number; emoji: string; onComplete: () => void; onError: () => void }>();
 
   constructor() {
+    effect(() => {
+      if (this.unreadCount() === 0) {
+        this.unreadStartMessageId.set(undefined);
+      }
+    });
+
     effect(() => {
       if (!this.platformService.isBrowser()) {
         return;
@@ -160,7 +180,12 @@ export class MessageList {
       next: (messagesPage) => {
         console.log('messagesPage', messagesPage);
         const messages = [...messagesPage.items].reverse();
+        const unreadStartIndex = Math.max(0, messages.length - this.unreadCount());
+        this.unreadStartMessageId.set(
+          this.unreadCount() > 0 ? messages[unreadStartIndex]?.message.id : undefined,
+        );
         this.messages.update((currentMessages) => messages.concat(currentMessages));
+        this.messagesLoaded.emit();
         this.isPageLoaded.set(true);
         this.isMainLoading.set(false);
         this.isGoingToMessage.set(true);

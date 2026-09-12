@@ -1,9 +1,45 @@
 import { CursorQueryParams, CursorResponse } from './pagination';
+import { PageResponse } from './pagination';
 import { Reaction, ReactionCount } from './reaction';
 import { Author } from './author';
 
 export interface GlobalChatRoomResponse {
     chatRoomId: number;
+}
+
+export interface ChatRoomUnreadResponse {
+    chatRoomId: number;
+    unreadCount: number;
+    otherUserHasRead: boolean;
+}
+
+export interface ChatRoomConversationWebSocketResponse {
+    chatRoomId: number;
+}
+
+export interface ChatRoomReadResponse {
+    chatRoomId: number;
+    userId: number;
+}
+
+export interface ChatRoomResponse {
+    id: number;
+    name: string;
+    roomType: string;
+    firstUserId?: number;
+    secondUserId?: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface ChatRoomConversationResponse {
+    chatRoom: ChatRoomResponse;
+    user: Author;
+    unreadCount: number;
+}
+
+export interface ChatRoomPageResponse extends PageResponse<ChatRoomConversationResponse> {
+    totalUnreadCount: number;
 }
 
 export interface Message {
