@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { StompSubscription } from '@stomp/stompjs';
 import { Auth } from '../../../../core/services/auth';
@@ -20,7 +20,7 @@ import { ChatWebsocket } from '../../services/chat-websocket';
   styleUrl: './direct-chat.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DirectChat implements OnInit {
+export class DirectChat {
   private chatApi = inject(ChatApi);
   private profileApiService = inject(ProfileApiService);
   private platform = inject(Platform);
@@ -29,6 +29,7 @@ export class DirectChat implements OnInit {
   private auth = inject(Auth);
   private destroyRef = inject(DestroyRef);
   private chatRoomUpdateSubscription?: StompSubscription;
+  private hasInitialized = false;
 
   conversations = signal<ChatRoomConversationResponse[]>([]);
   isLoading = signal(true);
@@ -39,20 +40,24 @@ export class DirectChat implements OnInit {
   readonly pageSize = 10;
   authState = this.auth.authState;
 
-  ngOnInit() {
-    if (!this.platform.isBrowser()) {
-      return;
-    }
+  constructor() {
+    effect(() => {
+      const state = this.authState();
+      if (!this.platform.isBrowser() || !state.completed || this.hasInitialized) {
+        return;
+      }
 
-    const userId = this.authState().user?.id;
-    if (!userId) {
-      this.isLoading.set(false);
-      return;
-    }
+      this.hasInitialized = true;
+      const userId = state.user?.id;
+      if (!userId) {
+        this.isLoading.set(false);
+        return;
+      }
 
-    this.loadChatRooms();
-    this.chatRoomUpdateSubscription = this.chatWebsocket.getUserChatRoomUpdate(userId, () => {
-      this.refreshChatRooms();
+      this.loadChatRooms();
+      this.chatRoomUpdateSubscription = this.chatWebsocket.getUserChatRoomUpdate(userId, () => {
+        this.refreshChatRooms();
+      });
     });
     this.destroyRef.onDestroy(() => this.chatRoomUpdateSubscription?.unsubscribe());
   }
