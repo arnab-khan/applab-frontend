@@ -8,13 +8,14 @@ import { Thumbnail } from '../../../../shared/components/media/thumbnail/thumbna
 import { ChatRoomConversationResponse } from '../../../../shared/interfaces/chat';
 import { Platform } from '../../../../shared/services/platform';
 import { ProfileApiService } from '../../../profile/services/profile-api.service';
+import { AuthAction } from '../../../auth/components/auth-action/auth-action';
 import { ChatApi } from '../../services/chat-api';
 import { ChatState } from '../../services/chat-state';
 import { ChatWebsocket } from '../../services/chat-websocket';
 
 @Component({
   selector: 'app-direct-chat',
-  imports: [DatePipe, InfiniteScroll, RouterLink, Thumbnail],
+  imports: [DatePipe, InfiniteScroll, RouterLink, Thumbnail, AuthAction],
   templateUrl: './direct-chat.html',
   styleUrl: './direct-chat.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,19 +37,23 @@ export class DirectChat implements OnInit {
   errorMessage = signal('');
   currentPage = 0;
   readonly pageSize = 10;
+  authState = this.auth.authState;
 
   ngOnInit() {
     if (!this.platform.isBrowser()) {
       return;
     }
 
-    this.loadChatRooms();
-    const userId = this.auth.authState().user?.id;
-    if (userId) {
-      this.chatRoomUpdateSubscription = this.chatWebsocket.getUserChatRoomUpdate(userId, () => {
-        this.refreshChatRooms();
-      });
+    const userId = this.authState().user?.id;
+    if (!userId) {
+      this.isLoading.set(false);
+      return;
     }
+
+    this.loadChatRooms();
+    this.chatRoomUpdateSubscription = this.chatWebsocket.getUserChatRoomUpdate(userId, () => {
+      this.refreshChatRooms();
+    });
     this.destroyRef.onDestroy(() => this.chatRoomUpdateSubscription?.unsubscribe());
   }
 

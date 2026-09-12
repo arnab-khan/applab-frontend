@@ -1,5 +1,20 @@
 <section class="flex grow flex-col py-5">
-  @if (isLoading()) {
+  @if (!authState().user?.id) {
+    <div class="flex grow items-center justify-center">
+      <div class="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-10 text-center text-white backdrop-blur-sm">
+        <p class="text-lg font-semibold">Connect privately with other users.</p>
+        <div class="mx-auto mt-4 w-fit">
+          <app-auth-action class="block" [allowGuest]="false"
+            message="Log in or create an account to view your direct conversations.">
+            <button type="button"
+              class="u-btn-primary-cyan">
+              Log in or sign up
+            </button>
+          </app-auth-action>
+        </div>
+      </div>
+    </div>
+  } @else if (isLoading()) {
     <div class="flex grow items-center justify-center p-5">
       <div class="u-spinner h-16 w-16 border-b-4 border-white"></div>
     </div>
