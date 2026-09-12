@@ -1,7 +1,8 @@
 <div class="sticky top-0 z-10 shadow px-3 u-gradient-background u-light-gradient c-header">
     <nav class="flex flex-row justify-between items-center py-2 mx-auto u-container-1">
         <ul class="flex gap-x-1 items-center">
-            <ng-container [ngTemplateOutlet]="routeLink" [ngTemplateOutletContext]="{ route: '/chat', label: 'Chat' }">
+            <ng-container [ngTemplateOutlet]="routeLink"
+                [ngTemplateOutletContext]="{ route: authState().user?.id ? '/chat/direct' : '/chat/global', label: 'Chat' }">
             </ng-container>
             <ng-container [ngTemplateOutlet]="routeLink"
                 [ngTemplateOutletContext]="{ route: '/users', label: 'Users' }">
