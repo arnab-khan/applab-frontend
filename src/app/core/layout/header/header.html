@@ -7,6 +7,9 @@
             <ng-container [ngTemplateOutlet]="routeLink"
                 [ngTemplateOutletContext]="{ route: '/users', label: 'Users' }">
             </ng-container>
+            <ng-container [ngTemplateOutlet]="routeLink"
+                [ngTemplateOutletContext]="{ route: '/telemetry', label: 'Telemetry' }">
+            </ng-container>
             @if (authState().user?.id) {
             <ng-container [ngTemplateOutlet]="routeLink" [ngTemplateOutletContext]="{ route: '/todo', label: 'Todo' }">
             </ng-container>

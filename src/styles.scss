@@ -13,6 +13,7 @@ router-outlet + * { // stretch the component to fill entire page
   flex-grow: 1;
 }
 
+
 app-otp-verification {
   ng-otp-input {
     .otp-input {
