@@ -186,7 +186,7 @@ export class EditProfile implements OnInit {
           const message = error.error?.message || error.error?.error || error.error || 'Profile basics update failed. Please try again.';
           this.snackBar.open(message, '✖', {
             duration: 5000,
-            panelClass: 'snackbar-error',
+            verticalPosition: 'top', panelClass: 'snackbar-error',
           });
           this.hasClickedBasicSubmit.set(false);
         },
@@ -222,7 +222,7 @@ export class EditProfile implements OnInit {
           const message = error.error?.message || error.error?.error || error.error || 'Credentials update failed. Please try again.';
           this.snackBar.open(message, '✖', {
             duration: 3000,
-            panelClass: 'snackbar-error',
+            verticalPosition: 'top', panelClass: 'snackbar-error',
           });
         },
       });

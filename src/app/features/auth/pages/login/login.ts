@@ -93,7 +93,7 @@ export class Login implements OnInit {
         error: (error) => {
           this.isSubmitting.set(false);
           const message = error.error?.message || 'Login failed. Please try again.';
-          this.snackBar.open(message, '✖', { duration: 5000, panelClass: 'snackbar-error' });
+          this.snackBar.open(message, '✖', { duration: 5000, verticalPosition: 'top', panelClass: 'snackbar-error' });
           console.error('Login error', error);
         },
       });

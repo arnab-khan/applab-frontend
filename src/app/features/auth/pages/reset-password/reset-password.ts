@@ -122,7 +122,7 @@ export class ResetPassword implements OnInit, OnDestroy {
           const message = error.error?.message || error.error?.error || 'Password reset failed. Please try again.';
           this.snackBar.open(message, '✖', {
             duration: 5000,
-            panelClass: 'snackbar-error',
+            verticalPosition: 'top', panelClass: 'snackbar-error',
           });
         },
       });
