@@ -1,3 +1,4 @@
+import { ErrorNotification } from '../../../../shared/services/error-notification';
 import { Component, input, output, inject, signal, effect } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
@@ -29,6 +30,7 @@ export class TodoListItem {
 
   private todoApi = inject(TodoApi);
   private snackBar = inject(MatSnackBar);
+  private errorNotification = inject(ErrorNotification);
   private dialog = inject(MatDialog);
 
   faEllipsisVertical = faEllipsisVertical;
@@ -85,7 +87,7 @@ export class TodoListItem {
         error: (err) => {
           this.loaderState.emit(false);
           console.error('Error deleting todo', err);
-          this.snackBar.open('Failed to delete todo', '✖', {
+          this.errorNotification.show(err, 'Failed to delete todo', {
             duration: 3000,
             panelClass: 'snackbar-error'
           });
@@ -111,7 +113,7 @@ export class TodoListItem {
       error: (err) => {
         console.error('Error updating todo completion status', err);
         this.completed.set(previousState);
-        this.snackBar.open('Failed to update todo status', '✖', {
+        this.errorNotification.show(err, 'Failed to update todo status', {
           duration: 3000,
           panelClass: 'snackbar-error'
         });

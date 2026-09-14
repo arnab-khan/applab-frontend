@@ -1,3 +1,4 @@
+import { ErrorNotification } from '../../../../shared/services/error-notification';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -53,6 +54,7 @@ export class Signup implements OnInit {
   private authService = inject(Auth);
   private formBuilder = inject(NonNullableFormBuilder);
   private snackBar = inject(MatSnackBar);
+  private errorNotification = inject(ErrorNotification);
   private dialog = inject(MatDialog);
   private formValidation = inject(FormValidation);
   private router = inject(Router);
@@ -226,11 +228,11 @@ export class Signup implements OnInit {
         },
         error: (error) => {
           const isAuthenticated = !!this.authService.authState().user;
-          const message = isAuthenticated
+          const fallback = isAuthenticated
             ? 'Account created, but profile photo upload failed. You can update it later.'
-            : error.error?.message || 'Signup failed. Please try again.';
+            : 'Signup failed. Please try again.';
 
-          this.snackBar.open(message, '✖', { duration: 3000, verticalPosition: 'top', panelClass: 'snackbar-error' });
+          this.errorNotification.show(error, fallback, { duration: 3000, verticalPosition: 'top', panelClass: 'snackbar-error' });
 
           if (isAuthenticated) {
             this.navigateToEmailEntry();

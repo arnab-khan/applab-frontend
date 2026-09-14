@@ -2,7 +2,7 @@ import { PageResponse, PaginationQueryParams } from './pagination';
 import { User } from './user';
 
 export type TelemetryActivity = Record<string, unknown>;
-export type TelemetryActivityType = 'CLICK' | 'API_CALL' | 'ROUTER_CHANGE' | 'ERROR' | 'WEBSOCKET_ERROR';
+export type TelemetryActivityType = 'CLICK' | 'API_CALL' | 'ROUTER_CHANGE' | 'ERROR' | 'WEBSOCKET_ERROR' | 'NETWORK_ERROR' | 'NETWORK_RESTORED';
 export type TelemetryIdentityType = 'USER' | 'GUEST' | 'ANONYMOUS';
 
 export interface TelemetryPayload {

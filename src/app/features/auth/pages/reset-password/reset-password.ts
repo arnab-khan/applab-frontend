@@ -1,3 +1,4 @@
+import { ErrorNotification } from '../../../../shared/services/error-notification';
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -34,6 +35,7 @@ export class ResetPassword implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private errorNotification = inject(ErrorNotification);
   private resetToken = '';
   private expiryTimer?: ReturnType<typeof setInterval>;
 
@@ -119,8 +121,7 @@ export class ResetPassword implements OnInit, OnDestroy {
           });
         },
         error: error => {
-          const message = error.error?.message || error.error?.error || 'Password reset failed. Please try again.';
-          this.snackBar.open(message, '✖', {
+          this.errorNotification.show(error, 'Password reset failed. Please try again.', {
             duration: 5000,
             verticalPosition: 'top', panelClass: 'snackbar-error',
           });

@@ -1,3 +1,4 @@
+import { ErrorNotification } from '../../../../shared/services/error-notification';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -48,6 +49,7 @@ export class PasswordVerification implements OnInit {
   private userService = inject(User);
   private formValidation = inject(FormValidation);
   private snackBar = inject(MatSnackBar);
+  private errorNotification = inject(ErrorNotification);
 
   purpose = signal<PasswordVerificationPurpose | null>(null);
 
@@ -116,8 +118,7 @@ export class PasswordVerification implements OnInit {
           });
         },
         error: error => {
-          const message = error.error?.message || error.error?.error || 'Password verification failed. Please try again.';
-          this.snackBar.open(message, '✖', {
+          this.errorNotification.show(error, 'Password verification failed. Please try again.', {
             duration: 5000,
             verticalPosition: 'top', panelClass: 'snackbar-error',
           });

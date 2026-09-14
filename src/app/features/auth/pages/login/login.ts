@@ -1,3 +1,4 @@
+import { ErrorNotification } from '../../../../shared/services/error-notification';
 import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -8,7 +9,7 @@ import { LoginUser } from '../../../../shared/interfaces/auth';
 import { Auth } from '../../../../core/services/auth';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
 import { RouterLink } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PasswordField } from '../../../../shared/components/forms/password-field/password-field';
 import { FormValidation } from '../../../../shared/services/form-validation';
 import { ScrollToInvalid } from '../../../../shared/directives/scroll-to-invalid';
@@ -34,7 +35,7 @@ export class Login implements OnInit {
 
   private authService = inject(Auth);
   private formBuilder = inject(NonNullableFormBuilder);
-  private snackBar = inject(MatSnackBar);
+  private errorNotification = inject(ErrorNotification);
   private formValidation = inject(FormValidation);
   private redirect = inject(Redirect);
 
@@ -92,8 +93,7 @@ export class Login implements OnInit {
         },
         error: (error) => {
           this.isSubmitting.set(false);
-          const message = error.error?.message || 'Login failed. Please try again.';
-          this.snackBar.open(message, '✖', { duration: 5000, verticalPosition: 'top', panelClass: 'snackbar-error' });
+          this.errorNotification.show(error, 'Login failed. Please try again.', { duration: 5000, verticalPosition: 'top', panelClass: 'snackbar-error' });
           console.error('Login error', error);
         },
       });
