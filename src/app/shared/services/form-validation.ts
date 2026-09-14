@@ -21,6 +21,7 @@ export class FormValidation {
       this.snackBar.open(errorMessage, '✖', {
         duration: 5000,
         panelClass: 'snackbar-error',
+        verticalPosition: 'top',
       });
     }
   }

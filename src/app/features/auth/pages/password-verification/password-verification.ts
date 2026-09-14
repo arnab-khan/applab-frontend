@@ -93,7 +93,7 @@ export class PasswordVerification implements OnInit {
       if (!purpose) {
         this.snackBar.open('Password verification purpose is invalid.', '✖', {
           duration: 5000,
-          panelClass: 'snackbar-error',
+          verticalPosition: 'top', panelClass: 'snackbar-error',
         });
         return;
       }
@@ -119,7 +119,7 @@ export class PasswordVerification implements OnInit {
           const message = error.error?.message || error.error?.error || 'Password verification failed. Please try again.';
           this.snackBar.open(message, '✖', {
             duration: 5000,
-            panelClass: 'snackbar-error',
+            verticalPosition: 'top', panelClass: 'snackbar-error',
           });
         },
       });

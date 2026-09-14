@@ -230,7 +230,7 @@ export class Signup implements OnInit {
             ? 'Account created, but profile photo upload failed. You can update it later.'
             : error.error?.message || 'Signup failed. Please try again.';
 
-          this.snackBar.open(message, '✖', { duration: 3000, panelClass: 'snackbar-error' });
+          this.snackBar.open(message, '✖', { duration: 3000, verticalPosition: 'top', panelClass: 'snackbar-error' });
 
           if (isAuthenticated) {
             this.navigateToEmailEntry();

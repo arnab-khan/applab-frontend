@@ -170,7 +170,7 @@ export class OtpVerification implements OnInit, OnDestroy {
           const message = error.error?.message || error.error?.error || 'OTP verification failed. Please try again.';
           this.snackBar.open(message, '✖', {
             duration: 5000,
-            panelClass: 'snackbar-error',
+            verticalPosition: 'top', panelClass: 'snackbar-error',
           });
         },
       });
@@ -213,7 +213,7 @@ export class OtpVerification implements OnInit, OnDestroy {
         const message = error.error?.message || error.error?.error || 'Failed to resend OTP. Please try again.';
         this.snackBar.open(message, '✖', {
           duration: 5000,
-          panelClass: 'snackbar-error',
+          verticalPosition: 'top', panelClass: 'snackbar-error',
         });
       },
     });
