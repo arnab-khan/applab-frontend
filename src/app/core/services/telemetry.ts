@@ -118,7 +118,9 @@ export class Telemetry {
 
   private getBrowserName(): string {
     const brands = (navigator as NavigatorWithUserAgentData).userAgentData?.brands;
-    const browserBrand = brands?.find(({ brand }) => brand !== 'Chromium' && brand !== 'Not A(Brand');
+    const browserBrand = brands?.find(({ brand }) =>
+      brand !== 'Chromium' && !/not.?a.?brand/i.test(brand)
+    );
 
     if (browserBrand?.brand) {
       return browserBrand.brand;

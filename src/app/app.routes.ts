@@ -41,6 +41,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/chat/pages/user-chat/user-chat').then(r => r.UserChat),
     },
     {
+        path: 'telemetry',
+        loadComponent: () => import('./features/telemetry/telemetry').then(r => r.Telemetry),
+    },
+    {
         path: '**',
         loadComponent: () =>
             import('./core/pages/not-found/not-found').then(r => r.NotFound),

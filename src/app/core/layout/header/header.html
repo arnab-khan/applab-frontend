@@ -2,13 +2,17 @@
     <nav class="flex flex-row justify-between items-center py-2 mx-auto u-container-1">
         <ul class="flex gap-x-1 items-center">
             <ng-container [ngTemplateOutlet]="routeLink"
-                [ngTemplateOutletContext]="{ route: authState().user?.id ? '/chat/direct' : '/chat/global', label: 'Chat' }">
+                [ngTemplateOutletContext]="{ route: authState().user?.id ? '/chat/direct' : '/chat/global', label: 'Chat', icon: faComments }">
             </ng-container>
             <ng-container [ngTemplateOutlet]="routeLink"
-                [ngTemplateOutletContext]="{ route: '/users', label: 'Users' }">
+                [ngTemplateOutletContext]="{ route: '/users', label: 'Users', icon: faUsers }">
+            </ng-container>
+            <ng-container [ngTemplateOutlet]="routeLink"
+                [ngTemplateOutletContext]="{ route: '/telemetry', label: 'Telemetry', icon: faChartLine }">
             </ng-container>
             @if (authState().user?.id) {
-            <ng-container [ngTemplateOutlet]="routeLink" [ngTemplateOutletContext]="{ route: '/todo', label: 'Todo' }">
+            <ng-container [ngTemplateOutlet]="routeLink"
+                [ngTemplateOutletContext]="{ route: '/todo', label: 'Todo', icon: faListCheck }">
             </ng-container>
             }
             <!-- <li>
@@ -33,21 +37,22 @@
             </li>
             } @else {
             <ng-container [ngTemplateOutlet]="routeLink"
-                [ngTemplateOutletContext]="{ route: '/auth/login', label: 'Login' }">
+                [ngTemplateOutletContext]="{ route: '/auth/login', label: 'Login', icon: faRightToBracket }">
             </ng-container>
             <ng-container [ngTemplateOutlet]="routeLink"
-                [ngTemplateOutletContext]="{ route: '/auth/signup', label: 'Sign Up' }">
+                [ngTemplateOutletContext]="{ route: '/auth/signup', label: 'Sign Up', icon: faUserPlus }">
             </ng-container>
             }
         </ul>
     </nav>
 </div>
 
-<ng-template #routeLink let-route="route" let-label="label">
+<ng-template #routeLink let-route="route" let-label="label" let-icon="icon">
     <li>
         <a [routerLink]="route" routerLinkActive="u-is-active" [routerLinkActiveOptions]="{ exact: false }"
-            class="u-nav-link">
-            {{ label }}
+            class="u-nav-link flex items-center gap-2" [attr.aria-label]="label" [title]="label">
+            <fa-icon [icon]="icon"></fa-icon>
+            <span class="hidden sm:inline">{{ label }}</span>
         </a>
     </li>
 </ng-template>
