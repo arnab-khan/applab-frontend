@@ -7,10 +7,19 @@ import { Thumbnail } from '../../../shared/components/media/thumbnail/thumbnail'
 import { FormattedText } from '../../../shared/components/text/formatted-text/formatted-text';
 import { CapitalizeWordsPipe } from '../../../shared/pipes/capitalize-words-pipe';
 import { LayoutState } from '../../services/layout-state';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {
+  faChartLine,
+  faComments,
+  faListCheck,
+  faRightToBracket,
+  faUserPlus,
+  faUsers,
+} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterModule, NgTemplateOutlet, Thumbnail, FormattedText, CapitalizeWordsPipe],
+  imports: [RouterModule, NgTemplateOutlet, Thumbnail, FormattedText, CapitalizeWordsPipe, FontAwesomeModule],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
@@ -24,6 +33,12 @@ export class Header implements OnDestroy {
   authState = this.authService.authState;
   profileState = this.authService.profileState;
   portfolioUrl = signal(PORTFOLIO_URL);
+  faChartLine = faChartLine;
+  faComments = faComments;
+  faListCheck = faListCheck;
+  faRightToBracket = faRightToBracket;
+  faUserPlus = faUserPlus;
+  faUsers = faUsers;
 
   constructor() {
     effect(() => {
