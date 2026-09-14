@@ -48,9 +48,13 @@
           <div class="rounded-lg border border-white/25 bg-white/15 p-1 shadow-lg backdrop-blur-3xl">
             @for (activityType of activityTypes; track activityType.label) {
               <button mat-menu-item type="button"
-                class="rounded-md bg-transparent! text-white/75! transition-colors hover:bg-white/15! hover:text-white!"
-                [style.background-color]="selectedType() === activityType.value ? '#ddd6fe' : null"
-                [style.color]="selectedType() === activityType.value ? '#5b21b6' : null"
+                class="rounded-md transition-colors"
+                [class.bg-violet-200!]="selectedType() === activityType.value"
+                [class.text-violet-800!]="selectedType() === activityType.value"
+                [class.bg-transparent!]="selectedType() !== activityType.value"
+                [class.text-white/75!]="selectedType() !== activityType.value"
+                [class.hover:bg-white/15!]="selectedType() !== activityType.value"
+                [class.hover:text-white!]="selectedType() !== activityType.value"
                 (click)="filterEventsByType(activityType.value)">
                 {{ activityType.label }}
               </button>
@@ -61,9 +65,13 @@
           <div class="rounded-lg border border-white/25 bg-white/15 p-1 shadow-lg backdrop-blur-3xl">
             @for (apiResult of apiResults; track apiResult.label) {
               <button mat-menu-item type="button"
-                class="rounded-md bg-transparent! text-white/75! transition-colors hover:bg-white/15! hover:text-white!"
-                [style.background-color]="selectedSuccess() === apiResult.value ? '#ddd6fe' : null"
-                [style.color]="selectedSuccess() === apiResult.value ? '#5b21b6' : null"
+                class="rounded-md transition-colors"
+                [class.bg-violet-200!]="selectedSuccess() === apiResult.value"
+                [class.text-violet-800!]="selectedSuccess() === apiResult.value"
+                [class.bg-transparent!]="selectedSuccess() !== apiResult.value"
+                [class.text-white/75!]="selectedSuccess() !== apiResult.value"
+                [class.hover:bg-white/15!]="selectedSuccess() !== apiResult.value"
+                [class.hover:text-white!]="selectedSuccess() !== apiResult.value"
                 (click)="filterEventsBySuccess(apiResult.value)">
                 {{ apiResult.label }}
               </button>
