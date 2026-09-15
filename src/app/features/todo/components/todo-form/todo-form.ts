@@ -1,3 +1,4 @@
+import { ErrorNotification } from '../../../../shared/services/error-notification';
 import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormControl, NonNullableFormBuilder } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -33,6 +34,7 @@ export class TodoForm {
   private todoApi = inject(TodoApi);
   private formBuilder = inject(NonNullableFormBuilder);
   private snackBar = inject(MatSnackBar);
+  private errorNotification = inject(ErrorNotification);
 
   todoForm!: FormGroup<{
     title: FormControl<string>;
@@ -107,8 +109,7 @@ export class TodoForm {
         },
         error: (error) => {
           this.isSubmitting.set(false);
-          const message = error.error?.message || 'Failed to add todo. Please try again.';
-          this.snackBar.open(message, '✖', { duration: 5000, panelClass: 'snackbar-error' });
+          this.errorNotification.show(error, 'Failed to add todo. Please try again.', { duration: 5000, panelClass: 'snackbar-error' });
         },
       });
     }

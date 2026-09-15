@@ -1,14 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Header } from './core/layout/header/header';
 import { Auth } from './core/services/auth';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { filter, map } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { filter, fromEvent, map } from 'rxjs';
 import { Platform } from './shared/services/platform';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Footer } from './core/layout/footer/footer';
 import { Telemetry } from './core/services/telemetry';
+import { PageRefresh } from './core/services/route-refresh';
+import { NetworkNotification } from './core/services/network-notification';
 
 @Component({
   selector: 'app-root',
@@ -29,6 +32,10 @@ export class App implements OnInit {
   protected platformService = inject(Platform);
   private router = inject(Router);
   private telemetry = inject(Telemetry);
+  private pageRefresh = inject(PageRefresh);
+  private dialog = inject(MatDialog);
+  private networkNotification = inject(NetworkNotification);
+  private destroyRef = inject(DestroyRef);
   private previousUrl: string | null = null;
 
   authState = this.authService.authState;
@@ -57,6 +64,15 @@ export class App implements OnInit {
   ngOnInit(): void {
     this.getUser();
     this.trackRouteChange();
+    if (this.platformService.isBrowser()) {
+      fromEvent(window, 'online').pipe(
+        takeUntilDestroyed(this.destroyRef),
+      ).subscribe(() => {
+        this.networkNotification.showOnline();
+        this.dialog.closeAll();
+        this.pageRefresh.refresh().catch(error => console.error('Failed to refresh page after reconnecting', error));
+      });
+    }
   }
 
   getUser() {
@@ -71,14 +87,27 @@ export class App implements OnInit {
     })
   }
 
-  pageReload(){
+  pageReload() {
     console.log('Page reload');
   }
 
   trackRouteChange(): void {
+    let notifiedNavigationId: number | null = null;
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationStart || event instanceof NavigationError || event instanceof NavigationEnd),
+      takeUntilDestroyed(this.destroyRef),
     ).subscribe(event => {
+      if (!(event instanceof NavigationEnd)) {
+        if (this.platformService.isBrowser() && !navigator.onLine && notifiedNavigationId !== event.id) {
+          notifiedNavigationId = event.id;
+          if (event instanceof NavigationStart) {
+            this.router.currentNavigation()?.abort();
+          }
+          this.networkNotification.showOffline();
+        }
+        return;
+      }
+
       const nextUrl = event.urlAfterRedirects;
 
       this.telemetry.collectActivity({

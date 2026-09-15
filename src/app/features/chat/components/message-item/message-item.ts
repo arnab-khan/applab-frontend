@@ -1,8 +1,8 @@
+import { ErrorNotification } from '../../../../shared/services/error-notification';
 import { DatePipe, NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, forwardRef, inject, input, output, signal, untracked } from '@angular/core';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEllipsis, faPenToSquare, faReply, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { faFaceSmile, faThumbsUp } from '@fortawesome/free-regular-svg-icons';
@@ -72,7 +72,7 @@ export class MessageItem {
   private chatMessage = inject(ChatMessage);
   private chatState = inject(ChatState);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private errorNotification = inject(ErrorNotification);
 
   faPenToSquare = faPenToSquare;
   faTrash = faTrash;
@@ -201,8 +201,7 @@ export class MessageItem {
             next: () => dialogRef.close({ confirmed: true }),
             error: (error) => {
               console.error('Error deleting message', error);
-              const message = error.error?.message || error.error?.error || error.error || 'Failed to delete message. Please try again.'
-              this.snackBar.open(message, '✖', { duration: 3000, panelClass: 'snackbar-error' });
+              this.errorNotification.show(error, 'Failed to delete message. Please try again.', { duration: 3000, panelClass: 'snackbar-error' });
               dialogRef.close();
             },
           });

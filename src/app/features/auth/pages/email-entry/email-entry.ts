@@ -1,6 +1,7 @@
+import { ErrorNotification } from '../../../../shared/services/error-notification';
 import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { Auth } from '../../../../core/services/auth';
@@ -64,7 +65,7 @@ export class EmailEntry implements OnInit {
   private authService = inject(Auth);
   private userService = inject(User);
   private formValidation = inject(FormValidation);
-  private snackBar = inject(MatSnackBar);
+  private errorNotification = inject(ErrorNotification);
   private redirect = inject(Redirect);
 
   emailForm!: FormGroup<{
@@ -160,8 +161,7 @@ export class EmailEntry implements OnInit {
           });
         },
         error: error => {
-          const message = error.error?.message || error.error?.error || 'Failed to send OTP. Please try again.';
-          this.snackBar.open(message, '✖', {
+          this.errorNotification.show(error, 'Failed to send OTP. Please try again.', {
             duration: 5000,
             verticalPosition: 'top', panelClass: 'snackbar-error',
           });

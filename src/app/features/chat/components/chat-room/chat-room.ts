@@ -1,5 +1,5 @@
+import { ErrorNotification } from '../../../../shared/services/error-notification';
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, throwError } from 'rxjs';
 import { ChatRoomAddRequest, ChatRoomEditRequest, ChatRoomMessageResponse, MessageQueryParams } from '../../../../shared/interfaces/chat';
 import { ChatApi } from '../../services/chat-api';
@@ -19,7 +19,7 @@ export class ChatRoom {
   messagesLoaded = output<void>();
 
   private chatApi = inject(ChatApi);
-  private snackBar = inject(MatSnackBar);
+  private errorNotification = inject(ErrorNotification);
 
   getMessagesRequest = (params: MessageQueryParams) => {
     const chatRoomId = this.chatRoomId();
@@ -68,7 +68,7 @@ export class ChatRoom {
       error: (error) => {
         console.error('Error adding message reaction', error);
         request.onError();
-        this.snackBar.open(request.emoji ? 'Failed to add reaction' : 'Failed to remove reaction', '✖', {
+        this.errorNotification.show(error, request.emoji ? 'Failed to add reaction' : 'Failed to remove reaction', {
           duration: 3000,
           panelClass: 'snackbar-error',
         });

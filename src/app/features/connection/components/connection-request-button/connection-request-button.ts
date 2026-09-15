@@ -1,3 +1,4 @@
+import { ErrorNotification } from '../../../../shared/services/error-notification';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
@@ -129,6 +130,7 @@ const CONNECTION_BUTTON_STATUS_LIST: Record<ConnectionButtonStatus, ConnectionBu
 export class ConnectionRequestButton {
   private connectionApi = inject(ConnectionApi);
   private snackBar = inject(MatSnackBar);
+  private errorNotification = inject(ErrorNotification);
   private auth = inject(Auth);
   private router = inject(Router);
   private statusLoadStarted = false;
@@ -275,8 +277,7 @@ export class ConnectionRequestButton {
       },
       error: (err) => {
         console.error('Error sending connection request', err);
-        const message = err.error?.message || err.error?.error || err.error || 'Failed to send connection request';
-        this.snackBar.open(message, '✖', {
+        this.errorNotification.show(err, 'Failed to send connection request', {
           duration: 3000,
           panelClass: 'snackbar-error',
         });
@@ -311,8 +312,7 @@ export class ConnectionRequestButton {
       },
       error: (err) => {
         console.error('Error updating connection request', err);
-        const message = err.error?.message || err.error?.error || err.error || 'Failed to update connection request';
-        this.snackBar.open(message, '✖', {
+        this.errorNotification.show(err, 'Failed to update connection request', {
           duration: 3000,
           panelClass: 'snackbar-error',
         });

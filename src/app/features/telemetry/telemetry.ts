@@ -2,7 +2,6 @@ import { DatePipe, JsonPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { finalize } from 'rxjs';
 import { LayoutState } from '../../core/services/layout-state';
 import { AuthorSummary } from '../../shared/components/data-display/author-summary/author-summary';
 import { InfiniteScroll } from '../../shared/components/data-display/infinite-scroll/infinite-scroll';
@@ -133,7 +132,11 @@ export class Telemetry {
   }
 
   isFailure(event: TelemetryEvent) {
-    return event.type === 'ERROR' || event.type === 'WEBSOCKET_ERROR' || event.activity['success'] === false;
+    return event.type === 'ERROR' || event.type === 'WEBSOCKET_ERROR' || event.type === 'NETWORK_ERROR' || event.activity['success'] === false;
+  }
+
+  isNetworkRestored(event: TelemetryEvent) {
+    return event.type === 'NETWORK_RESTORED';
   }
 
   private isInvalidBrowser(browser: string) {
@@ -148,19 +151,15 @@ export class Telemetry {
       sort: 'id,desc',
       ...(this.selectedType() ? { type: this.selectedType()! } : {}),
       ...(this.selectedSuccess() !== null ? { success: this.selectedSuccess()! } : {}),
-    }).pipe(
-      finalize(() => {
-        this.eventsLoading.set(false);
-        this.eventsLoadingMore.set(false);
-      }),
-    ).subscribe({
+    }).subscribe({
       next: response => {
         this.events.update(events => [...events, ...response.content]);
         this.eventsHasMore.set(!response.last);
+        this.eventsLoading.set(false);
+        this.eventsLoadingMore.set(false);
       },
       error: error => {
         console.error('Error loading telemetry events', error);
-        this.eventsErrorMessage.set('Unable to load telemetry events.');
       },
     });
   }
@@ -171,19 +170,15 @@ export class Telemetry {
       page: this.currentPage,
       size: this.pageSize,
       sort: 'lastSeenAt,desc',
-    }).pipe(
-      finalize(() => {
-        this.isLoading.set(false);
-        this.isLoadingMore.set(false);
-      }),
-    ).subscribe({
+    }).subscribe({
       next: response => {
         this.sessions.update(sessions => [...sessions, ...response.content]);
         this.hasMore.set(!response.last);
+        this.isLoading.set(false);
+        this.isLoadingMore.set(false);
       },
       error: error => {
         console.error('Error loading telemetry sessions', error);
-        this.errorMessage.set('Unable to load telemetry sessions.');
       },
     });
   }

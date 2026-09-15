@@ -1,10 +1,10 @@
+import { ErrorNotification } from '../../../../shared/services/error-notification';
 import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, ElementRef, forwardRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPaperPlane, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, Subject, throttleTime } from 'rxjs';
 import { AuthAction } from '../../../auth/components/auth-action/auth-action';
 import { LoadingButton } from '../../../../shared/components/buttons/loading-button/loading-button';
@@ -29,7 +29,7 @@ const TYPING_THROTTLE_TIME = 500;
 export class MessageInput {
   private formBuilder = inject(NonNullableFormBuilder);
   private destroyRef = inject(DestroyRef);
-  private snackBar = inject(MatSnackBar);
+  private errorNotification = inject(ErrorNotification);
   private chatWebsocket = inject(ChatWebsocket);
   private messageInput = viewChild<ElementRef<HTMLTextAreaElement>>('messageInput');
 
@@ -135,8 +135,7 @@ export class MessageInput {
       },
       error: (error) => {
         console.error('message submit', error);
-        const message = error.error?.message || error.error?.error || error.error || 'Failed to save message. Please try again.'
-        this.snackBar.open(message, '✖', { duration: 3000, panelClass: 'snackbar-error' });
+        this.errorNotification.show(error, 'Failed to save message. Please try again.', { duration: 3000, panelClass: 'snackbar-error' });
         this.isSubmitting.set(false);
       },
     });

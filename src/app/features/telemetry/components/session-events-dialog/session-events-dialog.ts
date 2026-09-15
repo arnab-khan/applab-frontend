@@ -5,7 +5,6 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
-import { finalize } from 'rxjs';
 import { AuthorSummary } from '../../../../shared/components/data-display/author-summary/author-summary';
 import { InfiniteScroll } from '../../../../shared/components/data-display/infinite-scroll/infinite-scroll';
 import { DialogHeader } from '../../../../shared/components/dialogs/dialog-header/dialog-header';
@@ -81,7 +80,11 @@ export class SessionEventsDialog {
   }
 
   isFailure(event: TelemetryEvent) {
-    return event.type === 'ERROR' || event.type === 'WEBSOCKET_ERROR' || event.activity['success'] === false;
+    return event.type === 'ERROR' || event.type === 'WEBSOCKET_ERROR' || event.type === 'NETWORK_ERROR' || event.activity['success'] === false;
+  }
+
+  isNetworkRestored(event: TelemetryEvent) {
+    return event.type === 'NETWORK_RESTORED';
   }
 
   getEventAuthor(event: TelemetryEvent): Author {
@@ -109,19 +112,15 @@ export class SessionEventsDialog {
       sort: 'id,asc',
       ...(this.selectedType() ? { type: this.selectedType()! } : {}),
       ...(this.selectedSuccess() !== null ? { success: this.selectedSuccess()! } : {}),
-    }).pipe(
-      finalize(() => {
-        this.isLoading.set(false);
-        this.isLoadingMore.set(false);
-      }),
-    ).subscribe({
+    }).subscribe({
       next: response => {
         this.events.update(events => [...events, ...response.content]);
         this.hasMore.set(!response.last);
+        this.isLoading.set(false);
+        this.isLoadingMore.set(false);
       },
       error: error => {
         console.error('Error loading telemetry events', error);
-        this.errorMessage.set('Unable to load events for this session.');
       },
     });
   }

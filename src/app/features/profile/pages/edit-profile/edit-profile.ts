@@ -1,3 +1,4 @@
+import { ErrorNotification } from '../../../../shared/services/error-notification';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -51,6 +52,7 @@ export class EditProfile implements OnInit {
   private userService = inject(User);
   private formBuilder = inject(NonNullableFormBuilder);
   private snackBar = inject(MatSnackBar);
+  private errorNotification = inject(ErrorNotification);
   private dialog = inject(MatDialog);
   private formValidation = inject(FormValidation);
   private capitalizeWordsPipe = new CapitalizeWordsPipe();
@@ -183,8 +185,7 @@ export class EditProfile implements OnInit {
           });
         },
         error: (error) => {
-          const message = error.error?.message || error.error?.error || error.error || 'Profile basics update failed. Please try again.';
-          this.snackBar.open(message, '✖', {
+          this.errorNotification.show(error, 'Profile basics update failed. Please try again.', {
             duration: 5000,
             verticalPosition: 'top', panelClass: 'snackbar-error',
           });
@@ -219,8 +220,7 @@ export class EditProfile implements OnInit {
           this.hasClickedCredentialsSubmit.set(false);
         },
         error: (error) => {
-          const message = error.error?.message || error.error?.error || error.error || 'Credentials update failed. Please try again.';
-          this.snackBar.open(message, '✖', {
+          this.errorNotification.show(error, 'Credentials update failed. Please try again.', {
             duration: 3000,
             verticalPosition: 'top', panelClass: 'snackbar-error',
           });
@@ -271,8 +271,7 @@ export class EditProfile implements OnInit {
               });
             },
             error: (error) => {
-              const message = error.error?.message || error.error?.error || error.error || 'Failed to remove profile photo. Please try again.';
-              this.snackBar.open(message, '✖', {
+              this.errorNotification.show(error, 'Failed to remove profile photo. Please try again.', {
                 duration: 3000,
                 panelClass: 'snackbar-error',
               });
