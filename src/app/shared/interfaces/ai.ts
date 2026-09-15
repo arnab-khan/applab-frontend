@@ -6,6 +6,10 @@ export interface AiChatMessage {
 export interface AiPageSelectionRequest {
   message: string;
   currentRoute: string;
-  userType: 'LOGGED_IN' | 'GUEST';
-  history: AiChatMessage[];
+  history: string;
+}
+
+export interface AiStreamResponse {
+  message: string;
+  history?: string;
 }

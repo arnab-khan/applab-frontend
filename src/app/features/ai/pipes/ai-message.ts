@@ -17,7 +17,7 @@ export class AiMessagePipe implements PipeTransform {
   transform(message: string): AiMessagePart[] {
     const parts: AiMessagePart[] = [];
     // Keep rendering as text bindings: model output must never become raw HTML.
-    const sections = message.split(/\*\*([^*]+)\*\*/g);
+    const sections = message.replace(/^(\s*)\*[\t ]+/gm, '$1• ').split(/\*\*([^*]+)\*\*/g);
     sections.forEach((section, index) => {
       const bold = index % 2 === 1;
       let offset = 0;

@@ -1,12 +1,12 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, Injector, model, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { AiMessagePipe } from './pipes/ai-message';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
-import { Auth } from '../../core/services/auth';
 import { AiChatMessage } from '../../shared/interfaces/ai';
-import { AiApi } from './services/ai-api';
+import { AiApi, AiStreamError } from './services/ai-api';
 import { AutoResizeTextarea } from '../../shared/directives/auto-resize';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPaperPlane, faMinus, faRobot, faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -35,9 +35,8 @@ export class Ai {
   messages = signal<AiChatMessage[]>([]);
   sending = signal(false);
   errorMessage = signal('');
-  private history: AiChatMessage[] = [];
+  private history = '';
   private aiApi = inject(AiApi);
-  private auth = inject(Auth);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private conversation = viewChild<ElementRef<HTMLDivElement>>('conversation');
@@ -79,28 +78,26 @@ export class Ai {
     this.aiApi.chat({
       message,
       currentRoute: this.router.url,
-      userType: this.auth.authState().user ? 'LOGGED_IN' : 'GUEST',
       history: this.history,
     }).pipe(
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.sending.set(false)),
     ).subscribe({
       next: reply => {
+        if (reply.history !== undefined) this.history = reply.history;
         this.messages.update(messages => messages.map((item, index) =>
-          index === replyIndex ? { role: 'ASSISTANT', message: reply } : item));
+          index === replyIndex ? { role: 'ASSISTANT', message: reply.message } : item));
         this.scrollToLatest();
       },
       complete: () => {
         const reply = this.messages()[replyIndex];
-        if (reply.message.trim()) {
-          this.history = [...this.history, userMessage, reply];
-        } else {
+        if (!reply.message.trim()) {
           this.errorMessage.set('No reply was received. Please try again.');
           this.draft.set(message);
         }
       },
-      error: () => {
-        this.errorMessage.set('The reply could not be completed. Please try again.');
+      error: (error: unknown) => {
+        this.errorMessage.set(this.getErrorMessage(error));
         this.draft.set(message);
       },
     });
@@ -111,6 +108,26 @@ export class Ai {
       event.preventDefault();
       this.sendMessage();
     }
+  }
+
+  private getErrorMessage(error: unknown): string {
+    const fallback = 'The reply could not be completed. Please try again.';
+    if (error instanceof AiStreamError) return error.message;
+    if (!(error instanceof HttpErrorResponse)) return fallback;
+    if (error.status === 0) return 'Unable to reach the server. Check your connection and try again.';
+
+    let body = error.error;
+    // This request uses responseType: 'text', so JSON errors may arrive as strings.
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch {
+        return body.trim() || fallback;
+      }
+    }
+    return [body?.message, body?.error, body].find(
+      value => typeof value === 'string' && value.trim().length > 0,
+    ) || fallback;
   }
 
   private scrollToLatest(): void {

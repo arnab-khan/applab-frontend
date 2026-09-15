@@ -7,7 +7,7 @@ export const chatRoutes: Routes = [
         children: [
             { path: '', redirectTo: 'global', pathMatch: 'full' },
             { path: 'global', loadComponent: () => import('./pages/global-chat/global-chat').then(r => r.GlobalChat) },
-            { path: 'group', loadComponent: () => import('../../core/pages/coming-soon/coming-soon').then(r => r.ComingSoon) },
+            // { path: 'group', loadComponent: () => import('./pages/group-chat/group-chat').then(r => r.GroupChat) },
             { path: 'direct', loadComponent: () => import('./pages/direct-chat/direct-chat').then(r => r.DirectChat) },
         ],
     },
