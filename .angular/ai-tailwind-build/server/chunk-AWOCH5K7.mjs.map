@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/directives/telemetry-click.ts"],
+  "sourcesContent": ["import { Directive, HostListener, inject, input } from '@angular/core';\nimport { Telemetry } from '../../core/services/telemetry';\nimport { TelemetryActivity } from '../interfaces/telemetry';\n\n@Directive({\n  selector: '[appTelemetryClick]',\n})\nexport class TelemetryClick {\n  appTelemetryClick = input.required<string>();\n  telemetryData = input<TelemetryActivity>({});\n\n  private telemetry = inject(Telemetry);\n\n  @HostListener('click')\n  onClick(): void {\n    this.telemetry.collectActivity({\n      name: this.appTelemetryClick(),\n      type: 'CLICK',\n      activity: this.telemetryData(),\n    });\n  }\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;AAOM,IAAO,iBAAP,MAAO,gBAAc;EACzB,oBAAoB,MAAM,SAAQ,GAAA,YAAA,CAAA,EAAA,WAAA,oBAAA,CAAA,IAAA,CAAA,CAAA;EAClC,gBAAgB,MAAyB,CAAA,GAAE,GAAA,YAAA,CAAA,EAAA,WAAA,gBAAA,CAAA,IAAA,CAAA,CAAA;EAEnC,YAAY,OAAO,SAAS;EAGpC,UAAO;AACL,SAAK,UAAU,gBAAgB;MAC7B,MAAM,KAAK,kBAAiB;MAC5B,MAAM;MACN,UAAU,KAAK,cAAa;KAC7B;EACH;;qCAbW,iBAAc;EAAA;yEAAd,iBAAc,WAAA,CAAA,CAAA,IAAA,qBAAA,EAAA,CAAA,GAAA,cAAA,SAAA,4BAAA,IAAA,KAAA;AAAA,QAAA,KAAA,GAAA;AAAd,MAAA,qBAAA,SAAA,SAAA,0CAAA;AAAA,eAAA,IAAA,QAAA;MAAS,CAAA;;;;;sEAAT,gBAAc,CAAA;UAH1B;WAAU;MACT,UAAU;KACX;;UAOE;WAAa,OAAO;;;",
+  "names": []
+}
