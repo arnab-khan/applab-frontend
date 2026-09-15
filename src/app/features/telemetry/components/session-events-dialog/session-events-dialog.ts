@@ -83,6 +83,10 @@ export class SessionEventsDialog {
     return event.type === 'ERROR' || event.type === 'WEBSOCKET_ERROR' || event.type === 'NETWORK_ERROR' || event.activity['success'] === false;
   }
 
+  isNetworkRestored(event: TelemetryEvent) {
+    return event.type === 'NETWORK_RESTORED';
+  }
+
   getEventAuthor(event: TelemetryEvent): Author {
     const fallbackName = event.identityType === 'ANONYMOUS'
       ? 'Anonymous'

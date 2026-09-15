@@ -135,6 +135,10 @@ export class Telemetry {
     return event.type === 'ERROR' || event.type === 'WEBSOCKET_ERROR' || event.type === 'NETWORK_ERROR' || event.activity['success'] === false;
   }
 
+  isNetworkRestored(event: TelemetryEvent) {
+    return event.type === 'NETWORK_RESTORED';
+  }
+
   private isInvalidBrowser(browser: string) {
     return /not.?a.?brand/i.test(browser);
   }
