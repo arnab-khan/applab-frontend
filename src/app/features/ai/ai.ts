@@ -42,7 +42,6 @@ export class Ai {
   private conversation = viewChild<ElementRef<HTMLDivElement>>('conversation');
   private injector = inject(Injector);
   private launcher = viewChild<ElementRef<HTMLButtonElement>>('launcher');
-  private closeButton = viewChild<ElementRef<HTMLButtonElement>>('closeButton');
   private messageInput = viewChild<ElementRef<HTMLTextAreaElement>>('messageInput');
   private autoResize = viewChild(AutoResizeTextarea);
 
@@ -139,7 +138,7 @@ export class Ai {
 
   openChat(): void {
     this.open.set(true);
-    afterNextRender(() => this.closeButton()?.nativeElement.focus(), { injector: this.injector });
+    afterNextRender(() => this.messageInput()?.nativeElement.focus(), { injector: this.injector });
   }
 
   closeChat(): void {
