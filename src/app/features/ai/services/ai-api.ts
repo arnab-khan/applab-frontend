@@ -2,7 +2,9 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { AiPageSelectionRequest, AiStreamResponse } from '../../../shared/interfaces/ai';
+import { AiChatRecord, AiChatSession, AiPageSelectionRequest, AiStreamResponse } from '../../../shared/interfaces/ai';
+import { PageResponse, PaginationQueryParams } from '../../../shared/interfaces/pagination';
+import { toHttpParams } from '../../../shared/utils/http';
 
 @Injectable({ providedIn: 'root' })
 export class AiApi {
@@ -25,6 +27,18 @@ export class AiApi {
       map(text => parseAiStream(text)),
       distinctUntilChanged((previous, current) => previous.message === current.message && previous.history === current.history),
     );
+  }
+
+  getSessions(params: PaginationQueryParams) {
+    return this.httpClient.get<PageResponse<AiChatSession>>(`${this.baseApiUrl}/sessions`, {
+      params: toHttpParams(params),
+    });
+  }
+
+  getAll(params: PaginationQueryParams & { aiSessionId: string }) {
+    return this.httpClient.get<PageResponse<AiChatRecord>>(`${this.baseApiUrl}/all`, {
+      params: toHttpParams(params),
+    });
   }
 }
 

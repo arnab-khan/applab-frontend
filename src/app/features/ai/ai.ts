@@ -36,6 +36,7 @@ export class Ai {
   sending = signal(false);
   errorMessage = signal('');
   private history = '';
+  private readonly aiSessionId = crypto.randomUUID();
   private aiApi = inject(AiApi);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
@@ -75,8 +76,9 @@ export class Ai {
     this.sending.set(true);
     this.scrollToLatest();
     this.aiApi.chat({
+      aiSessionId: this.aiSessionId,
       message,
-      currentRoute: this.router.url,
+      currentRoute: this.getAiCurrentRoute(),
       history: this.history,
     }).pipe(
       takeUntilDestroyed(this.destroyRef),
@@ -127,6 +129,16 @@ export class Ai {
     return [body?.message, body?.error, body].find(
       value => typeof value === 'string' && value.trim().length > 0,
     ) || fallback;
+  }
+
+  private getAiCurrentRoute(): string {
+    const route = this.router.url.split(/[?#]/)[0];
+    const purpose = this.router.parseUrl(this.router.url).queryParams['purpose'];
+    const allowedPurposes = new Set(['SIGNUP', 'EDIT_PROFILE', 'FORGOT_PASSWORD', 'CHANGE_EMAIL']);
+
+    return typeof purpose === 'string' && allowedPurposes.has(purpose)
+      ? `${route}?purpose=${encodeURIComponent(purpose)}`
+      : route;
   }
 
   private scrollToLatest(): void {

@@ -1,7 +1,7 @@
 import { NgClass, NgStyle } from '@angular/common';
 import { Component, computed, effect, input, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faUserLargeSlash } from '@fortawesome/free-solid-svg-icons';
 import { getAvatarColor, getInitials } from '../../../utils/avatar';
 import { ImageViewer } from '../image-viewer/image-viewer';
 
@@ -25,7 +25,9 @@ export class Thumbnail {
   size = input('1rem');
   radius = input('10%');
   showBorder = input(true);
+  anonymous = input(false);
   readonly faUser = faUser;
+  readonly faUserLargeSlash = faUserLargeSlash;
 
   readonly fallbackInitial = computed(() => {    
     return getInitials(this.name() || '');

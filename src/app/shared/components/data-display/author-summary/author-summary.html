@@ -3,7 +3,7 @@
   <div class="relative shrink-0">
     <app-thumbnail size="2.5rem" radius="50%"
       [imageUrl]="profileApiService.getPublicImageUrl(author().compressedProfileImageUrl)"
-      [name]="isGuest() ? null : author().name" [showBorder]="false">
+      [name]="isGuest() ? null : author().name" [anonymous]="author().type === 'ANONYMOUS'" [showBorder]="false">
     </app-thumbnail>
     @if (avatarBottomEndContent()) {
     <span

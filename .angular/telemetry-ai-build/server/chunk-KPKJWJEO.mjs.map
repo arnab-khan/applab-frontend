@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/utils/link.ts"],
+  "sourcesContent": ["export function userProfileLink(username?: string) {\n  return ['/user', username];\n}\n"],
+  "mappings": ";;;AAAM,SAAU,gBAAgB,UAAiB;AAC/C,SAAO,CAAC,SAAS,QAAQ;AAC3B;",
+  "names": []
+}
