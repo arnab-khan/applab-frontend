@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/features/chat/services/chat-message.ts"],
-  "sourcesContent": ["import { inject, Injectable } from '@angular/core';\nimport { Auth } from '../../../core/services/auth';\nimport { Guest } from '../../../core/services/guest';\nimport { Author } from '../../../shared/interfaces/author';\n\n@Injectable({\n  providedIn: 'root',\n})\nexport class ChatMessage {\n  private auth = inject(Auth);\n  private guest = inject(Guest);\n\n  isCurrentUserAuthor(author?: Author) {\n    if (!author) {\n      return false;\n    }\n\n    const authUserId = this.auth.authState().user?.id;\n\n    if (authUserId) {\n      return author.type === 'USER' && author.id === authUserId;\n    }\n\n    const guestSessionId = this.guest.guestState().guestSessionId;\n\n    return author.type === 'GUEST' && author.id === guestSessionId;\n  }\n}\n"],
-  "mappings": ";;;;;;;;;;;;AAQM,IAAO,cAAP,MAAO,aAAW;EACd,OAAO,OAAO,IAAI;EAClB,QAAQ,OAAO,KAAK;EAE5B,oBAAoB,QAAe;AACjC,QAAI,CAAC,QAAQ;AACX,aAAO;IACT;AAEA,UAAM,aAAa,KAAK,KAAK,UAAS,EAAG,MAAM;AAE/C,QAAI,YAAY;AACd,aAAO,OAAO,SAAS,UAAU,OAAO,OAAO;IACjD;AAEA,UAAM,iBAAiB,KAAK,MAAM,WAAU,EAAG;AAE/C,WAAO,OAAO,SAAS,WAAW,OAAO,OAAO;EAClD;;qCAlBW,cAAW;EAAA;4EAAX,cAAW,SAAX,aAAW,WAAA,YAFV,OAAM,CAAA;;;sEAEP,aAAW,CAAA;UAHvB;WAAW;MACV,YAAY;KACb;;;",
-  "names": []
-}

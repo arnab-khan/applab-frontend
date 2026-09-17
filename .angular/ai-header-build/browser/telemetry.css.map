@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/features/telemetry/telemetry.scss", "src/app/features/telemetry/telemetry.scss"],
-  "sourcesContent": [":host {\n  display: flex;\n  flex-direction: column;\n  flex-grow: 1;\n}\n", ":host {\n  display: flex;\n  flex-direction: column;\n  flex-grow: 1;\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJmaWxlOi8vL0U6L015JTIwUHJvamVjdHMvQW5ndWxhci9hcHBsYWJfZnJvbnRlbmQvc3JjL2FwcC9mZWF0dXJlcy90ZWxlbWV0cnkvdGVsZW1ldHJ5LnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyI6aG9zdCB7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG4gIGZsZXgtZ3JvdzogMTtcbn1cbiJdfQ== */"],
-  "mappings": ";AAAA;AACE,WAAA;AACA,kBAAA;AACA,aAAA;ACCF;",
-  "names": []
-}

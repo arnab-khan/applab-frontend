@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/shared/services/error-notification.ts"],
-  "sourcesContent": ["import { HttpErrorResponse } from '@angular/common/http';\nimport { inject, Injectable } from '@angular/core';\nimport { MatSnackBarConfig } from '@angular/material/snack-bar';\nimport { Notification } from './notification';\n\n@Injectable({ providedIn: 'root' })\nexport class ErrorNotification {\n  private notification = inject(Notification);\n\n  show(error: HttpErrorResponse, fallback: string, config?: MatSnackBarConfig): void {\n    if (error.status === 0) return;\n\n    const body = error.error;\n    const message = [body?.message, body?.error, body].find(\n      value => typeof value === 'string' && value.trim().length > 0,\n    ) || fallback;\n\n    this.notification.showError(message, {\n      duration: 5000,\n      ...config,\n    });\n  }\n}\n"],
-  "mappings": ";;;;;;;;;;;;;;AAMM,IAAO,oBAAP,MAAO,mBAAiB;EACpB,eAAe,OAAO,YAAY;EAE1C,KAAK,OAA0B,UAAkB,QAA0B;AACzE,QAAI,MAAM,WAAW;AAAG;AAExB,UAAM,OAAO,MAAM;AACnB,UAAM,UAAU,CAAC,MAAM,SAAS,MAAM,OAAO,IAAI,EAAE,KACjD,WAAS,OAAO,UAAU,YAAY,MAAM,KAAI,EAAG,SAAS,CAAC,KAC1D;AAEL,SAAK,aAAa,UAAU,SAAS;MACnC,UAAU;OACP,OACJ;EACH;;qCAfW,oBAAiB;EAAA;4EAAjB,oBAAiB,SAAjB,mBAAiB,WAAA,YADJ,OAAM,CAAA;;;sEACnB,mBAAiB,CAAA;UAD7B;WAAW,EAAE,YAAY,OAAM,CAAE;;;",
-  "names": []
-}
