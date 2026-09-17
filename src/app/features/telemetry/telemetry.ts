@@ -1,4 +1,4 @@
-import { DatePipe, JsonPipe } from '@angular/common';
+import { DatePipe, JsonPipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -11,10 +11,15 @@ import { Platform } from '../../shared/services/platform';
 import { SessionEventsDialog } from './components/session-events-dialog/session-events-dialog';
 import { TelemetryApi } from './services/telemetry-api';
 import { TELEMETRY_ACTIVITY_TYPES } from './config/telemetry.config';
+import { AiApi } from '../ai/services/ai-api';
+import { AiChatSession } from '../../shared/interfaces/ai';
+import { AiSessionDialog } from './components/ai-session-dialog/ai-session-dialog';
+
+type TelemetryView = 'sessions' | 'events' | 'ai';
 
 @Component({
   selector: 'app-telemetry',
-  imports: [DatePipe, JsonPipe, MatMenuModule, AuthorSummary, InfiniteScroll],
+  imports: [DatePipe, JsonPipe, NgTemplateOutlet, MatMenuModule, AuthorSummary, InfiniteScroll],
   templateUrl: './telemetry.html',
   styleUrl: './telemetry.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,6 +29,7 @@ export class Telemetry {
   private platform = inject(Platform);
   private dialog = inject(MatDialog);
   private layoutState = inject(LayoutState);
+  private aiApi = inject(AiApi);
 
   sessions = signal<TelemetryLocalSession[]>([]);
   isLoading = signal(true);
@@ -32,7 +38,7 @@ export class Telemetry {
   errorMessage = signal('');
   currentPage = 0;
   readonly pageSize = 10;
-  showAllEvents = signal(false);
+  view = signal<TelemetryView>('sessions');
   events = signal<TelemetryEvent[]>([]);
   eventsLoading = signal(false);
   eventsLoadingMore = signal(false);
@@ -44,6 +50,12 @@ export class Telemetry {
   headerHeight = this.layoutState.headerHeight;
   readonly activityTypes = TELEMETRY_ACTIVITY_TYPES;
   readonly apiResults = TELEMETRY_ACTIVITY_TYPES.find(type => type.value === 'API_CALL')?.options ?? [];
+  aiSessions = signal<AiChatSession[]>([]);
+  aiSessionsLoading = signal(false);
+  aiSessionsLoadingMore = signal(false);
+  aiSessionsHasMore = signal(true);
+  aiSessionsErrorMessage = signal('');
+  aiSessionsPage = 0;
 
   constructor() {
     if (this.platform.isBrowser()) this.loadSessions();
@@ -56,12 +68,32 @@ export class Telemetry {
     this.loadSessions();
   }
 
-  changeView(showAllEvents: boolean) {
-    this.showAllEvents.set(showAllEvents);
-    if (showAllEvents && !this.events().length && !this.eventsLoading()) {
+  changeView(view: TelemetryView) {
+    this.view.set(view);
+    if (view === 'events' && !this.events().length && !this.eventsLoading()) {
       this.eventsLoading.set(true);
       this.loadEvents();
     }
+    if (view === 'ai' && !this.aiSessions().length && !this.aiSessionsLoading()) {
+      this.aiSessionsLoading.set(true);
+      this.loadAiSessions();
+    }
+  }
+
+  loadMoreAiSessions(): void {
+    if (!this.aiSessionsHasMore() || this.aiSessionsLoading() || this.aiSessionsLoadingMore()) return;
+    this.aiSessionsPage++;
+    this.aiSessionsLoadingMore.set(true);
+    this.loadAiSessions();
+  }
+
+  openAiSession(session: AiChatSession): void {
+    this.dialog.open(AiSessionDialog, {
+      width: '50rem',
+      maxWidth: '98vw',
+      height: '90dvh',
+      data: { session },
+    });
   }
 
   loadMoreEvents() {
@@ -179,6 +211,27 @@ export class Telemetry {
       },
       error: error => {
         console.error('Error loading telemetry sessions', error);
+      },
+    });
+  }
+
+  private loadAiSessions(): void {
+    this.aiSessionsErrorMessage.set('');
+    this.aiApi.getSessions({
+      page: this.aiSessionsPage,
+      size: this.pageSize,
+      sort: 'lastMessageAt,desc',
+    }).subscribe({
+      next: response => {
+        this.aiSessions.update(sessions => [...sessions, ...response.content]);
+        this.aiSessionsHasMore.set(!response.last);
+        this.aiSessionsLoading.set(false);
+        this.aiSessionsLoadingMore.set(false);
+      },
+      error: () => {
+        this.aiSessionsErrorMessage.set('Unable to load AI sessions.');
+        this.aiSessionsLoading.set(false);
+        this.aiSessionsLoadingMore.set(false);
       },
     });
   }

@@ -9,27 +9,39 @@
 
     <div class="mb-6 text-center text-white">
       <h1 class="mb-2 text-2xl font-bold">Telemetry</h1>
-      <p class="text-white/75">{{ showAllEvents() ? 'Browse all recorded events.' : 'Select a session to see every recorded event in order.' }}</p>
+      <p class="text-white/75">{{ view() === 'events' ? 'Browse all recorded events.' : view() === 'ai' ? 'Select an AI session to see its conversation.' : 'Select a session to see every recorded event in order.' }}</p>
     </div>
 
     <div class="sticky z-10 mb-6 flex items-center justify-between gap-3 rounded-xl border border-white/20 bg-white/15 px-2 py-1 shadow-lg backdrop-blur-3xl"
       [style.top.px]="headerHeight()">
-      <div class="flex w-fit rounded-xl border border-white/25 bg-black/10 p-1 shadow-sm" role="group"
+      <div class="flex w-fit gap-1 rounded-xl border border-white/25 bg-black/10 p-1 shadow-sm" role="group"
         aria-label="Telemetry view">
-        <button type="button" class="rounded-lg px-4 py-2 text-sm font-semibold transition"
-          [class.bg-violet-200]="!showAllEvents()" [class.text-violet-800]="!showAllEvents()"
-          [class.text-white/75]="showAllEvents()" [attr.aria-pressed]="!showAllEvents()"
-          (click)="changeView(false)">
+        <button type="button" class="rounded-lg border px-4 py-2 text-sm font-semibold transition"
+          [class.bg-violet-200]="view() === 'sessions'" [class.text-violet-800]="view() === 'sessions'"
+          [class.border-violet-100]="view() === 'sessions'" [class.border-white/15]="view() !== 'sessions'"
+          [class.bg-white/5]="view() !== 'sessions'" [class.hover:bg-white/15]="view() !== 'sessions'"
+          [class.text-white/75]="view() !== 'sessions'" [attr.aria-pressed]="view() === 'sessions'"
+          (click)="changeView('sessions')">
           Sessions
         </button>
-        <button type="button" class="rounded-lg px-4 py-2 text-sm font-semibold transition"
-          [class.bg-violet-200]="showAllEvents()" [class.text-violet-800]="showAllEvents()"
-          [class.text-white/75]="!showAllEvents()" [attr.aria-pressed]="showAllEvents()"
-          (click)="changeView(true)">
+        <button type="button" class="rounded-lg border px-4 py-2 text-sm font-semibold transition"
+          [class.bg-violet-200]="view() === 'events'" [class.text-violet-800]="view() === 'events'"
+          [class.border-violet-100]="view() === 'events'" [class.border-white/15]="view() !== 'events'"
+          [class.bg-white/5]="view() !== 'events'" [class.hover:bg-white/15]="view() !== 'events'"
+          [class.text-white/75]="view() !== 'events'" [attr.aria-pressed]="view() === 'events'"
+          (click)="changeView('events')">
           All events
         </button>
+        <button type="button" class="rounded-lg border px-4 py-2 text-sm font-semibold transition"
+          [class.bg-violet-200]="view() === 'ai'" [class.text-violet-800]="view() === 'ai'"
+          [class.border-violet-100]="view() === 'ai'" [class.border-white/15]="view() !== 'ai'"
+          [class.bg-white/5]="view() !== 'ai'" [class.hover:bg-white/15]="view() !== 'ai'"
+          [class.text-white/75]="view() !== 'ai'" [attr.aria-pressed]="view() === 'ai'"
+          (click)="changeView('ai')">
+          AI chats
+        </button>
       </div>
-      @if (showAllEvents()) {
+      @if (view() === 'events') {
         <div class="flex min-w-0 justify-end gap-2">
           <button type="button" [matMenuTriggerFor]="actionTypeMenu"
             class="min-w-0 truncate rounded-lg border border-white/25 bg-white/15 px-4 py-2 text-left text-sm font-semibold text-white shadow-sm transition hover:bg-white/25"
@@ -81,7 +93,7 @@
       }
     </div>
 
-    @if (showAllEvents()) {
+    @if (view() === 'events') {
       @if (eventsLoading()) {
         <div class="flex justify-center py-16"><div class="u-spinner border-b-white"></div></div>
       } @else if (eventsErrorMessage()) {
@@ -129,6 +141,28 @@
           </ol>
         </app-infinite-scroll>
       }
+    } @else if (view() === 'ai') {
+      @if (aiSessionsLoading()) {
+        <div class="flex justify-center py-16"><div class="u-spinner border-b-white"></div></div>
+      } @else if (aiSessionsErrorMessage()) {
+        <div class="rounded-xl border border-white/15 bg-white/10 px-4 py-12 text-center text-white/80 backdrop-blur-sm">
+          <p role="alert">{{ aiSessionsErrorMessage() }}</p>
+        </div>
+      } @else if (!aiSessions().length) {
+        <div class="rounded-xl border border-white/15 bg-white/10 px-4 py-12 text-center text-white/80 backdrop-blur-sm">
+          <p class="text-lg font-semibold text-white">No AI sessions found.</p>
+        </div>
+      } @else {
+        <app-infinite-scroll [loadingEnd]="aiSessionsLoadingMore()" [disabled]="!aiSessionsHasMore()"
+          spinnerClass="stroke-white" (reachedEnd)="loadMoreAiSessions()">
+          <ul class="space-y-3">
+            @for (session of aiSessions(); track session.aiSessionId) {
+              <ng-container [ngTemplateOutlet]="sessionCard"
+                [ngTemplateOutletContext]="{ $implicit: session, ai: true }"></ng-container>
+            }
+          </ul>
+        </app-infinite-scroll>
+      }
     } @else if (isLoading()) {
       <div class="flex justify-center py-16"><div class="u-spinner border-b-white"></div></div>
     } @else if (errorMessage()) {
@@ -144,25 +178,39 @@
         spinnerClass="stroke-white" (reachedEnd)="loadMore()">
         <ul class="space-y-3">
           @for (session of sessions(); track session.localSessionId) {
-            <li class="rounded-xl border border-white/15 bg-white/15 p-4 text-white backdrop-blur-sm transition hover:bg-white/20">
-              <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div class="min-w-0">
-                  <span class="rounded-full bg-cyan-400/20 px-2 py-1 text-xs font-semibold text-cyan-100 ring-1 ring-cyan-200/30">
-                    {{ session.activityCount }} events
-                  </span>
-                  <p class="mt-2 text-sm text-white/75">{{ deviceLabel(session) }}</p>
-                  <p class="mt-1 text-xs text-white/60">
-                    {{ session.firstSeenAt | date:'MMM d, y, h:mm a' }} – {{ session.lastSeenAt | date:'MMM d, y, h:mm a' }}
-                  </p>
-                </div>
-                <button type="button" class="u-btn-primary-cyan shrink-0" (click)="openSessionEvents(session)">
-                  Show Events
-                </button>
-              </div>
-            </li>
+            <ng-container [ngTemplateOutlet]="sessionCard"
+              [ngTemplateOutletContext]="{ $implicit: session, ai: false }"></ng-container>
           }
         </ul>
       </app-infinite-scroll>
     }
   </div>
 </section>
+
+<ng-template #sessionCard let-session let-ai="ai">
+  <li class="rounded-xl border border-white/15 bg-white/15 p-4 text-white backdrop-blur-sm transition hover:bg-white/20">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="rounded-full bg-cyan-400/20 px-2 py-1 text-xs font-semibold text-cyan-100 ring-1 ring-cyan-200/30">
+            {{ ai ? session.chatCount + ' chats' : session.activityCount + ' events' }}
+          </span>
+          @if (ai) {
+            <span class="text-xs text-white/60">{{ session.aiModel }}</span>
+          }
+        </div>
+        @if (!ai) {
+          <p class="mt-2 text-sm text-white/75">{{ deviceLabel(session) }}</p>
+        }
+        <p class="mt-1 text-xs text-white/60">
+          {{ (ai ? session.firstMessageAt : session.firstSeenAt) | date:'MMM d, y, h:mm a' }} –
+          {{ (ai ? session.lastMessageAt : session.lastSeenAt) | date:'MMM d, y, h:mm a' }}
+        </p>
+      </div>
+      <button type="button" class="u-btn-primary-cyan shrink-0"
+        (click)="ai ? openAiSession(session) : openSessionEvents(session)">
+        {{ ai ? 'Show Chat' : 'Show Events' }}
+      </button>
+    </div>
+  </li>
+</ng-template>

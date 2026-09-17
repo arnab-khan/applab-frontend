@@ -1,6 +1,12 @@
 <div class="overflow-hidden relative" [ngStyle]="{ width: size(), height: size(), 'border-radius': radius() }">
   <div [ngClass]="{ hidden: shouldShowLoading() }" class="h-full w-full">
-    @if ((imageData() || imageUrl()) && !imageFailed()) {
+    @if (anonymous()) {
+    <div class="flex h-full w-full items-center justify-center bg-slate-100"
+      [ngClass]="{ 'border-2 border-slate-300': showBorder() }" [ngStyle]="{ 'border-radius': radius() }">
+      <fa-icon [icon]="faUserLargeSlash" [ngStyle]="{ 'font-size': 'calc(' + size() + ' * .62)' }"
+        class="text-slate-500"></fa-icon>
+    </div>
+    } @else if ((imageData() || imageUrl()) && !imageFailed()) {
     <img [src]="imageData() ? ('data:' + (fileType() || 'image/jpeg') + ';base64,' + imageData()) : imageUrl()"
       [alt]="alt()" class="h-full w-full object-cover border-slate-400" [ngClass]="{ 'border-2': showBorder() }"
       [ngStyle]="{ 'border-radius': radius(), }" (load)="onImageLoad()" (error)="onImageError()" />
