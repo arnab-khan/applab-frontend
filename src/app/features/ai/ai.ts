@@ -1,4 +1,5 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, Injector, model, signal, viewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, Injector, signal, viewChild } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
@@ -9,7 +10,8 @@ import { AiChatMessage } from '../../shared/interfaces/ai';
 import { AiApi, AiStreamError } from './services/ai-api';
 import { AutoResizeTextarea } from '../../shared/directives/auto-resize';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPaperPlane, faMinus, faRobot, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faRobot, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { AiState } from './services/ai-state';
 
 @Component({
   selector: 'app-ai',
@@ -18,35 +20,51 @@ import { faPaperPlane, faMinus, faRobot, faXmark } from '@fortawesome/free-solid
   styleUrl: './ai.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    'class': 'block fixed right-0 top-0 z-20 h-dvh min-w-0 max-w-[90vw] flex-[0_0_0px] text-[#f5f3ff] transition-[flex-basis,width] duration-[240ms] ease-[ease] motion-reduce:transition-none lg:sticky lg:right-auto lg:z-auto lg:max-w-none [&_button]:cursor-pointer [&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-cyan-300 [&_button:focus-visible]:outline-offset-4 [&_button:disabled]:cursor-not-allowed [&_button:disabled]:opacity-50',
-    '[style.width.px]': 'open() ? 390 : 0',
-    '[style.flex-basis.px]': 'open() ? 390 : 0',
-    '(keydown.escape)': 'closeChat()',
+    class: 'contents',
   },
 })
 export class Ai {
   readonly faRobot = faRobot;
-  readonly faMinus = faMinus;
   readonly faXmark = faXmark;
   readonly faPaperPlane = faPaperPlane;
-  open = model(false);
-  minimized = signal(false);
+  readonly aiState = inject(AiState);
+  readonly open = this.aiState.open;
   draft = signal('');
   messages = signal<AiChatMessage[]>([]);
   sending = signal(false);
+  replyStatus = signal('');
   errorMessage = signal('');
+  readonly replyStatuses = [
+    { afterSeconds: 0, text: 'Thinking…' },
+    { afterSeconds: 1.5, text: 'Starting your response…' },
+    { afterSeconds: 3, text: 'Reviewing the app context…' },
+    { afterSeconds: 6, text: 'Preparing your answer…' },
+    { afterSeconds: 9, text: 'Working through the details…' },
+    { afterSeconds: 12, text: 'Almost there…' },
+    { afterSeconds: 15, text: 'This is taking longer than usual…' },
+    { afterSeconds: 20, text: 'A slow network may delay the reply. Please check your connection…' },
+    { afterSeconds: 25, text: 'The free AI model may take a little longer to respond…' },
+    { afterSeconds: 30, text: 'Still working on your answer — thanks for your patience…' },
+  ];
   private history = '';
+  private replyStatusTimers: ReturnType<typeof setTimeout>[] = [];
   private readonly aiSessionId = crypto.randomUUID();
   private aiApi = inject(AiApi);
   private router = inject(Router);
+  private document = inject(DOCUMENT);
   private destroyRef = inject(DestroyRef);
   private conversation = viewChild<ElementRef<HTMLDivElement>>('conversation');
   private injector = inject(Injector);
-  private launcher = viewChild<ElementRef<HTMLButtonElement>>('launcher');
   private messageInput = viewChild<ElementRef<HTMLTextAreaElement>>('messageInput');
   private autoResize = viewChild(AutoResizeTextarea);
 
   constructor() {
+    effect(() => {
+      if (this.open()) {
+        afterNextRender(() => this.messageInput()?.nativeElement.focus(), { injector: this.injector });
+      }
+    });
+
     afterNextRender(() => {
       const input = this.messageInput()?.nativeElement;
       if (!input) return;
@@ -74,6 +92,7 @@ export class Ai {
     this.draft.set('');
     this.errorMessage.set('');
     this.sending.set(true);
+    this.startReplyStatuses();
     this.scrollToLatest();
     this.aiApi.chat({
       aiSessionId: this.aiSessionId,
@@ -82,10 +101,17 @@ export class Ai {
       history: this.history,
     }).pipe(
       takeUntilDestroyed(this.destroyRef),
-      finalize(() => this.sending.set(false)),
+      finalize(() => {
+        this.sending.set(false);
+        this.clearReplyStatuses();
+      }),
     ).subscribe({
       next: reply => {
         if (reply.history !== undefined) this.history = reply.history;
+        if (reply.message && this.replyStatus() !== 'Responding…') {
+          this.clearReplyStatuses();
+          this.replyStatus.set('Responding…');
+        }
         this.messages.update(messages => messages.map((item, index) =>
           index === replyIndex ? { role: 'ASSISTANT', message: reply.message } : item));
         this.scrollToLatest();
@@ -148,14 +174,30 @@ export class Ai {
     }, { injector: this.injector });
   }
 
-  openChat(): void {
-    this.open.set(true);
-    afterNextRender(() => this.messageInput()?.nativeElement.focus(), { injector: this.injector });
+  private startReplyStatuses(): void {
+    this.clearReplyStatuses();
+    this.replyStatus.set(this.replyStatuses[0].text);
+    this.replyStatusTimers = this.replyStatuses.slice(1).map(status => setTimeout(
+      () => this.replyStatus.set(status.text),
+      status.afterSeconds * 1000,
+    ));
+  }
+
+  private clearReplyStatuses(): void {
+    this.replyStatusTimers.forEach(timer => clearTimeout(timer));
+    this.replyStatusTimers = [];
+    this.replyStatus.set('');
   }
 
   closeChat(): void {
-    this.open.set(false);
-    this.minimized.set(true);
-    afterNextRender(() => this.launcher()?.nativeElement.focus(), { injector: this.injector });
+    this.aiState.closeChat();
+    this.aiState.minimized.set(true);
+    afterNextRender(() => this.aiState.focusLauncher(), { injector: this.injector });
+  }
+
+  closeChatOnSmallScreen(): void {
+    if (this.document.defaultView?.matchMedia('(max-width: 79.999rem)').matches) {
+      this.closeChat();
+    }
   }
 }

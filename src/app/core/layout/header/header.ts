@@ -8,6 +8,7 @@ import { FormattedText } from '../../../shared/components/text/formatted-text/fo
 import { CapitalizeWordsPipe } from '../../../shared/pipes/capitalize-words-pipe';
 import { LayoutState } from '../../services/layout-state';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { AiLauncher } from '../../../features/ai/components/ai-launcher/ai-launcher';
 import {
   faChartLine,
   faComments,
@@ -19,7 +20,7 @@ import {
 
 @Component({
   selector: 'app-header',
-  imports: [RouterModule, NgTemplateOutlet, Thumbnail, FormattedText, CapitalizeWordsPipe, FontAwesomeModule],
+  imports: [RouterModule, NgTemplateOutlet, Thumbnail, FormattedText, CapitalizeWordsPipe, FontAwesomeModule, AiLauncher],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })

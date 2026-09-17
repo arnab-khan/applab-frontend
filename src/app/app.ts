@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit } from '@angular/core';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { Header } from './core/layout/header/header';
 import { Auth } from './core/services/auth';
@@ -13,6 +13,8 @@ import { Telemetry } from './core/services/telemetry';
 import { PageRefresh } from './core/services/route-refresh';
 import { NetworkNotification } from './core/services/network-notification';
 import { Ai } from './features/ai/ai';
+import { AiState } from './features/ai/services/ai-state';
+import { AiLauncher } from './features/ai/components/ai-launcher/ai-launcher';
 
 @Component({
   selector: 'app-root',
@@ -23,13 +25,14 @@ import { Ai } from './features/ai/ai';
     Footer,
     MatProgressSpinnerModule,
     Ai,
+    AiLauncher,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App implements OnInit {
-  aiOpen = signal(false);
+  protected aiState = inject(AiState);
 
   private authService = inject(Auth);
   protected platformService = inject(Platform);

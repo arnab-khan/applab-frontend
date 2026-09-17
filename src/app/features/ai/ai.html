@@ -1,57 +1,65 @@
-<div class="fixed right-4 bottom-[max(16px,env(safe-area-inset-bottom))] z-20 flex items-center overflow-hidden border border-[#a5f3fc66] bg-[linear-gradient(135deg,#433878,#155e75)] shadow-[0_12px_36px_#0004] lg:right-6 lg:bottom-6 [&[hidden]]:hidden!"
-  [class.rounded-full]="minimized()" [class.rounded-[20px]]="!minimized()" [hidden]="open()">
-  <button #launcher type="button" class="flex items-center gap-3 text-left"
-    [class.p-3]="!minimized()" [class.size-13]="minimized()" [class.justify-center]="minimized()" aria-label="Open AI chat"
-    aria-controls="ai-panel" [attr.aria-expanded]="open()" (click)="openChat()">
-    <fa-icon class="text-[25px] text-[#a5f3fc]" [icon]="faRobot" aria-hidden="true"></fa-icon>
-    @if (!minimized()) {
-      <span class="grid gap-0.75"><strong>AI assistant</strong><span class="text-xs text-[#ddd6fe]">Let’s chat</span></span>
-    }
-  </button>
-  @if (!minimized()) {
-    <button type="button" class="mr-2.5 size-9 shrink-0 rounded-[10px] text-2xl hover:bg-white/10" aria-label="Minimize AI launcher"
-      (click)="minimized.set(true)"><fa-icon [icon]="faMinus" aria-hidden="true"></fa-icon></button>
-  }
-</div>
-
-<aside id="ai-panel" class="flex size-full flex-col overflow-hidden bg-[linear-gradient(160deg,#211d3d,#152c3c)] shadow-[inset_1px_0_#ffffff26]"
-  [class.invisible]="!open()" [attr.inert]="open() ? null : ''" aria-labelledby="ai-title">
-  <header class="flex items-center gap-3 border-b border-[#ffffff1f] p-3">
-    <fa-icon class="text-[25px] text-[#a5f3fc]" [icon]="faRobot" aria-hidden="true"></fa-icon>
-    <div class="flex-1"><h2 id="ai-title" class="text-base font-semibold">AI assistant</h2><p class="text-xs text-[#ddd6fe]">Your conversation space</p></div>
-    <button type="button" class="size-9 shrink-0 rounded-[10px] text-2xl hover:bg-white/10" aria-label="Close AI chat"
-      (click)="closeChat()"><fa-icon [icon]="faXmark" aria-hidden="true"></fa-icon></button>
-  </header>
-  <div #conversation class="min-h-0 flex-1 overflow-y-auto p-3 [scrollbar-color:#67e8f955_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-cyan-300/35 hover:[&::-webkit-scrollbar-thumb]:bg-cyan-300/55"
-    [class.grid]="!messages().length" [class.place-items-center]="!messages().length">
-    @if (!messages().length) {
-    <div class="text-center">
-      <fa-icon class="mb-4 block text-[40px] text-[#a5f3fc]" [icon]="faRobot" aria-hidden="true"></fa-icon>
-      <h3 class="text-[22px] font-semibold">How can I help?</h3>
-      <p class="mt-2 text-sm text-[#c4bfd8]">Ask me about this app and its features.</p>
-    </div>
-    } @else {
-      <div class="flex flex-col gap-4" role="log" aria-label="AI conversation" aria-live="polite" [attr.aria-busy]="sending()">
-        @for (item of messages(); track $index) {
-          @if (item.message) {
-            <div class="rounded-[14px] p-3" [class.ml-6]="item.role === 'USER'"
-              [class.bg-[#a5f3fc1a]]="item.role === 'USER'" [class.bg-[#ffffff0d]]="item.role !== 'USER'">
-              <span class="text-xs text-[#a5f3fc]">{{ item.role === 'USER' ? 'You' : 'AI assistant' }}</span>
-              <p class="mt-1.5 whitespace-pre-wrap wrap-anywhere text-sm">@if (item.role === 'ASSISTANT') {@for (part of item.message | aiMessage; track $index) {@if (part.route) {<a [routerLink]="part.route" class="text-blue-400 underline underline-offset-2 hover:text-blue-300" [class.font-bold]="part.bold">{{ part.text }}</a>} @else if (part.bold) {<strong class="font-bold">{{ part.text }}</strong>} @else {{{ part.text }}}}} @else {{{ item.message }}}</p>
-            </div>
-          }
-        }
-        @if (sending()) { <p class="text-xs text-[#a5f3fc]" role="status">AI is replying…</p> }
+@if (open()) {
+  <button type="button" class="fixed inset-0 z-10 bg-black/20 xl:hidden" aria-label="Close AI chat"
+    (click)="closeChat()"></button>
+}
+<div
+  class="fixed right-0 top-0 z-20 block h-dvh min-w-0 max-w-[80dvw] flex-[0_0_0rem] overflow-hidden text-[#f5f3ff] transition-[flex-basis,width] duration-[240ms] ease-in-out motion-reduce:transition-none xl:sticky xl:right-auto xl:z-auto xl:max-w-none [&_button]:cursor-pointer [&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-cyan-300 [&_button:focus-visible]:outline-offset-4 [&_button:disabled]:cursor-not-allowed [&_button:disabled]:opacity-50"
+  [style.width.rem]="open() ? 24.375 : 0" [style.flex-basis.rem]="open() ? 24.375 : 0" (keydown.escape)="closeChat()">
+  <aside id="ai-panel"
+    class="absolute inset-y-0 right-0 flex h-full w-[min(24.375rem,80dvw)] min-w-[min(24.375rem,80dvw)] flex-col overflow-hidden bg-[linear-gradient(160deg,#211d3d,#152c3c)] shadow-[inset_0.0625rem_0_#ffffff26]"
+    [attr.inert]="open() ? null : ''" aria-labelledby="ai-title">
+    <header class="flex items-center gap-3 border-b border-[#ffffff1f] px-3 py-1">
+      <fa-icon class="text-xl text-[#a5f3fc]" [icon]="faRobot" aria-hidden="true"></fa-icon>
+      <div class="flex-1">
+        <h2 id="ai-title" class="text-base font-semibold">AI assistant</h2>
       </div>
-    }
-  </div>
-  <form class="px-3 pt-3" (ngSubmit)="sendMessage()">
-    @if (errorMessage()) { <p class="mb-2.5 rounded-xl border border-red-400/40 bg-red-500/15 p-3 text-xs text-red-200" role="alert">{{ errorMessage() }}</p> }
-    <div class="flex items-end gap-2 rounded-t-2xl border border-b-0 border-[#ffffff26] bg-[#ffffff08]">
-      <textarea #messageInput class="flex-1 min-w-0 min-h-11 resize-none bg-transparent px-3 py-2 text-sm leading-5 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-        name="message" aria-label="Message AI" placeholder="Ask about this app…" rows="1" maxlength="200" appAutoResizeTextarea
-        [(ngModel)]="draft" [disabled]="sending()" (keydown)="onMessageKeydown($event)"></textarea>
-      <button class="m-1 flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#a5f3fc] text-sm text-[#164e63]" type="submit" aria-label="Send message" [disabled]="sending() || !draft().trim()"><fa-icon [icon]="faPaperPlane" aria-hidden="true"></fa-icon></button>
+      <button type="button" class="size-9 shrink-0 rounded-[0.625rem] text-2xl hover:bg-white/10" aria-label="Close AI chat"
+        (click)="closeChat()"><fa-icon [icon]="faXmark" aria-hidden="true"></fa-icon></button>
+    </header>
+    <div #conversation
+      class="min-h-0 flex-1 overflow-y-auto p-3 [scrollbar-color:#67e8f955_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-cyan-300/35 hover:[&::-webkit-scrollbar-thumb]:bg-cyan-300/55"
+      [class.grid]="!messages().length" [class.place-items-center]="!messages().length">
+      @if (!messages().length) {
+      <div class="text-center">
+        <fa-icon class="mb-4 block text-[2.5rem] text-[#a5f3fc]" [icon]="faRobot" aria-hidden="true"></fa-icon>
+        <h3 class="text-[1.375rem] font-semibold">How can I help?</h3>
+        <p class="mt-2 text-sm text-[#c4bfd8]">Ask me about this app and its features.</p>
+      </div>
+      } @else {
+      <div class="flex flex-col gap-4" role="log" aria-label="AI conversation" aria-live="polite"
+        [attr.aria-busy]="sending()">
+        @for (item of messages(); track $index) {
+        @if (item.message) {
+        <div class="rounded-[0.875rem] p-3" [class.ml-6]="item.role === 'USER'"
+          [class.bg-[#a5f3fc1a]]="item.role === 'USER'" [class.bg-[#ffffff0d]]="item.role !== 'USER'">
+          <span class="text-xs text-[#a5f3fc]">{{ item.role === 'USER' ? 'You' : 'AI assistant' }}</span>
+          <p class="mt-1.5 whitespace-pre-wrap wrap-anywhere text-sm">@if (item.role === 'ASSISTANT') {@for (part of
+            item.message | aiMessage; track $index) {@if (part.route) {<a [routerLink]="part.route" (click)="closeChatOnSmallScreen()"
+              class="text-blue-400 underline underline-offset-2 hover:text-blue-300" [class.font-bold]="part.bold">{{
+              part.text }}</a>} @else if (part.bold) {<strong class="font-bold">{{ part.text }}</strong>} @else {{{
+            part.text }}}}} @else {{{ item.message }}}</p>
+        </div>
+        }
+        }
+        @if (sending()) { <p class="text-xs text-[#a5f3fc]" role="status">{{ replyStatus() }}</p> }
+      </div>
+      }
     </div>
-  </form>
-</aside>
+    <form class="px-3 pt-3" (ngSubmit)="sendMessage()">
+      @if (errorMessage()) { <p
+        class="mb-2.5 rounded-xl border border-red-400/40 bg-red-500/15 p-3 text-xs text-red-200" role="alert">{{
+        errorMessage() }}</p> }
+      <div class="flex items-end gap-2 rounded-t-2xl border border-b-0 border-[#ffffff26] bg-[#ffffff08]">
+        <textarea #messageInput
+          class="flex-1 min-w-0 min-h-11 resize-none bg-transparent px-3 py-2 text-sm leading-5 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          name="message" aria-label="Message AI" placeholder="Ask about this app…" rows="1" maxlength="200"
+          appAutoResizeTextarea [(ngModel)]="draft" [disabled]="sending()"
+          (keydown)="onMessageKeydown($event)"></textarea>
+        <button
+          class="m-1 flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#a5f3fc] text-sm text-[#164e63]"
+          type="submit" aria-label="Send message" [disabled]="sending() || !draft().trim()"><fa-icon
+            [icon]="faPaperPlane" aria-hidden="true"></fa-icon></button>
+      </div>
+    </form>
+  </aside>
+</div>
