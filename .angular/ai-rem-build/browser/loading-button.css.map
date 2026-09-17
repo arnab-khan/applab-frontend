@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/components/buttons/loading-button/loading-button.scss", "src/app/shared/components/buttons/loading-button/loading-button.scss"],
+  "sourcesContent": [":host {\r\n    display: block;\r\n    position: relative;\r\n    z-index: 1;\r\n}", ":host {\n  display: block;\n  position: relative;\n  z-index: 1;\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJmaWxlOi8vL0U6L015JTIwUHJvamVjdHMvQW5ndWxhci9hcHBsYWJfZnJvbnRlbmQvc3JjL2FwcC9zaGFyZWQvY29tcG9uZW50cy9idXR0b25zL2xvYWRpbmctYnV0dG9uL2xvYWRpbmctYnV0dG9uLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDSTtFQUNBO0VBQ0EiLCJzb3VyY2VzQ29udGVudCI6WyI6aG9zdCB7XHJcbiAgICBkaXNwbGF5OiBibG9jaztcclxuICAgIHBvc2l0aW9uOiByZWxhdGl2ZTtcclxuICAgIHotaW5kZXg6IDE7XHJcbn0iXX0= */"],
+  "mappings": ";AAAA;AACI,WAAA;AACA,YAAA;AACA,WAAA;ACCJ;",
+  "names": []
+}

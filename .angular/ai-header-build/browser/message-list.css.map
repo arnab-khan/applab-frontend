@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/features/chat/components/message-list/message-list.scss", "src/app/features/chat/components/message-list/message-list.scss"],
+  "sourcesContent": [":host {\n    flex-grow: 1;\n    display: flex;\n    flex-direction: column;\n}", ":host {\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJmaWxlOi8vL0U6L015JTIwUHJvamVjdHMvQW5ndWxhci9hcHBsYWJfZnJvbnRlbmQvc3JjL2FwcC9mZWF0dXJlcy9jaGF0L2NvbXBvbmVudHMvbWVzc2FnZS1saXN0L21lc3NhZ2UtbGlzdC5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0k7RUFDQTtFQUNBIiwic291cmNlc0NvbnRlbnQiOlsiOmhvc3Qge1xuICAgIGZsZXgtZ3JvdzogMTtcbiAgICBkaXNwbGF5OiBmbGV4O1xuICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XG59Il19 */"],
+  "mappings": ";AAAA;AACI,aAAA;AACA,WAAA;AACA,kBAAA;ACCJ;",
+  "names": []
+}

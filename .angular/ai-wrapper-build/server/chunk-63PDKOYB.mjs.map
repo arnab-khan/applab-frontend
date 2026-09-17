@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/services/notification.ts"],
+  "sourcesContent": ["import { inject, Injectable } from '@angular/core';\nimport { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';\n\n@Injectable({ providedIn: 'root' })\nexport class Notification {\n  private snackBar = inject(MatSnackBar);\n\n  showError(message: string, config?: MatSnackBarConfig) {\n    return this.snackBar.open(message, undefined, {\n      duration: 5000,\n      ...config,\n      panelClass: 'snackbar-error',\n    });\n  }\n\n  showSuccess(message: string, config?: MatSnackBarConfig) {\n    return this.snackBar.open(message, undefined, {\n      duration: 3000,\n      ...config,\n      panelClass: 'snackbar-success',\n    });\n  }\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;AAIM,IAAO,eAAP,MAAO,cAAY;EACf,WAAW,OAAO,WAAW;EAErC,UAAU,SAAiB,QAA0B;AACnD,WAAO,KAAK,SAAS,KAAK,SAAS,QAAW;MAC5C,UAAU;OACP,SAFyC;MAG5C,YAAY;MACb;EACH;EAEA,YAAY,SAAiB,QAA0B;AACrD,WAAO,KAAK,SAAS,KAAK,SAAS,QAAW;MAC5C,UAAU;OACP,SAFyC;MAG5C,YAAY;MACb;EACH;;qCAjBW,eAAY;EAAA;4EAAZ,eAAY,SAAZ,cAAY,WAAA,YADC,OAAM,CAAA;;;sEACnB,cAAY,CAAA;UADxB;WAAW,EAAE,YAAY,OAAM,CAAE;;;",
+  "names": []
+}

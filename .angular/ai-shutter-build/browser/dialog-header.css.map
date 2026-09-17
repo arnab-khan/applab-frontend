@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/shared/components/dialogs/dialog-header/dialog-header.scss", "src/app/shared/components/dialogs/dialog-header/dialog-header.scss"],
+  "sourcesContent": [":host {\n  display: block;\n  position: relative;\n  z-index: 1;\n}\n", ":host {\n  display: block;\n  position: relative;\n  z-index: 1;\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJmaWxlOi8vL0U6L015JTIwUHJvamVjdHMvQW5ndWxhci9hcHBsYWJfZnJvbnRlbmQvc3JjL2FwcC9zaGFyZWQvY29tcG9uZW50cy9kaWFsb2dzL2RpYWxvZy1oZWFkZXIvZGlhbG9nLWhlYWRlci5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0U7RUFDQTtFQUNBIiwic291cmNlc0NvbnRlbnQiOlsiOmhvc3Qge1xuICBkaXNwbGF5OiBibG9jaztcbiAgcG9zaXRpb246IHJlbGF0aXZlO1xuICB6LWluZGV4OiAxO1xufVxuIl19 */"],
+  "mappings": ";AAAA;AACE,WAAA;AACA,YAAA;AACA,WAAA;ACCF;",
+  "names": []
+}

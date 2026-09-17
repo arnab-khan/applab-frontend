@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/services/layout-state.ts"],
+  "sourcesContent": ["import { Injectable, signal } from '@angular/core';\n\n@Injectable({\n  providedIn: 'root',\n})\nexport class LayoutState {\n  headerHeight = signal(0);\n}\n"],
+  "mappings": ";;;;;;;;AAKM,IAAO,cAAP,MAAO,aAAW;EACtB,eAAe,OAAO,GAAC,GAAA,YAAA,CAAA,EAAA,WAAA,eAAA,CAAA,IAAA,CAAA,CAAA;;qCADZ,cAAW;EAAA;4EAAX,cAAW,SAAX,aAAW,WAAA,YAFV,OAAM,CAAA;;;sEAEP,aAAW,CAAA;UAHvB;WAAW;MACV,YAAY;KACb;;;",
+  "names": []
+}

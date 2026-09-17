@@ -1,0 +1,21 @@
+<div class="relative flex items-center border border-[#a5f3fc66] bg-[linear-gradient(135deg,#433878,#155e75)] text-[#f5f3ff] shadow-[0_0.75rem_2.25rem_#0004] [&[hidden]]:hidden!"
+  [style.border-radius]="isCompact() ? '9999rem' : '1.25rem'"
+  [hidden]="state.open() && !compact()">
+  <button #launcher type="button" class="flex items-center gap-3 text-left"
+    [class.size-7]="isCompact()" [class.justify-center]="isCompact()" [class.p-3]="!isCompact()"
+    [attr.aria-label]="compact() && state.open() ? 'Close AI chat' : 'Open AI chat'" aria-controls="ai-panel" [attr.aria-expanded]="state.open()"
+    (click)="openChat(launcher)">
+    <fa-icon class="text-[#a5f3fc]" [class.text-sm]="isCompact()" [class.text-[1.5625rem]]="!isCompact()"
+      [icon]="faRobot" aria-hidden="true"></fa-icon>
+    @if (!isCompact()) {
+      <span class="grid gap-0.75"><strong>AI assistant</strong><span class="text-xs text-[#ddd6fe]">Let’s chat</span></span>
+    }
+  </button>
+  @if (!compact() && !state.minimized()) {
+    <button type="button"
+      class="absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full border border-white/30 bg-slate-800 text-xs text-white shadow-md transition hover:bg-slate-700"
+      aria-label="Dismiss AI launcher" title="Dismiss" (click)="state.minimized.set(true)">
+      <fa-icon [icon]="faXmark" aria-hidden="true"></fa-icon>
+    </button>
+  }
+</div>

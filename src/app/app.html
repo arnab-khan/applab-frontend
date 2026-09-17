@@ -1,5 +1,5 @@
 <!-- {{pageReload()}} -->
-<div class="ai-layout" [class.ai-open]="aiOpen()">
+<div class="ai-layout" [class.ai-open]="aiState.open()">
 <div class="app-content text-base wrap-break-word min-h-dvh flex flex-col relative">
   @if (authState().completed) {
   <header class="sticky top-0 z-10">
@@ -24,6 +24,7 @@
   }
 </div>
 @if (authState().completed) {
-  <app-ai [(open)]="aiOpen"></app-ai>
+  <app-ai-launcher class="fixed right-6 bottom-6 z-20 hidden xl:block"></app-ai-launcher>
+  <app-ai></app-ai>
 }
 </div>
