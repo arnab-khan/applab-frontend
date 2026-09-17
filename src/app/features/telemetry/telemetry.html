@@ -12,7 +12,7 @@
       <p class="text-white/75">{{ view() === 'events' ? 'Browse all recorded events.' : view() === 'ai' ? 'Select an AI session to see its conversation.' : 'Select a session to see every recorded event in order.' }}</p>
     </div>
 
-    <div class="sticky z-10 mb-6 flex items-center justify-between gap-3 rounded-xl border border-white/20 bg-white/15 px-2 py-1 shadow-lg backdrop-blur-3xl"
+    <div class="sticky z-10 mb-6 flex flex-col items-center justify-between gap-3 rounded-xl border border-white/20 bg-white/15 px-2 py-1 shadow-lg backdrop-blur-3xl sm:flex-row"
       [style.top.px]="headerHeight()">
       <div class="flex w-fit gap-1 rounded-xl border border-white/25 bg-black/10 p-1 shadow-sm" role="group"
         aria-label="Telemetry view">
